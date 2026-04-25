@@ -1,0 +1,123 @@
+'use client'
+
+import { useEffect, useRef, useState, useCallback } from 'react'
+
+export function useScrollReveal(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isRevealed, setIsRevealed] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsRevealed(true)
+          observer.unobserve(el)
+        }
+      },
+      { threshold, rootMargin: '0px 0px -50px 0px' }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isRevealed }
+}
+
+export function useParallax(speed = 0.5) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [offset, setOffset] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      const scrolled = window.innerHeight - rect.top
+      setOffset(scrolled * speed * 0.1)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [speed])
+
+  return { ref, offset }
+}
+
+export function useScrollProgress() {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      setProgress(docHeight > 0 ? scrollTop / docHeight : 0)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return progress
+}
+
+export function useCountUp(end: number, duration = 2000, startOnView = true) {
+  const [count, setCount] = useState(0)
+  const [started, setStarted] = useState(() => !startOnView)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!startOnView) return
+
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true)
+          observer.unobserve(el)
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [startOnView])
+
+  useEffect(() => {
+    if (!started) return
+
+    let startTime: number
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime
+      const elapsed = currentTime - startTime
+      const progressRatio = Math.min(elapsed / duration, 1)
+      const eased = 1 - Math.pow(1 - progressRatio, 3)
+      setCount(Math.floor(eased * end))
+      if (progressRatio < 1) {
+        requestAnimationFrame(animate)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [started, end, duration])
+
+  return { count, ref }
+}
+
+export function useLockBodyScroll(lock: boolean) {
+  useEffect(() => {
+    if (lock) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [lock])
+}

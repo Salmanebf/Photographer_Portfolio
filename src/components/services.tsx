@@ -1,120 +1,84 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Video, Heart, Clapperboard, Globe, Film, Camera } from 'lucide-react'
+import { Film, Camera, Clapperboard, Megaphone } from 'lucide-react'
+import { useScrollReveal } from '@/hooks/use-scroll-effects'
+import { serviceCategories } from '@/lib/data'
 import SectionHeading from './section-heading'
 
-const services = [
-  {
-    icon: Heart,
-    title: 'Wedding Films',
-    description: 'Cinematic wedding films that capture every emotion, every glance, every precious moment of your special day.',
-    features: ['Full-day coverage', 'Highlight reel', 'Drone footage', 'Same-day edit'],
-  },
-  {
-    icon: Video,
-    title: 'Commercial Production',
-    description: 'High-end commercial videos that elevate your brand with stunning visuals and compelling storytelling.',
-    features: ['Brand videos', 'Product launches', 'Social media content', 'Campaign films'],
-  },
-  {
-    icon: Clapperboard,
-    title: 'Music Videos',
-    description: 'Creative and visually stunning music videos that bring your sound to life with cinematic artistry.',
-    features: ['Concept development', 'Performance shots', 'Visual effects', 'Color grading'],
-  },
-  {
-    icon: Globe,
-    title: 'Documentary',
-    description: 'Authentic documentary filmmaking that tells real stories with depth, sensitivity, and cinematic beauty.',
-    features: ['Story research', 'Interview filming', 'Archival integration', 'Narrative editing'],
-  },
-  {
-    icon: Film,
-    title: 'Short Films',
-    description: 'Narrative short films crafted with artistic vision, from concept to final cut, pushing creative boundaries.',
-    features: ['Script development', 'Casting & direction', 'Cinematography', 'Post-production'],
-  },
-  {
-    icon: Camera,
-    title: 'Aerial & Drone',
-    description: 'Breathtaking aerial cinematography using the latest drone technology for stunning perspectives and sweeping vistas.',
-    features: ['Licensed pilot', '4K/6K capture', 'Interior fly-throughs', 'Real estate'],
-  },
+const icons = [Film, Clapperboard, Camera, Megaphone]
+
+const process = [
+  { step: '01', title: 'Discovery', description: 'Deep research and immersion into the subject matter, building trust with communities and identifying the emotional core.' },
+  { step: '02', title: 'Production', description: 'Extended field shoots with cinematic cameras, capturing authentic moments and intimate interviews over weeks or months.' },
+  { step: '03', title: 'Crafting', description: 'Meticulous editing, sound design, and color grading that transforms raw footage into a compelling narrative.' },
+  { step: '04', title: 'Impact', description: 'Festival strategy, distribution, and impact campaigns that ensure your documentary reaches and moves audiences worldwide.' },
 ]
 
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-}
-
 export default function Services() {
+  const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal(0.1)
+  const { ref: processRef, isRevealed: processRevealed } = useScrollReveal(0.1)
+
   return (
-    <section id="services" className="py-20 sm:py-32 relative">
+    <section id="services" className="py-24 sm:py-36 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-muted/10 to-transparent pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           label="Services"
           title="What I Offer"
-          description="From intimate wedding films to large-scale commercial productions, I bring cinematic excellence to every project."
+          description="End-to-end documentary filmmaking, from initial concept to global distribution and impact."
         />
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-50px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {services.map((service) => {
-            const Icon = service.icon
+        {/* Services grid */}
+        <div ref={servicesRef} className={`grid grid-cols-1 sm:grid-cols-2 gap-6 mb-24 stagger-children ${servicesRevealed ? 'revealed' : ''}`}>
+          {serviceCategories.map((service, i) => {
+            const Icon = icons[i]
             return (
-              <motion.div
+              <div
                 key={service.title}
-                variants={cardVariants}
-                className="group relative p-6 sm:p-8 bg-card rounded-sm border border-border hover:border-amber/30 transition-all duration-500 overflow-hidden"
+                className="group relative p-6 sm:p-8 bg-card/50 border border-border/50 hover:border-[#ffb005]/30 transition-all duration-500 overflow-hidden"
               >
-                {/* Hover gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-amber/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
+                <div className="absolute inset-0 bg-gradient-to-br from-[#ffb005]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-12 h-12 rounded-sm bg-amber/10 flex items-center justify-center mb-5 group-hover:bg-amber/20 transition-colors duration-300">
-                    <Icon size={22} className="text-amber" />
+                  <div className="w-12 h-12 flex items-center justify-center bg-[#ffb005]/10 mb-5 group-hover:bg-[#ffb005]/20 transition-colors duration-300">
+                    <Icon size={22} className="text-[#ffb005]" />
                   </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-amber transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-[#ffb005] transition-colors duration-300">
                     {service.title}
                   </h3>
-
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {service.description}
                   </p>
-
-                  {/* Features */}
-                  <ul className="space-y-2">
-                    {service.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <div className="w-1 h-1 rounded-full bg-amber" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
-              </motion.div>
+              </div>
             )
           })}
-        </motion.div>
+        </div>
+
+        {/* Process section */}
+        <SectionHeading
+          label="Process"
+          title="How I Work"
+          description="Every documentary begins with a question and unfolds through a deeply intentional creative process."
+        />
+
+        <div ref={processRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children ${processRevealed ? 'revealed' : ''}`}>
+          {process.map((step) => (
+            <div key={step.step} className="relative p-6 group">
+              {/* Step number */}
+              <span className="text-5xl sm:text-6xl font-bold text-[#ffb005]/10 group-hover:text-[#ffb005]/20 transition-colors duration-500 absolute top-2 right-4">
+                {step.step}
+              </span>
+              <div className="relative z-10">
+                <div className="w-8 h-px bg-[#ffb005] mb-4 group-hover:w-16 transition-all duration-500" />
+                <h3 className="text-base font-semibold text-foreground mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )

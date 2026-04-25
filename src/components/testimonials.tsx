@@ -3,34 +3,35 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useScrollReveal } from '@/hooks/use-scroll-effects'
 import SectionHeading from './section-heading'
 
 const testimonials = [
   {
-    name: 'Sarah & James Mitchell',
-    role: 'Wedding Couple',
-    content: "Alex captured our wedding day in a way we never thought possible. Every frame feels like a movie, every moment is preserved with such beauty and emotion. We've watched our film a hundred times and it still brings tears to our eyes.",
+    name: 'Dr. Maria Santos',
+    role: 'Linguist, Subject of "Vanishing Voices"',
+    content: "Alex didn't just document our work — she became part of the journey. Her camera was never intrusive, yet she captured the most intimate moments of our research. The film has brought more attention to language preservation than a thousand academic papers ever could.",
     rating: 5,
-    project: 'Eternal Vows',
+    project: 'Vanishing Voices',
   },
   {
-    name: 'Marcus Chen',
-    role: 'Creative Director, Luxe Brand',
-    content: "Working with Alex elevated our brand campaign to an entirely new level. His cinematic approach brought a sophistication and emotional depth to our commercial that we hadn't experienced with other videographers. The results exceeded all expectations.",
+    name: 'Ingrid Larsen',
+    role: 'Producer, "Beneath the Ice"',
+    content: "Working with Alex on the Arctic expedition was a masterclass in documentary filmmaking. She endured -40°C temperatures, equipment failures, and weeks of isolation — all while producing some of the most breathtaking footage I've ever seen. Her dedication is unmatched.",
     rating: 5,
-    project: 'Noir Essence',
+    project: 'Beneath the Ice',
   },
   {
-    name: 'Luna Rodriguez',
-    role: 'Recording Artist',
-    content: "Alex has an incredible ability to translate music into visuals. He understood my vision immediately and created a music video that perfectly captured the mood and energy of my song. His attention to lighting and composition is unmatched.",
+    name: 'Denise Williams',
+    role: 'Community Leader, Detroit',
+    content: "When Alex first came to our garden, we were skeptical of another filmmaker. But she earned our trust by showing up — not just with a camera, but with her hands in the soil. 'Urban Roots' tells our story with the dignity and honesty we deserve.",
     rating: 5,
-    project: 'Midnight Echo',
+    project: 'Urban Roots',
   },
   {
-    name: 'David Park',
-    role: 'Documentary Producer, PBS',
-    content: "Alex's documentary work is nothing short of extraordinary. He has a rare gift for finding the emotional core of a story and presenting it with cinematic beauty. His film 'The Last Craftsman' was our highest-rated documentary of the year.",
+    name: 'Yuki Tanaka',
+    role: 'Co-Producer, "The Last Craftsman"',
+    content: "Alex spent three years building the relationship that made 'The Last Craftsman' possible. That patience and respect for the subject is what sets her apart. The film is a masterpiece of restraint and emotional depth that could only come from genuine human connection.",
     rating: 5,
     project: 'The Last Craftsman',
   },
@@ -39,6 +40,7 @@ const testimonials = [
 export default function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(0)
+  const { ref, isRevealed } = useScrollReveal(0.1)
 
   const nextTestimonial = useCallback(() => {
     setDirection(1)
@@ -51,41 +53,30 @@ export default function Testimonials() {
   }, [])
 
   useEffect(() => {
-    const timer = setInterval(nextTestimonial, 6000)
+    const timer = setInterval(nextTestimonial, 7000)
     return () => clearInterval(timer)
   }, [nextTestimonial])
 
   const current = testimonials[currentIndex]
 
   const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 100 : -100,
-      opacity: 0,
-    }),
+    enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir < 0 ? 80 : -80, opacity: 0 }),
   }
 
   return (
-    <section id="testimonials" className="py-20 sm:py-32 relative overflow-hidden">
-      {/* Background accent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent pointer-events-none" />
+    <section id="testimonials" className="py-24 sm:py-36 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/15 to-transparent pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <SectionHeading
           label="Testimonials"
-          title="Client Stories"
-          description="What my clients say about working together."
+          title="Words From the Field"
+          description="What collaborators and subjects say about working together."
         />
 
-        <div className="max-w-4xl mx-auto">
-          {/* Testimonial card */}
+        <div ref={ref} className={`max-w-4xl mx-auto scale-fade ${isRevealed ? 'revealed' : ''}`}>
           <div className="relative min-h-[280px] sm:min-h-[240px]">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -95,31 +86,27 @@ export default function Testimonials() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
-                className="bg-card border border-border rounded-sm p-8 sm:p-12 relative"
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="bg-card/50 border border-border/50 p-8 sm:p-12 relative"
               >
-                {/* Quote icon */}
-                <Quote size={40} className="text-amber/20 absolute top-6 left-6 sm:top-8 sm:left-8" />
+                <Quote size={36} className="text-[#ffb005]/15 absolute top-6 left-6 sm:top-8 sm:left-8" />
 
-                {/* Stars */}
                 <div className="flex items-center gap-1 mb-6">
                   {Array.from({ length: current.rating }).map((_, i) => (
-                    <Star key={i} size={16} className="text-amber fill-amber" />
+                    <Star key={i} size={14} className="text-[#ffb005] fill-[#ffb005]" />
                   ))}
                 </div>
 
-                {/* Content */}
-                <p className="text-foreground text-base sm:text-lg leading-relaxed mb-8 relative z-10">
+                <p className="text-foreground text-base sm:text-lg leading-relaxed mb-8 relative z-10 italic">
                   &ldquo;{current.content}&rdquo;
                 </p>
 
-                {/* Author */}
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <h4 className="font-semibold text-foreground">{current.name}</h4>
                     <p className="text-sm text-muted-foreground">{current.role}</p>
                   </div>
-                  <span className="text-xs text-amber uppercase tracking-widest font-medium bg-amber/10 px-3 py-1 rounded-sm">
+                  <span className="text-[10px] text-[#ffb005] uppercase tracking-[0.2em] font-medium bg-[#ffb005]/10 px-3 py-1 border border-[#ffb005]/20">
                     {current.project}
                   </span>
                 </div>
@@ -127,7 +114,6 @@ export default function Testimonials() {
             </AnimatePresence>
           </div>
 
-          {/* Controls */}
           <div className="flex items-center justify-between mt-8">
             <div className="flex items-center gap-2">
               {testimonials.map((_, i) => (
@@ -137,25 +123,25 @@ export default function Testimonials() {
                     setDirection(i > currentIndex ? 1 : -1)
                     setCurrentIndex(i)
                   }}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    i === currentIndex ? 'bg-amber w-8' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  className={`h-1 rounded-full transition-all duration-500 ${
+                    i === currentIndex ? 'bg-[#ffb005] w-8' : 'bg-muted-foreground/20 w-3 hover:bg-muted-foreground/40'
                   }`}
-                  aria-label={`Go to testimonial ${i + 1}`}
+                  aria-label={`Testimonial ${i + 1}`}
                 />
               ))}
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={prevTestimonial}
-                className="w-10 h-10 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300"
-                aria-label="Previous testimonial"
+                className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-[#ffb005] hover:border-[#ffb005]/30 transition-all duration-300"
+                aria-label="Previous"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={nextTestimonial}
-                className="w-10 h-10 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300"
-                aria-label="Next testimonial"
+                className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-[#ffb005] hover:border-[#ffb005]/30 transition-all duration-300"
+                aria-label="Next"
               >
                 <ChevronRight size={18} />
               </button>

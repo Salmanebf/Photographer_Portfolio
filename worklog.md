@@ -30,3 +30,35 @@ Stage Summary:
 - Contact form connected to backend API with Prisma/SQLite database
 - Lint check passes with no errors
 - Dev server running successfully on port 3000
+
+---
+Task ID: 2
+Agent: Main
+Task: Refocus to documentary-only, add scroll effects, project detail views, change color to #ffb005
+
+Work Log:
+- Changed secondary/accent color from oklch amber to #ffb005 throughout CSS variables
+- Generated 8 new AI documentary images (hero, portrait, 6 documentary projects)
+- Rewrote all content to focus exclusively on documentary filmmaking
+- Created shared data file (src/lib/data.ts) with 6 documentary projects including full descriptions, awards, credits, galleries
+- Created scroll effects hook (useScrollReveal, useParallax, useScrollProgress, useCountUp, useLockBodyScroll)
+- Added CSS scroll visual effects: parallax, reveal-text, scale-fade, slide-left/right, blur-in, stagger-children, marquee, cinematic bars, scroll progress bar, gradient text with #ffb005
+- Rewrote Hero with parallax background, letter-by-letter reveal, animated stat counters
+- Rewrote About with parallax image, marquee background text, slide-in content
+- Rewrote Portfolio with scroll-triggered reveals, category filters (Cultural Heritage, Environmental, Social Impact, Cultural Preservation)
+- Created ProjectDetail full-screen overlay component with hero image, synopsis, gallery, awards, credits, tags, CTA
+- Rewrote Services for documentary focus (Feature Docs, Short-Form Docs, Docu-Series, Impact Campaigns + Process steps)
+- Rewrote Testimonials with documentary-specific collaborators
+- Added ScrollProgress bar at top of page
+- Updated Footer and Contact for documentary focus
+- Fixed lint error in useCountUp hook (setState in effect)
+- All lint checks pass, dev server running with 200 responses
+
+Stage Summary:
+- Complete documentary-focused portfolio with #ffb005 accent color
+- 8 AI-generated documentary images
+- Advanced scroll effects: parallax, reveal animations, counters, marquee text
+- Full-screen project detail overlay for each documentary with gallery, awards, credits
+- 6 detailed documentary projects with rich data
+- Scroll progress bar, smooth animations throughout
+- Dev server running successfully

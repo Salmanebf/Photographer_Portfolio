@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useScrollReveal } from '@/hooks/use-scroll-effects'
 
 interface SectionHeadingProps {
   label: string
@@ -10,36 +10,24 @@ interface SectionHeadingProps {
 }
 
 export default function SectionHeading({ label, title, description, align = 'center' }: SectionHeadingProps) {
+  const { ref, isRevealed } = useScrollReveal(0.2)
+
   return (
-    <div className={`mb-12 sm:mb-16 ${align === 'center' ? 'text-center' : 'text-left'}`}>
-      <motion.span
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5 }}
-        className="inline-block text-amber text-xs uppercase tracking-[0.3em] font-semibold mb-3"
-      >
-        {label}
-      </motion.span>
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight"
-      >
-        {title}
-      </motion.h2>
+    <div ref={ref} className={`mb-12 sm:mb-16 ${align === 'center' ? 'text-center' : 'text-left'}`}>
+      <div className={`reveal-text ${isRevealed ? 'revealed' : ''}`}>
+        <span className="inline-block text-[#ffb005] text-[10px] sm:text-xs uppercase tracking-[0.4em] font-semibold mb-4">
+          {label}
+        </span>
+      </div>
+      <div className={`reveal-text ${isRevealed ? 'revealed' : ''}`} style={{ transitionDelay: '0.1s' }}>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">{title}</h2>
+      </div>
       {description && (
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-4 text-muted-foreground max-w-2xl text-base sm:text-lg leading-relaxed mx-auto"
-        >
-          {description}
-        </motion.p>
+        <div className={`blur-in ${isRevealed ? 'revealed' : ''}`} style={{ transitionDelay: '0.3s' }}>
+          <p className="mt-4 text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed mx-auto">
+            {description}
+          </p>
+        </div>
       )}
     </div>
   )

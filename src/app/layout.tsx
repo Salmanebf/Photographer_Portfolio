@@ -14,17 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Alex Rivera | Cinematographer & Visual Storyteller",
-  description: "Award-winning cinematographer and visual storyteller specializing in wedding films, commercial production, music videos, and documentary filmmaking.",
-  keywords: ["videographer", "cinematographer", "filmmaker", "wedding films", "commercial video", "music video", "documentary"],
+  title: "Alex Rivera | Documentary Filmmaker",
+  description: "Award-winning documentary filmmaker telling stories that matter. Cultural heritage, environmental, and social impact documentaries.",
+  keywords: ["documentary", "filmmaker", "cinematographer", "cultural heritage", "environmental documentary", "social impact"],
   authors: [{ name: "Alex Rivera" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
-  },
-  openGraph: {
-    title: "Alex Rivera | Cinematographer & Visual Storyteller",
-    description: "Award-winning cinematographer specializing in cinematic storytelling",
-    type: "website",
   },
 };
 
