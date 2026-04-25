@@ -1,31 +1,32 @@
 'use client'
 
+import Navigation from '@/components/navigation'
+import Hero from '@/components/hero'
+import About from '@/components/about'
+import Portfolio from '@/components/portfolio'
+import Services from '@/components/services'
+import Testimonials from '@/components/testimonials'
+import Contact from '@/components/contact'
+import Footer from '@/components/footer'
+
 export default function Home() {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      gap: '2rem',
-      padding: '1rem'
-    }}>
-      <div style={{
-        position: 'relative',
-        width: '6rem',
-        height: '6rem'
-      }}>
-        <img
-          src="/logo.svg"
-          alt="Z.ai Logo"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
-          }}
-        />
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
+      <main className="flex-1">
+        <Hero />
+        <div className="section-divider max-w-7xl mx-auto" />
+        <About />
+        <div className="section-divider max-w-7xl mx-auto" />
+        <Portfolio />
+        <div className="section-divider max-w-7xl mx-auto" />
+        <Services />
+        <div className="section-divider max-w-7xl mx-auto" />
+        <Testimonials />
+        <div className="section-divider max-w-7xl mx-auto" />
+        <Contact />
+      </main>
+      <Footer />
     </div>
   )
 }
