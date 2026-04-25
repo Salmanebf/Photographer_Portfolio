@@ -17,7 +17,7 @@ export default function Home() {
   const [selectedProject, setSelectedProject] = useState<DocumentaryProject | null>(null)
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" suppressHydrationWarning={true}>
       <ScrollProgress />
       <Navigation />
       <main className="flex-1">
