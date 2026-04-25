@@ -9,6 +9,7 @@ export default function ScrollProgress() {
     <div
       className="scroll-progress"
       style={{ transform: `scaleX(${progress})` }}
+      suppressHydrationWarning={true}
     />
   )
 }
