@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import Image from 'next/image'
+import type { SiteSettings } from '@/lib/queries'
 
 const navLinks = [
   { href: '#home', label: 'Home' },
@@ -13,7 +15,11 @@ const navLinks = [
   { href: '#contact', label: 'Contact' },
 ]
 
-export default function Navigation() {
+interface NavigationProps {
+  settings: SiteSettings
+}
+
+export default function Navigation({ settings }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
@@ -53,31 +59,42 @@ export default function Navigation() {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Logo */}
             <button
               onClick={() => scrollTo('#home')}
               className="flex items-center gap-3 group"
               aria-label="Back to top"
             >
-              <div className="w-8 h-8 flex items-center justify-center border border-gold/30 group-hover:border-gold transition-colors duration-500">
-                <span className="text-gold text-xs font-bold tracking-widest">AR</span>
-              </div>
+              <span className="w-8 h-8 flex items-center justify-center border border-gold/30 group-hover:border-gold transition-colors duration-500 relative overflow-hidden">
+                {settings.brand.logoImage ? (
+                  <Image
+                    src={settings.brand.logoImage}
+                    alt={settings.brand.name}
+                    fill
+                    sizes="32px"
+                    className="object-contain p-1"
+                  />
+                ) : (
+                  <span className="text-gold text-xs font-bold tracking-widest">
+                    {settings.brand.logoMark}
+                  </span>
+                )}
+              </span>
               <div className="hidden sm:block leading-none text-left">
                 <div className="text-foreground text-[11px] font-semibold tracking-[0.25em] uppercase">
-                  Alex Rivera
+                  {settings.brand.name}
                 </div>
                 <div className="text-gold text-[9px] tracking-[0.4em] uppercase mt-0.5">
-                  Documentary
+                  {settings.brand.discipline}
                 </div>
               </div>
             </button>
 
-            {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-0.5">
+            <nav className="hidden md:flex items-center gap-0.5" aria-label="Primary">
               {navLinks.map((link) => (
                 <button
                   key={link.href}
                   onClick={() => scrollTo(link.href)}
+                  aria-current={activeSection === link.href.slice(1) ? 'true' : undefined}
                   className={`relative px-4 py-2 text-[10px] uppercase tracking-[0.25em] font-medium transition-colors duration-300 ${
                     activeSection === link.href.slice(1)
                       ? 'text-gold'
@@ -96,7 +113,6 @@ export default function Navigation() {
               ))}
             </nav>
 
-            {/* Desktop CTA */}
             <button
               onClick={() => scrollTo('#contact')}
               className="hidden md:inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-gold border border-gold/30 hover:border-gold hover:bg-gold hover:text-background px-5 py-2.5 transition-all duration-400"
@@ -104,11 +120,11 @@ export default function Navigation() {
               Collaborate
             </button>
 
-            {/* Mobile hamburger */}
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
               className="md:hidden p-2 text-foreground hover:text-gold transition-colors"
-              aria-label="Menu"
+              aria-label={isMobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMobileOpen}
             >
               {isMobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -116,7 +132,6 @@ export default function Navigation() {
         </div>
       </motion.header>
 
-      {/* Mobile full-screen menu */}
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
@@ -126,7 +141,7 @@ export default function Navigation() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-40 bg-background flex flex-col justify-center px-8"
           >
-            <nav className="space-y-1">
+            <nav className="space-y-1" aria-label="Mobile primary">
               {navLinks.map((link, i) => (
                 <motion.button
                   key={link.href}

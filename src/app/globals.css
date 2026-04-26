@@ -255,3 +255,79 @@ html { scroll-behavior: smooth; }
   transform-origin: 0;
   transition: transform 0.1s linear;
 }
+
+/* === ADDITIONAL SCROLL ANIMATIONS === */
+
+/* Image zoom on enter */
+.img-zoom-in {
+  transform: scale(1.12);
+  transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.img-zoom-in.revealed {
+  transform: scale(1);
+}
+
+/* Fade up with stagger delay */
+.fade-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-up.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Letter-by-letter reveal */
+.letters-reveal span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.letters-reveal.revealed span {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Soft glow pulse */
+@keyframes softPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 169, 110, 0); }
+  50% { box-shadow: 0 0 30px 5px rgba(201, 169, 110, 0.18); }
+}
+.glow-pulse { animation: softPulse 3s ease-in-out infinite; }
+
+/* Magnetic float */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.float-anim { animation: float 4s ease-in-out infinite; }
+
+/* === PREFERS REDUCED MOTION === */
+/* Honor system accessibility preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  body::before {
+    /* Disable film grain animation for reduced motion */
+    animation: none !important;
+    opacity: 0.02;
+  }
+  .animate-marquee { animation: none !important; }
+  .float-anim, .glow-pulse { animation: none !important; }
+  /* Ensure reveal animations still complete (don't strand off-screen) */
+  .reveal-text, .scale-fade, .slide-left, .slide-right,
+  .blur-in, .stagger-children > *, .img-zoom-in, .fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    filter: none !important;
+  }
+}

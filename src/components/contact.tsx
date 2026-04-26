@@ -8,14 +8,13 @@ import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { useScrollReveal } from '@/hooks/use-scroll-effects'
 import SectionHeading from './section-heading'
+import type { SiteSettings } from '@/lib/queries'
 
-const contactInfo = [
-  { icon: MapPin, label: 'Based In', value: 'Los Angeles, California' },
-  { icon: Mail, label: 'Email', value: 'hello@alexrivera.film' },
-  { icon: Clock, label: 'Response', value: 'Within 24 hours' },
-]
+interface ContactProps {
+  settings: SiteSettings
+}
 
-export default function Contact() {
+export default function Contact({ settings }: ContactProps) {
   const { toast } = useToast()
   const { ref: formRef, isRevealed: formRevealed } = useScrollReveal(0.1)
   const { ref: infoRef, isRevealed: infoRevealed } = useScrollReveal(0.1)
@@ -25,11 +24,23 @@ export default function Contact() {
     email: '',
     subject: '',
     message: '',
+    /** Honeypot — must remain empty */
+    website: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Honeypot check (silently succeed if filled)
+    if (formData.website) {
+      toast({
+        title: 'Message sent',
+        description: "Thank you for reaching out. I'll respond within 24 hours.",
+      })
+      return
+    }
+
     setIsSubmitting(true)
     try {
       const res = await fetch('/api/contact', {
@@ -42,14 +53,18 @@ export default function Contact() {
           title: 'Message sent',
           description: "Thank you for reaching out. I'll respond within 24 hours.",
         })
-        setFormData({ name: '', email: '', subject: '', message: '' })
+        setFormData({ name: '', email: '', subject: '', message: '', website: '' })
       } else {
-        throw new Error('Failed')
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error ?? 'Failed')
       }
-    } catch {
+    } catch (err) {
       toast({
         title: 'Error',
-        description: 'Something went wrong. Please try again or email me directly.',
+        description:
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong. Please try again or email me directly.',
         variant: 'destructive',
       })
     } finally {
@@ -59,6 +74,12 @@ export default function Contact() {
 
   const inputCls =
     'bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none h-12 px-0 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground'
+
+  const contactInfo = [
+    { icon: MapPin, label: 'Based In', value: settings.contact.location },
+    { icon: Mail, label: 'Email', value: settings.contact.email },
+    { icon: Clock, label: 'Response', value: settings.contact.responseTime },
+  ]
 
   return (
     <section id="contact" className="py-24 sm:py-36 relative">
@@ -70,16 +91,34 @@ export default function Contact() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-16 items-start">
-          {/* Form */}
           <div ref={formRef} className={`slide-left ${formRevealed ? 'revealed' : ''}`}>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Honeypot - hidden from users */}
+              <div className="absolute -left-[9999px]" aria-hidden="true">
+                <label>
+                  Website (leave empty)
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  />
+                </label>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mb-8">
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block">
+                  <label
+                    htmlFor="contact-name"
+                    className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
+                  >
                     Name
                   </label>
                   <Input
+                    id="contact-name"
                     required
+                    autoComplete="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Your name"
@@ -87,12 +126,17 @@ export default function Contact() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block">
+                  <label
+                    htmlFor="contact-email"
+                    className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
+                  >
                     Email
                   </label>
                   <Input
+                    id="contact-email"
                     required
                     type="email"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="your@email.com"
@@ -102,10 +146,14 @@ export default function Contact() {
               </div>
 
               <div className="space-y-2 mb-8">
-                <label className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block">
+                <label
+                  htmlFor="contact-subject"
+                  className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
+                >
                   Project
                 </label>
                 <Input
+                  id="contact-subject"
                   required
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -115,10 +163,14 @@ export default function Contact() {
               </div>
 
               <div className="space-y-2 mb-10">
-                <label className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block">
+                <label
+                  htmlFor="contact-message"
+                  className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
+                >
                   Message
                 </label>
                 <Textarea
+                  id="contact-message"
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -147,29 +199,30 @@ export default function Contact() {
             </form>
           </div>
 
-          {/* Info panel */}
           <div
             ref={infoRef}
             className={`slide-right ${infoRevealed ? 'revealed' : ''} space-y-10`}
           >
-            {/* Availability */}
-            <div className="border border-gold/20 p-6 bg-gold/[0.03]">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[9px] uppercase tracking-[0.4em] text-emerald-400 font-semibold">
-                  Available for Projects
-                </span>
+            {settings.contact.isAvailable && (
+              <div className="border border-gold/20 p-6 bg-gold/[0.03]">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[9px] uppercase tracking-[0.4em] text-emerald-400 font-semibold">
+                    Available for Projects
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Currently accepting documentary projects for{' '}
+                  {settings.contact.availabilityYear}. Let&apos;s create something
+                  meaningful together.
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Currently accepting documentary projects for 2026. Let&apos;s create something
-                meaningful together.
-              </p>
-            </div>
+            )}
 
-            {/* Contact info */}
             <div className="space-y-6">
               {contactInfo.map((item) => {
                 const Icon = item.icon
+                const isEmail = item.label === 'Email'
                 return (
                   <div key={item.label} className="flex items-start gap-4">
                     <div className="w-9 h-9 flex items-center justify-center bg-gold/[0.08] border border-gold/15 shrink-0">
@@ -179,7 +232,16 @@ export default function Contact() {
                       <div className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground mb-0.5">
                         {item.label}
                       </div>
-                      <div className="text-sm text-foreground">{item.value}</div>
+                      {isEmail ? (
+                        <a
+                          href={`mailto:${item.value}`}
+                          className="text-sm text-foreground hover:text-gold transition-colors"
+                        >
+                          {item.value}
+                        </a>
+                      ) : (
+                        <div className="text-sm text-foreground">{item.value}</div>
+                      )}
                     </div>
                   </div>
                 )
@@ -192,10 +254,8 @@ export default function Contact() {
               <h3 className="text-[9px] uppercase tracking-[0.4em] text-gold font-medium mb-3">
                 Studio Hours
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Monday – Friday, 9am – 6pm PST.
-                <br />
-                In the field globally — replies may take longer during shoots.
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {settings.contact.studioHours}
               </p>
             </div>
           </div>

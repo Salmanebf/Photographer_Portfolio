@@ -2,7 +2,9 @@
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import Image from 'next/image'
 import { useCountUp } from '@/hooks/use-scroll-effects'
+import type { SiteSettings } from '@/lib/queries'
 
 function StatCounter({
   end,
@@ -27,7 +29,11 @@ function StatCounter({
   )
 }
 
-export default function Hero() {
+interface HeroProps {
+  settings: SiteSettings
+}
+
+export default function Hero({ settings }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -39,22 +45,39 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
   const textY = useTransform(scrollYProgress, [0, 0.5], ['0%', '20%'])
 
+  const { hero } = settings
+
   return (
     <section
       id="home"
       ref={containerRef}
       className="relative h-screen flex items-center overflow-hidden"
     >
-      {/* Parallax background image */}
+      {/* Parallax background — image or video */}
       <motion.div
         style={{ y: bgY, scale: bgScale }}
-        className="absolute inset-0 z-0"
+        className="absolute -inset-y-[10%] inset-x-0 z-0"
       >
-        <img
-          src="/images/hero-doc.png"
-          alt=""
-          className="w-full h-[120%] object-cover"
-        />
+        {hero.video ? (
+          <video
+            src={hero.video}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+            poster={hero.image}
+          />
+        ) : (
+          <Image
+            src={hero.image}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        )}
       </motion.div>
 
       {/* Cinematic overlay */}
@@ -76,12 +99,10 @@ export default function Hero() {
         className="absolute bottom-0 left-0 right-0 h-[6vh] bg-background z-[2] origin-right"
       />
 
-      {/* Main content */}
       <motion.div
         style={{ y: textY, opacity }}
         className="relative z-10 w-full px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto"
       >
-        {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,11 +111,10 @@ export default function Hero() {
         >
           <div className="h-px w-12 bg-gold/50" />
           <span className="text-[9px] uppercase tracking-[0.5em] text-gold font-medium">
-            Documentary Filmmaker
+            {hero.eyebrow}
           </span>
         </motion.div>
 
-        {/* Massive name */}
         <div className="overflow-hidden">
           <motion.h1
             initial={{ y: '100%' }}
@@ -102,7 +122,7 @@ export default function Hero() {
             transition={{ duration: 1, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="text-[18vw] sm:text-[15vw] lg:text-[13vw] font-bold leading-[0.85] tracking-tight text-foreground"
           >
-            Alex
+            {hero.nameLine1}
           </motion.h1>
         </div>
 
@@ -120,11 +140,10 @@ export default function Hero() {
             transition={{ duration: 1, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
             className="text-[18vw] sm:text-[15vw] lg:text-[13vw] font-bold leading-[0.85] tracking-tight text-gradient"
           >
-            Rivera
+            {hero.nameLine2}
           </motion.h1>
         </div>
 
-        {/* Tagline + CTA + Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 mt-10 sm:mt-12 items-end">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -132,14 +151,15 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 1.4 }}
           >
             <p className="text-muted-foreground text-sm sm:text-base max-w-md leading-relaxed mb-8">
-              Telling stories that illuminate the human condition.
-              Documenting cultures, uncovering truths, revealing the extraordinary.
+              {hero.tagline}
             </p>
             <a
               href="#portfolio"
               onClick={(e) => {
                 e.preventDefault()
-                document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })
+                document
+                  .getElementById('portfolio')
+                  ?.scrollIntoView({ behavior: 'smooth' })
               }}
               className="inline-flex items-center gap-3 px-8 py-3.5 bg-gold text-background text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-gold/90 transition-all duration-300 hover:shadow-lg hover:shadow-gold/20"
             >
@@ -147,27 +167,30 @@ export default function Hero() {
             </a>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.6 }}
-            className="flex items-end gap-8 sm:gap-12"
-          >
-            <StatCounter end={18} label="Films" suffix="+" />
-            <div className="w-px h-10 bg-border" />
-            <StatCounter end={12} label="Years" />
-            <div className="w-px h-10 bg-border" />
-            <StatCounter end={34} label="Awards" suffix="+" />
-          </motion.div>
+          {hero.stats.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.6 }}
+              className="flex items-end gap-8 sm:gap-12"
+            >
+              {hero.stats.map((s, i) => (
+                <div key={s.label} className="flex items-end gap-8 sm:gap-12">
+                  {i > 0 && <div className="w-px h-10 bg-border" />}
+                  <StatCounter end={s.value} label={s.label} suffix={s.suffix} />
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </motion.div>
 
-      {/* Scroll indicator — right side */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2, duration: 1 }}
         className="absolute right-6 sm:right-10 bottom-[10vh] z-10 hidden sm:flex flex-col items-center gap-3"
+        aria-hidden="true"
       >
         <motion.div
           animate={{ scaleY: [1, 0.4, 1] }}
@@ -176,18 +199,6 @@ export default function Hero() {
         />
         <span className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground -rotate-90 origin-center whitespace-nowrap mt-3">
           Scroll
-        </span>
-      </motion.div>
-
-      {/* Side info — left */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute left-10 bottom-[10vh] z-10 hidden lg:flex flex-col items-center gap-4"
-      >
-        <span className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground -rotate-90 origin-center whitespace-nowrap">
-          Est. 2012 — Los Angeles
         </span>
       </motion.div>
     </section>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useScrollReveal } from '@/hooks/use-scroll-effects'
-import { serviceCategories } from '@/lib/data'
 import SectionHeading from './section-heading'
 
 const process = [
@@ -31,7 +30,11 @@ const process = [
   },
 ]
 
-export default function Services() {
+interface ServicesProps {
+  services: { title: string; description: string }[]
+}
+
+export default function Services({ services }: ServicesProps) {
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal(0.1)
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal(0.1)
 
@@ -44,12 +47,11 @@ export default function Services() {
           description="End-to-end documentary filmmaking, from initial concept to global distribution and impact."
         />
 
-        {/* Editorial numbered list */}
         <div
           ref={servicesRef}
           className={`mb-32 stagger-children ${servicesRevealed ? 'revealed' : ''}`}
         >
-          {serviceCategories.map((service, i) => (
+          {services.map((service, i) => (
             <div
               key={service.title}
               className="group grid grid-cols-[60px_1fr_auto] sm:grid-cols-[80px_1fr_auto] gap-6 sm:gap-10 py-8 sm:py-10 border-b border-border/40 hover:border-gold/30 transition-colors duration-500"
@@ -72,7 +74,6 @@ export default function Services() {
           ))}
         </div>
 
-        {/* Process */}
         <SectionHeading
           label="Process"
           title="How I Work"

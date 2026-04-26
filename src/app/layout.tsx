@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { getSiteSettings } from "@/lib/queries";
+import { siteConfig } from "@/lib/site.config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,44 +17,70 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Alex Rivera — Documentary Filmmaker & Visual Storyteller",
-  description:
-    "Award-winning documentary filmmaker telling stories that illuminate the human condition. Cultural heritage, environmental, and social impact documentaries.",
-  keywords: [
-    "documentary filmmaker",
-    "cinematographer",
-    "documentary director",
-    "cultural heritage",
-    "environmental documentary",
-    "social impact film",
-    "Alex Rivera",
-  ],
-  authors: [{ name: "Alex Rivera" }],
-  openGraph: {
-    title: "Alex Rivera — Documentary Filmmaker",
-    description:
-      "Award-winning documentary filmmaker telling stories that matter.",
-    type: "website",
-    locale: "en_US",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Alex Rivera — Documentary Filmmaker",
-    description: "Award-winning documentary filmmaker telling stories that matter.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.seo.siteUrl;
+  return {
+    title: {
+      default: `${settings.brand.name} — ${settings.brand.discipline} Filmmaker`,
+      template: `%s | ${settings.brand.name}`,
+    },
+    description: siteConfig.seo.description,
+    keywords: [...siteConfig.seo.keywords],
+    authors: [{ name: settings.brand.name }],
+    metadataBase: new URL(siteUrl),
+    openGraph: {
+      title: `${settings.brand.name} — ${settings.brand.discipline} Filmmaker`,
+      description: siteConfig.seo.description,
+      type: "website",
+      locale: "en_US",
+      url: siteUrl,
+      images: [
+        {
+          url: settings.hero.image || siteConfig.seo.ogImage,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${settings.brand.name} — ${settings.brand.discipline} Filmmaker`,
+      description: siteConfig.seo.description,
+    },
+    alternates: { canonical: siteUrl },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings();
+  const brandColor = settings.brand.color || "#c9a96e";
+
+  // Brand color override — non-devs change this in /studio or site.config.ts
+  const themeStyle = `
+    :root, .dark { --gold: ${brandColor}; }
+    ::selection { background: ${brandColor}55; color: #f0ebe2; }
+    ::-webkit-scrollbar-thumb:hover { background: ${brandColor}; }
+  `;
+
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[9999] focus:bg-gold focus:text-background focus:px-4 focus:py-2 focus:text-xs focus:uppercase focus:tracking-widest focus:font-semibold"
+        >
+          Skip to content
+        </a>
         {children}
         <Toaster />
       </body>

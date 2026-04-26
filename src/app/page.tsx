@@ -1,6 +1,3 @@
-'use client'
-
-import { useState } from 'react'
 import Navigation from '@/components/navigation'
 import Hero from '@/components/hero'
 import About from '@/components/about'
@@ -9,30 +6,39 @@ import Services from '@/components/services'
 import Testimonials from '@/components/testimonials'
 import Contact from '@/components/contact'
 import Footer from '@/components/footer'
-import ProjectDetail from '@/components/project-detail'
 import ScrollProgress from '@/components/scroll-progress'
-import { DocumentaryProject } from '@/lib/data'
+import Analytics from '@/components/analytics'
+import {
+  getSiteSettings,
+  getProjects,
+  getServices,
+  getTestimonials,
+} from '@/lib/queries'
 
-export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<DocumentaryProject | null>(null)
+export const revalidate = 60 // ISR — refresh data every minute
+
+export default async function Home() {
+  const [settings, projects, services, testimonials] = await Promise.all([
+    getSiteSettings(),
+    getProjects(),
+    getServices(),
+    getTestimonials(),
+  ])
 
   return (
     <div className="min-h-screen flex flex-col" suppressHydrationWarning={true}>
       <ScrollProgress />
-      <Navigation />
-      <main className="flex-1">
-        <Hero />
-        <About />
-        <Portfolio onSelectProject={setSelectedProject} />
-        <Services />
-        <Testimonials />
-        <Contact />
+      <Navigation settings={settings} />
+      <main id="main" className="flex-1">
+        <Hero settings={settings} />
+        <About settings={settings} />
+        <Portfolio projects={projects} />
+        <Services services={services} />
+        <Testimonials testimonials={testimonials} />
+        <Contact settings={settings} />
       </main>
-      <Footer />
-      <ProjectDetail
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      <Footer settings={settings} />
+      <Analytics />
     </div>
   )
 }
