@@ -6,20 +6,40 @@ import { Toaster } from "@/components/ui/toaster";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Alex Rivera | Documentary Filmmaker",
-  description: "Award-winning documentary filmmaker telling stories that matter. Cultural heritage, environmental, and social impact documentaries.",
-  keywords: ["documentary", "filmmaker", "cinematographer", "cultural heritage", "environmental documentary", "social impact"],
+  title: "Alex Rivera — Documentary Filmmaker & Visual Storyteller",
+  description:
+    "Award-winning documentary filmmaker telling stories that illuminate the human condition. Cultural heritage, environmental, and social impact documentaries.",
+  keywords: [
+    "documentary filmmaker",
+    "cinematographer",
+    "documentary director",
+    "cultural heritage",
+    "environmental documentary",
+    "social impact film",
+    "Alex Rivera",
+  ],
   authors: [{ name: "Alex Rivera" }],
-  icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+  openGraph: {
+    title: "Alex Rivera — Documentary Filmmaker",
+    description:
+      "Award-winning documentary filmmaker telling stories that matter.",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Alex Rivera — Documentary Filmmaker",
+    description: "Award-winning documentary filmmaker telling stories that matter.",
   },
 };
 

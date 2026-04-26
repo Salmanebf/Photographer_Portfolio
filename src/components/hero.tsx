@@ -2,15 +2,27 @@
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { ChevronDown, Play } from 'lucide-react'
 import { useCountUp } from '@/hooks/use-scroll-effects'
 
-function StatCounter({ end, label, suffix = '' }: { end: number; label: string; suffix?: string }) {
+function StatCounter({
+  end,
+  label,
+  suffix = '',
+}: {
+  end: number
+  label: string
+  suffix?: string
+}) {
   const { count, ref } = useCountUp(end, 2000)
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-2xl sm:text-4xl font-bold text-[#ffb005]">{count}{suffix}</div>
-      <div className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-muted-foreground mt-1">{label}</div>
+    <div ref={ref}>
+      <div className="text-2xl sm:text-3xl font-bold text-gold tabular-nums leading-none">
+        {count}
+        {suffix}
+      </div>
+      <div className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground mt-2">
+        {label}
+      </div>
     </div>
   )
 }
@@ -19,152 +31,165 @@ export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start start', 'end start']
+    offset: ['start start', 'end start'],
   })
 
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.2])
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
-  const textY = useTransform(scrollYProgress, [0, 0.5], ['0%', '30%'])
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '25%'])
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15])
+  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
+  const textY = useTransform(scrollYProgress, [0, 0.5], ['0%', '20%'])
 
   return (
-    <section id="home" ref={containerRef} className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* Parallax background */}
+    <section
+      id="home"
+      ref={containerRef}
+      className="relative h-screen flex items-center overflow-hidden"
+    >
+      {/* Parallax background image */}
       <motion.div
         style={{ y: bgY, scale: bgScale }}
         className="absolute inset-0 z-0"
       >
         <img
           src="/images/hero-doc.png"
-          alt="Documentary filmmaking"
+          alt=""
           className="w-full h-[120%] object-cover"
         />
       </motion.div>
 
-      {/* Overlay gradients */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/80 via-background/40 to-background" />
-      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/60 via-transparent to-background/60" />
+      {/* Cinematic overlay */}
+      <div className="absolute inset-0 z-[1] bg-background/85" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-background via-background/40 to-background/60" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/50 via-transparent to-background/50" />
 
-      {/* Content */}
+      {/* Letterbox bars */}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute top-0 left-0 right-0 h-[6vh] bg-background z-[2] origin-left"
+      />
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute bottom-0 left-0 right-0 h-[6vh] bg-background z-[2] origin-right"
+      />
+
+      {/* Main content */}
       <motion.div
         style={{ y: textY, opacity }}
-        className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto"
+        className="relative z-10 w-full px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto"
       >
-        {/* Top label */}
+        {/* Eyebrow */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-8"
+          transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex items-center gap-4 mb-8 sm:mb-10"
         >
-          <span className="inline-block px-5 py-2 border border-[#ffb005]/30 text-[#ffb005] text-[10px] sm:text-xs uppercase tracking-[0.4em] font-medium">
-            Documentary Filmmaker & Visual Storyteller
+          <div className="h-px w-12 bg-gold/50" />
+          <span className="text-[9px] uppercase tracking-[0.5em] text-gold font-medium">
+            Documentary Filmmaker
           </span>
         </motion.div>
 
-        {/* Main heading with letter animation */}
-        <div className="overflow-hidden mb-6">
+        {/* Massive name */}
+        <div className="overflow-hidden">
           <motion.h1
-            initial={{ y: '110%' }}
+            initial={{ y: '100%' }}
             animate={{ y: 0 }}
-            transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight"
+            transition={{ duration: 1, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[18vw] sm:text-[15vw] lg:text-[13vw] font-bold leading-[0.85] tracking-tight text-foreground"
           >
-            <span className="text-gradient">Alex</span>
+            Alex
           </motion.h1>
         </div>
-        <div className="overflow-hidden mb-8">
+
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 1.2, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="h-px bg-gold/40 my-2 sm:my-3 origin-left max-w-[70%]"
+        />
+
+        <div className="overflow-hidden">
           <motion.h1
-            initial={{ y: '110%' }}
+            initial={{ y: '100%' }}
             animate={{ y: 0 }}
-            transition={{ duration: 1, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-foreground"
+            transition={{ duration: 1, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[18vw] sm:text-[15vw] lg:text-[13vw] font-bold leading-[0.85] tracking-tight text-gradient"
           >
             Rivera
           </motion.h1>
         </div>
 
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="text-muted-foreground text-sm sm:text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
-        >
-          Telling stories that matter. Documenting cultures, uncovering truths,
-          and revealing the extraordinary within the ordinary.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
-          <a
-            href="#portfolio"
-            onClick={(e) => {
-              e.preventDefault()
-              document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })
-            }}
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-[#ffb005] text-black font-semibold text-[11px] sm:text-xs uppercase tracking-[0.2em] transition-all duration-300 hover:shadow-lg hover:shadow-[#ffb005]/20"
+        {/* Tagline + CTA + Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 mt-10 sm:mt-12 items-end">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
           >
-            <Play size={16} className="transition-transform group-hover:scale-110" />
-            View My Films
-          </a>
-          <a
-            href="#contact"
-            onClick={(e) => {
-              e.preventDefault()
-              document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
-            }}
-            className="inline-flex items-center gap-2 px-8 py-4 border border-border text-foreground font-semibold text-[11px] sm:text-xs uppercase tracking-[0.2em] transition-all duration-300 hover:border-[#ffb005] hover:text-[#ffb005]"
-          >
-            Start a Project
-          </a>
-        </motion.div>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-md leading-relaxed mb-8">
+              Telling stories that illuminate the human condition.
+              Documenting cultures, uncovering truths, revealing the extraordinary.
+            </p>
+            <a
+              href="#portfolio"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="inline-flex items-center gap-3 px-8 py-3.5 bg-gold text-background text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-gold/90 transition-all duration-300 hover:shadow-lg hover:shadow-gold/20"
+            >
+              View My Films
+            </a>
+          </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.5 }}
-          className="mt-16 flex items-center justify-center gap-8 sm:gap-16"
-        >
-          <StatCounter end={18} label="Documentaries" suffix="+" />
-          <div className="w-px h-10 bg-border" />
-          <StatCounter end={12} label="Years" />
-          <div className="w-px h-10 bg-border" />
-          <StatCounter end={34} label="Awards" suffix="+" />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.6 }}
+            className="flex items-end gap-8 sm:gap-12"
+          >
+            <StatCounter end={18} label="Films" suffix="+" />
+            <div className="w-px h-10 bg-border" />
+            <StatCounter end={12} label="Years" />
+            <div className="w-px h-10 bg-border" />
+            <StatCounter end={34} label="Awards" suffix="+" />
+          </motion.div>
+        </div>
       </motion.div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — right side */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        transition={{ delay: 2.2, duration: 1 }}
+        className="absolute right-6 sm:right-10 bottom-[10vh] z-10 hidden sm:flex flex-col items-center gap-3"
       >
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="flex flex-col items-center gap-2 text-muted-foreground"
-        >
-          <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
-          <ChevronDown size={18} />
-        </motion.div>
+          animate={{ scaleY: [1, 0.4, 1] }}
+          transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+          className="w-px h-16 bg-gradient-to-b from-transparent via-gold/50 to-transparent origin-top"
+        />
+        <span className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground -rotate-90 origin-center whitespace-nowrap mt-3">
+          Scroll
+        </span>
       </motion.div>
 
-      {/* Side decorations */}
-      <div className="absolute left-6 top-1/2 -translate-y-1/2 z-10 hidden lg:flex flex-col items-center gap-4">
-        <div className="w-px h-16 bg-gradient-to-b from-transparent to-[#ffb005]/30" />
-        <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground -rotate-90 origin-center whitespace-nowrap">
-          Est. 2012
+      {/* Side info — left */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2, duration: 1 }}
+        className="absolute left-10 bottom-[10vh] z-10 hidden lg:flex flex-col items-center gap-4"
+      >
+        <span className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground -rotate-90 origin-center whitespace-nowrap">
+          Est. 2012 — Los Angeles
         </span>
-        <div className="w-px h-16 bg-gradient-to-b from-[#ffb005]/30 to-transparent" />
-      </div>
+      </motion.div>
     </section>
   )
 }
