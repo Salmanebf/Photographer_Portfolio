@@ -45,7 +45,7 @@
   --secondary: oklch(0.14 0.004 55);
   --secondary-foreground: oklch(0.94 0.01 75);
   --muted: oklch(0.13 0.004 55);
-  --muted-foreground: oklch(0.55 0.01 70);
+  --muted-foreground: oklch(0.68 0.012 70);
   --accent: oklch(0.73 0.1 74);
   --accent-foreground: oklch(0.07 0.004 55);
   --destructive: oklch(0.577 0.245 27.325);
@@ -68,7 +68,7 @@
   --secondary: oklch(0.14 0.004 55);
   --secondary-foreground: oklch(0.94 0.01 75);
   --muted: oklch(0.13 0.004 55);
-  --muted-foreground: oklch(0.55 0.01 70);
+  --muted-foreground: oklch(0.68 0.012 70);
   --accent: oklch(0.73 0.1 74);
   --accent-foreground: oklch(0.07 0.004 55);
   --destructive: oklch(0.577 0.245 27.325);
@@ -303,6 +303,75 @@ html { scroll-behavior: smooth; }
   50% { transform: translateY(-8px); }
 }
 .float-anim { animation: float 4s ease-in-out infinite; }
+
+/* === CUSTOM CURSOR === */
+/* Hide native cursor only on devices that have a real pointer */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* === SHUTTER REVEAL (diagonal mask wipe) === */
+.shutter-reveal {
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  transition: clip-path 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.shutter-reveal.revealed {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Diagonal wipe variant */
+.diagonal-reveal {
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  transition: clip-path 1.6s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.diagonal-reveal.revealed {
+  clip-path: polygon(0 0, 110% -10%, 100% 100%, -10% 100%);
+}
+
+/* === WORD-BY-WORD REVEAL === */
+.word-reveal .word {
+  display: inline-block;
+  overflow: hidden;
+}
+.word-reveal .word > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.word-reveal.revealed .word > span {
+  transform: translateY(0);
+}
+
+/* === CLICK RIPPLE === */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(201, 169, 110, 0.4) 0%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.ripple.rippling::after {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+/* === HOVER LIFT === */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -15px rgba(201, 169, 110, 0.15);
+}
 
 /* === PREFERS REDUCED MOTION === */
 /* Honor system accessibility preference */

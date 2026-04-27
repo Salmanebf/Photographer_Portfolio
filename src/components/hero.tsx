@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
 import { useCountUp } from '@/hooks/use-scroll-effects'
 import type { SiteSettings } from '@/lib/queries'
+import Magnetic from './magnetic'
 
 function StatCounter({
   end,
@@ -80,10 +81,12 @@ export default function Hero({ settings }: HeroProps) {
         )}
       </motion.div>
 
-      {/* Cinematic overlay */}
-      <div className="absolute inset-0 z-[1] bg-background/85" />
-      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-background via-background/40 to-background/60" />
-      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/50 via-transparent to-background/50" />
+      {/* Cinematic overlay — vignette style so the image stays visible */}
+      <div className="absolute inset-0 z-[1] bg-background/30" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-background via-background/30 to-background/55" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/55 via-background/15 to-background/55" />
+      {/* Bottom-left vignette to keep stats readable */}
+      <div className="absolute bottom-0 left-0 w-2/3 h-2/3 z-[1] bg-gradient-to-tr from-background/70 via-background/15 to-transparent" />
 
       {/* Letterbox bars */}
       <motion.div
@@ -153,18 +156,21 @@ export default function Hero({ settings }: HeroProps) {
             <p className="text-muted-foreground text-sm sm:text-base max-w-md leading-relaxed mb-8">
               {hero.tagline}
             </p>
-            <a
-              href="#portfolio"
-              onClick={(e) => {
-                e.preventDefault()
-                document
-                  .getElementById('portfolio')
-                  ?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="inline-flex items-center gap-3 px-8 py-3.5 bg-gold text-background text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-gold/90 transition-all duration-300 hover:shadow-lg hover:shadow-gold/20"
-            >
-              View My Films
-            </a>
+            <Magnetic className="inline-block">
+              <a
+                href="#portfolio"
+                onClick={(e) => {
+                  e.preventDefault()
+                  document
+                    .getElementById('portfolio')
+                    ?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="inline-flex items-center gap-3 px-8 py-3.5 bg-gold text-background text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-gold/90 transition-all duration-300 hover:shadow-lg hover:shadow-gold/20"
+                data-cursor="hover"
+              >
+                View My Films
+              </a>
+            </Magnetic>
           </motion.div>
 
           {hero.stats.length > 0 && (

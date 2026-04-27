@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import type { SiteSettings } from '@/lib/queries'
+import Magnetic from './magnetic'
 
 const navLinks = [
   { href: '#home', label: 'Home' },
@@ -113,12 +114,15 @@ export default function Navigation({ settings }: NavigationProps) {
               ))}
             </nav>
 
-            <button
-              onClick={() => scrollTo('#contact')}
-              className="hidden md:inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-gold border border-gold/30 hover:border-gold hover:bg-gold hover:text-background px-5 py-2.5 transition-all duration-400"
-            >
-              Collaborate
-            </button>
+            <Magnetic className="hidden md:inline-block">
+              <button
+                onClick={() => scrollTo('#contact')}
+                className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-gold border border-gold/30 hover:border-gold hover:bg-gold hover:text-background px-5 py-2.5 transition-all duration-400"
+                data-cursor="hover"
+              >
+                Collaborate
+              </button>
+            </Magnetic>
 
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}

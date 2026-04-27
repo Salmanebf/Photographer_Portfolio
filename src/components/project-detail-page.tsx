@@ -2,11 +2,12 @@
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { MapPin, Clock, Award, ArrowLeft, ArrowRight, Play } from 'lucide-react'
+import { MapPin, Clock, Award, ArrowLeft, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { DocumentaryProject } from '@/lib/data'
 import { useScrollReveal } from '@/hooks/use-scroll-effects'
+import VideoPlayer from './video-player'
 
 interface ProjectDetailPageProps {
   project: DocumentaryProject
@@ -18,8 +19,8 @@ export default function ProjectDetailPage({ project }: ProjectDetailPageProps) {
     target: heroRef,
     offset: ['start start', 'end start'],
   })
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15])
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.12])
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '15%'])
 
   const { ref: synopsisRef, isRevealed: synopsisRevealed } = useScrollReveal(0.1)
   const { ref: galleryRef, isRevealed: galleryRevealed } = useScrollReveal(0.05)
@@ -27,47 +28,46 @@ export default function ProjectDetailPage({ project }: ProjectDetailPageProps) {
 
   return (
     <article>
-      {/* Hero image */}
-      <motion.div
-        ref={heroRef}
-        className="relative h-[60vh] sm:h-[75vh] overflow-hidden"
-      >
+      {/* Hero — video player or image */}
+      <div ref={heroRef} className="relative h-[70vh] sm:h-[85vh] overflow-hidden bg-background">
         <motion.div style={{ scale: heroScale, y: heroY }} className="absolute inset-0">
-          <Image
-            src={project.image}
-            alt={project.title}
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover"
+          <VideoPlayer
+            url={project.video}
+            poster={project.image}
+            title={project.title}
           />
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/40" />
+
+        {/* Top backdrop — gives the nav contrast against the image */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/70 to-transparent z-[2] pointer-events-none" />
+
+        {/* Bottom fade into page */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/40 to-transparent z-[2] pointer-events-none" />
 
         {/* Letterbox bars */}
         <motion.div
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute top-0 left-0 right-0 h-[5vh] bg-background origin-left"
+          className="absolute top-0 left-0 right-0 h-[5vh] bg-background origin-left z-[3]"
         />
         <motion.div
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute bottom-0 left-0 right-0 h-[5vh] bg-gradient-to-t from-background to-transparent origin-right"
+          className="absolute bottom-0 left-0 right-0 h-[5vh] bg-gradient-to-t from-background to-transparent origin-right z-[3]"
         />
 
-        {/* Back link */}
+        {/* Back link — sits above the play button area */}
         <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="absolute top-24 left-6 lg:left-10 z-10"
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="absolute top-24 left-6 lg:left-10 z-[20]"
         >
           <Link
             href="/#portfolio"
-            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors duration-300 group bg-background/60 backdrop-blur-sm px-4 py-2.5 border border-border/40 hover:border-gold/40"
+            className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors duration-300 group bg-background/70 backdrop-blur-md px-4 py-2.5 border border-border/40 hover:border-gold/40"
           >
             <ArrowLeft
               size={14}
@@ -76,39 +76,15 @@ export default function ProjectDetailPage({ project }: ProjectDetailPageProps) {
             All Films
           </Link>
         </motion.div>
-
-        {/* Play button (only if video URL exists) */}
-        {project.video && (
-          <a
-            href={project.video}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute inset-0 flex items-center justify-center group"
-            aria-label="Play trailer"
-          >
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gold/10 backdrop-blur-md border border-gold/40 flex items-center justify-center group-hover:bg-gold/20 transition-all"
-            >
-              <Play
-                size={28}
-                className="text-gold ml-1 group-hover:scale-110 transition-transform"
-              />
-              <div className="absolute inset-0 rounded-full border border-gold/20 animate-ping" />
-            </motion.div>
-          </a>
-        )}
-      </motion.div>
+      </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-6 lg:px-10 pb-24">
+      <div className="max-w-6xl mx-auto px-6 lg:px-10 pb-24 -mt-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-10 mt-12"
+          className="mb-10"
         >
           <span className="inline-block text-[9px] uppercase tracking-[0.5em] text-gold mb-4">
             {project.category}

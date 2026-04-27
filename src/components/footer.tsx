@@ -138,7 +138,7 @@ export default function Footer({ settings }: FooterProps) {
                   id="newsletter-email"
                   type="email"
                   placeholder="your@email.com"
-                  className="flex-1 min-w-0 px-3 py-2 text-xs bg-muted/20 border border-border/40 border-r-0 focus:outline-none focus:border-gold/50 placeholder:text-muted-foreground/30 transition-colors text-foreground"
+                  className="flex-1 min-w-0 px-3 py-2 text-xs bg-muted/20 border border-border/40 border-r-0 focus:outline-none focus:border-gold/50 placeholder:text-muted-foreground/60 transition-colors text-foreground"
                 />
                 <button
                   type="submit"

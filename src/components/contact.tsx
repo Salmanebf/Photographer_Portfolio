@@ -73,7 +73,7 @@ export default function Contact({ settings }: ContactProps) {
   }
 
   const inputCls =
-    'bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none h-12 px-0 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground'
+    'bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none h-12 px-0 placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground'
 
   const contactInfo = [
     { icon: MapPin, label: 'Based In', value: settings.contact.location },
@@ -176,7 +176,7 @@ export default function Contact({ settings }: ContactProps) {
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Your story, vision, and timeline..."
                   rows={5}
-                  className="bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none px-0 resize-none placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground"
+                  className="bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none px-0 resize-none placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground"
                 />
               </div>
 

@@ -32,8 +32,7 @@ export default function Portfolio({ projects }: PortfolioProps) {
     [projects, activeFilter]
   )
 
-  const displayProject =
-    filteredProjects.find((p) => p.id === hoveredId) ?? filteredProjects[0]
+  const displayProject = filteredProjects.find((p) => p.id === hoveredId) ?? null
 
   if (projects.length === 0) {
     return null
@@ -98,15 +97,28 @@ export default function Portfolio({ projects }: PortfolioProps) {
           </div>
 
           <div className="sticky top-28">
-            <div className="relative aspect-[3/4] overflow-hidden">
+            <div className="relative aspect-[3/4] overflow-hidden border border-border/40">
+              {/* Empty state — visible until user hovers a project */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none">
+                <div className="w-12 h-12 rounded-full border border-gold/20 flex items-center justify-center mb-5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                </div>
+                <div className="text-[9px] uppercase tracking-[0.5em] text-gold mb-3">
+                  Preview
+                </div>
+                <p className="text-sm text-muted-foreground max-w-[200px] leading-relaxed">
+                  Hover any film to preview
+                </p>
+              </div>
+
               <AnimatePresence mode="wait">
                 {displayProject && (
                   <motion.div
                     key={displayProject.id}
-                    initial={{ opacity: 0, scale: 1.04 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    initial={{ opacity: 0, scale: 1.06, clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)' }}
+                    animate={{ opacity: 1, scale: 1, clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)' }}
+                    exit={{ opacity: 0, scale: 1.02, clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)' }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute inset-0"
                   >
                     <Image
@@ -118,7 +130,12 @@ export default function Portfolio({ projects }: PortfolioProps) {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.25, duration: 0.5 }}
+                      className="absolute bottom-0 left-0 right-0 p-6"
+                    >
                       <div className="text-[9px] uppercase tracking-[0.4em] text-gold mb-2">
                         {displayProject.category}
                       </div>
@@ -128,12 +145,12 @@ export default function Portfolio({ projects }: PortfolioProps) {
                       <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mt-2">
                         {displayProject.location} · {displayProject.year}
                       </div>
-                    </div>
+                    </motion.div>
 
                     <div className="absolute top-4 left-4 flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
                       <span className="text-[8px] uppercase tracking-[0.4em] text-gold">
-                        {hoveredId ? 'Hovering' : 'Latest'}
+                        Previewing
                       </span>
                     </div>
                   </motion.div>

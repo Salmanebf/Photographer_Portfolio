@@ -5,6 +5,7 @@ import { siteConfig } from '@/lib/site.config'
 import Navigation from '@/components/navigation'
 import Footer from '@/components/footer'
 import ScrollProgress from '@/components/scroll-progress'
+import CustomCursor from '@/components/custom-cursor'
 import ProjectDetailPage from '@/components/project-detail-page'
 
 export const revalidate = 60
@@ -61,6 +62,7 @@ export default async function WorkPage({
   return (
     <div className="min-h-screen flex flex-col" suppressHydrationWarning>
       <ScrollProgress />
+      <CustomCursor />
       <Navigation settings={settings} />
       <main id="main" className="flex-1">
         <ProjectDetailPage project={project} />
