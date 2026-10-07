@@ -62,3 +62,20 @@ Stage Summary:
 - 6 detailed documentary projects with rich data
 - Scroll progress bar, smooth animations throughout
 - Dev server running successfully
+
+---
+Task ID: 3
+Agent: Claude (audit)
+Task: Full project check, architecture write-up, docs refresh (2026-10-07)
+
+Work Log:
+- Ran `npm ci`, `tsc --noEmit`, `eslint .`, `next build`: all pass
+- Exercised the production build + dev server with curl (contact API, rate limit, honeypot, robots, sitemap, 404s, studio)
+- Ran `npm audit` (48 advisories incl. next, ws, vite, prisma) and ESLint with the disabled rules turned on (2 warnings)
+- Added README.md (architecture, directory map, env vars, deployment, known issues)
+- Updated CONTENT.md (admin token, DB path, analytics endpoint missing, CMS limits) and .env.example (CONTACT_ADMIN_TOKEN, DB note)
+- No source code was changed; all findings are listed in README.md -> Known issues
+
+Stage Summary:
+- Build is healthy; 10 functional bugs and several security/maintainability issues documented, none fixed yet
+- Entries above (Tasks 1-2) predate the later Sanity/per-project-route redesign and are historical

@@ -51,6 +51,18 @@ That's it. Once Sanity is configured, content from the studio takes priority
 over the fallback files. If you ever leave a field empty in the studio, the
 site falls back to `site.config.ts` / `data.ts`.
 
+### Limits to know about
+
+- Meta description / SEO keywords are **not** read from the studio yet; edit
+  `seo` in `src/lib/site.config.ts`.
+- A film's **Trailer / Video URL** set in the studio is currently not displayed
+  (known bug, see README → Known issues). Set it in `src/lib/data.ts` for now.
+- The newsletter box in the footer is a visual stub; it doesn't store emails.
+- The awards ticker and the 4 "process" steps in Services are hard-coded in
+  `src/components/awards-marquee.tsx` and `src/components/services.tsx`.
+- Images from hosts other than `cdn.sanity.io` / `images.unsplash.com` must be
+  added to `images.remotePatterns` in `next.config.ts`.
+
 ### What can be edited in the studio
 
 - **Site Settings** — brand color, logo (image or monogram), hero copy +
@@ -78,15 +90,27 @@ To receive an email every time someone submits the contact form:
    CONTACT_NOTIFICATION_EMAIL=you@example.com
    ```
 
-Without these, the form still works — submissions just save to the database
-(see `/api/contact` GET endpoint, gated by `CONTACT_ADMIN_TOKEN`).
+Without these, the form still works — submissions just save to the database.
+To read them, set `CONTACT_ADMIN_TOKEN` and call
+`GET /api/contact` with the header `Authorization: Bearer <token>` (returns the latest 50).
+Without a token the endpoint is disabled (404).
+
+> Resend's default sender (`onboarding@resend.dev`) only delivers to the email
+> address of your Resend account. To email anyone else, verify your own domain
+> in Resend and change the `from` address in `src/app/api/contact/route.ts`.
+
+> **Production database:** set `DATABASE_URL` to an **absolute** path
+> (e.g. `file:/app/data/custom.db`). The default relative path works in
+> `npm run dev` but fails in the standalone production build.
 
 ---
 
 ## Analytics (optional)
 
-Set `NEXT_PUBLIC_ENABLE_ANALYTICS=true` to enable a privacy-friendly pageview
-ping. Replace the `/api/analytics` endpoint with your provider of choice.
+`NEXT_PUBLIC_ENABLE_ANALYTICS=true` makes the site send a pageview beacon to
+`/api/analytics`, **but that endpoint does not exist yet** (it returns 404). Create
+`src/app/api/analytics/route.ts` or swap `src/components/analytics.tsx` for your
+provider before enabling it.
 
 ---
 
