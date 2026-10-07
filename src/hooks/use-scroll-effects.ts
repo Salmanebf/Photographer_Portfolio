@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function useScrollReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null)
@@ -25,25 +25,6 @@ export function useScrollReveal(threshold = 0.15) {
   }, [threshold])
 
   return { ref, isRevealed }
-}
-
-export function useParallax(speed = 0.5) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [offset, setOffset] = useState(0)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!ref.current) return
-      const rect = ref.current.getBoundingClientRect()
-      const scrolled = window.innerHeight - rect.top
-      setOffset(scrolled * speed * 0.1)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [speed])
-
-  return { ref, offset }
 }
 
 export function useScrollProgress() {
@@ -107,17 +88,4 @@ export function useCountUp(end: number, duration = 2000, startOnView = true) {
   }, [started, end, duration])
 
   return { count, ref }
-}
-
-export function useLockBodyScroll(lock: boolean) {
-  useEffect(() => {
-    if (lock) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [lock])
 }

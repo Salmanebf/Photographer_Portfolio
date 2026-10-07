@@ -1,13 +1,11 @@
 /**
  * AwardsMarquee
  *
- * Continuous-scrolling band of award names. Inverts scroll direction
- * based on page scroll velocity for an unusual living-strip feel.
+ * Continuous-scrolling band of award names.
  */
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { motion, useScroll, useVelocity, useSpring, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 const AWARDS = [
   'Sundance — Grand Jury Prize',
@@ -25,24 +23,8 @@ const AWARDS = [
 ]
 
 export default function AwardsMarquee() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollY } = useScroll()
-  const velocity = useVelocity(scrollY)
-  const smooth = useSpring(velocity, { damping: 50, stiffness: 400 })
-  const speedFactor = useTransform(smooth, [-2000, 0, 2000], [-3, 1, 3], { clamp: false })
-  const direction = useRef(1)
-
-  useEffect(() => {
-    const unsubscribe = speedFactor.on('change', (v) => {
-      if (v < 0) direction.current = -1
-      if (v > 0) direction.current = 1
-    })
-    return unsubscribe
-  }, [speedFactor])
-
   return (
     <div
-      ref={containerRef}
       className="relative w-full overflow-hidden border-y border-border/40 bg-card/30 py-8"
       aria-hidden="true"
     >

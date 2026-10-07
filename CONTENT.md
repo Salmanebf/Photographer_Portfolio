@@ -56,7 +56,7 @@ site falls back to `site.config.ts` / `data.ts`.
 - Meta description / SEO keywords are **not** read from the studio yet; edit
   `seo` in `src/lib/site.config.ts`.
 - A film's **Trailer / Video URL** set in the studio is currently not displayed
-  (known bug, see README → Known issues). Set it in `src/lib/data.ts` for now.
+ . Set it in `src/lib/data.ts` for now.
 - The newsletter box in the footer is a visual stub; it doesn't store emails.
 - The awards ticker and the 4 "process" steps in Services are hard-coded in
   `src/components/awards-marquee.tsx` and `src/components/services.tsx`.
