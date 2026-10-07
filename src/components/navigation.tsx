@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import type { SiteSettings } from '@/lib/queries'
 import Magnetic from './magnetic'
 
@@ -24,6 +25,7 @@ export default function Navigation({ settings }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,7 +44,9 @@ export default function Navigation({ settings }: NavigationProps) {
   }, [])
 
   const scrollTo = (href: string) => {
-    document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' })
+    const el = document.getElementById(href.slice(1))
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    else router.push(`/${href}`) // not on the home page (e.g. a film page)
     setIsMobileOpen(false)
   }
 

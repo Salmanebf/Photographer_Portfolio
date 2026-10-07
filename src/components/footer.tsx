@@ -2,6 +2,7 @@
 
 import { ArrowUp } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import type { SiteSettings } from '@/lib/queries'
 
 const navLinks = [
@@ -18,8 +19,12 @@ interface FooterProps {
 
 export default function Footer({ settings }: FooterProps) {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
-  const scrollTo = (href: string) =>
-    document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' })
+  const router = useRouter()
+  const scrollTo = (href: string) => {
+    const el = document.getElementById(href.slice(1))
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    else router.push(`/${href}`) // not on the home page (e.g. a film page)
+  }
 
   const socials = settings.contact.socials
   const hasSocials = Object.values(socials).some(Boolean)
@@ -27,7 +32,7 @@ export default function Footer({ settings }: FooterProps) {
   return (
     <footer className="border-t border-border/40 mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="py-14 grid grid-cols-1 sm:grid-cols-3 gap-10">
+        <div className="py-14 grid grid-cols-1 sm:grid-cols-2 gap-10">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 flex items-center justify-center border border-gold/30 relative overflow-hidden">
@@ -122,33 +127,6 @@ export default function Footer({ settings }: FooterProps) {
             </ul>
           </div>
 
-          {settings.footer.newsletter.enabled && (
-            <div>
-              <h3 className="text-[9px] uppercase tracking-[0.4em] text-gold font-medium mb-5">
-                {settings.footer.newsletter.headline}
-              </h3>
-              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-                {settings.footer.newsletter.description}
-              </p>
-              <form onSubmit={(e) => e.preventDefault()} className="flex">
-                <label htmlFor="newsletter-email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="newsletter-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  className="flex-1 min-w-0 px-3 py-2 text-xs bg-muted/20 border border-border/40 border-r-0 focus:outline-none focus:border-gold/50 placeholder:text-muted-foreground/60 transition-colors text-foreground"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gold text-background text-[9px] font-bold uppercase tracking-[0.25em] hover:bg-gold/90 transition-colors shrink-0"
-                >
-                  Join
-                </button>
-              </form>
-            </div>
-          )}
         </div>
 
         <div className="py-5 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-3">

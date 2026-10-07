@@ -119,14 +119,15 @@ export default function Hero({ settings }: HeroProps) {
         </motion.div>
 
         <div className="overflow-hidden">
-          <motion.h1
+          <motion.div aria-hidden="true"
+            aria-label={`${hero.nameLine1} ${hero.nameLine2}`}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             transition={{ duration: 1, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="text-[18vw] sm:text-[15vw] lg:text-[13vw] font-bold leading-[0.85] tracking-tight text-foreground"
           >
             {hero.nameLine1}
-          </motion.h1>
+          </motion.div>
         </div>
 
         <motion.div

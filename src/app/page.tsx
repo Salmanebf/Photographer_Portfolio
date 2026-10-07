@@ -7,7 +7,6 @@ import Testimonials from '@/components/testimonials'
 import Contact from '@/components/contact'
 import Footer from '@/components/footer'
 import ScrollProgress from '@/components/scroll-progress'
-import Analytics from '@/components/analytics'
 import CustomCursor from '@/components/custom-cursor'
 import AwardsMarquee from '@/components/awards-marquee'
 import {
@@ -42,7 +41,6 @@ export default async function Home() {
         <Contact settings={settings} />
       </main>
       <Footer settings={settings} />
-      <Analytics />
     </div>
   )
 }

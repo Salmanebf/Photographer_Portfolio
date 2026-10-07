@@ -6,6 +6,7 @@
  * - When it's not, the site falls back to /lib/site.config.ts and /lib/data.ts
  *   so devs can run the site without ever touching a CMS.
  */
+import { cache } from 'react'
 import { sanityClient, sanityEnabled, imageUrl } from './sanity.client'
 import { siteConfig } from './site.config'
 import { projects as fallbackProjects, type DocumentaryProject } from './data'
@@ -111,7 +112,6 @@ export type SiteSettings = {
   }
   footer: {
     tagline: string
-    newsletter: { enabled: boolean; headline: string; description: string }
   }
 }
 
@@ -119,7 +119,7 @@ function fromConfig(): SiteSettings {
   return JSON.parse(JSON.stringify(siteConfig)) as SiteSettings
 }
 
-export async function getSiteSettings(): Promise<SiteSettings> {
+export const getSiteSettings = cache(async function getSiteSettings(): Promise<SiteSettings> {
   if (!sanityEnabled || !sanityClient) return fromConfig()
 
   try {
@@ -151,7 +151,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       const [first, ...rest] = String(data.aboutQuote).split(/(?=,)/)
       merged.about.quote = {
         first: first ?? merged.about.quote.first,
-        accent: rest.join('') || merged.about.quote.accent,
+        accent: rest.join(''),
       }
     }
     if (data.aboutImageUrl) merged.about.image = data.aboutImageUrl
@@ -191,7 +191,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     console.warn('[Sanity] siteSettings fetch failed, using fallback config:', error)
     return fromConfig()
   }
-}
+})
 
 /* ============================================================ */
 /*  PROJECTS                                                     */
@@ -216,10 +216,12 @@ function normalizeSanityProject(p: any): DocumentaryProject {
       ? p.gallery.map((g: any) => (typeof g === 'string' ? g : imageUrl(g) ?? ''))
       : [],
     tags: p.tags ?? [],
+    video: p.video || undefined,
+    featured: Boolean(p.featured),
   }
 }
 
-export async function getProjects(): Promise<DocumentaryProject[]> {
+export const getProjects = cache(async function getProjects(): Promise<DocumentaryProject[]> {
   if (!sanityEnabled || !sanityClient) return fallbackProjects
 
   try {
@@ -230,9 +232,9 @@ export async function getProjects(): Promise<DocumentaryProject[]> {
     console.warn('[Sanity] projects fetch failed, using fallback data:', error)
     return fallbackProjects
   }
-}
+})
 
-export async function getProjectBySlug(
+export const getProjectBySlug = cache(async function getProjectBySlug(
   slug: string
 ): Promise<DocumentaryProject | null> {
   if (!sanityEnabled || !sanityClient) {
@@ -247,12 +249,12 @@ export async function getProjectBySlug(
     console.warn('[Sanity] project fetch failed, using fallback data:', error)
     return fallbackProjects.find((p) => p.slug === slug) ?? null
   }
-}
+})
 
-export async function getAllProjectSlugs(): Promise<string[]> {
+export const getAllProjectSlugs = cache(async function getAllProjectSlugs(): Promise<string[]> {
   const projects = await getProjects()
   return projects.map((p) => p.slug)
-}
+})
 
 /* ============================================================ */
 /*  TESTIMONIALS / SERVICES                                      */
@@ -268,7 +270,7 @@ export type Testimonial = {
 
 import { fallbackTestimonials, fallbackServices } from './data'
 
-export async function getTestimonials(): Promise<Testimonial[]> {
+export const getTestimonials = cache(async function getTestimonials(): Promise<Testimonial[]> {
   if (!sanityEnabled || !sanityClient) return fallbackTestimonials
 
   try {
@@ -285,9 +287,9 @@ export async function getTestimonials(): Promise<Testimonial[]> {
     console.warn('[Sanity] testimonials fetch failed, using fallback:', error)
     return fallbackTestimonials
   }
-}
+})
 
-export async function getServices(): Promise<{ title: string; description: string }[]> {
+export const getServices = cache(async function getServices(): Promise<{ title: string; description: string }[]> {
   if (!sanityEnabled || !sanityClient) return fallbackServices
 
   try {
@@ -301,4 +303,4 @@ export async function getServices(): Promise<{ title: string; description: strin
     console.warn('[Sanity] services fetch failed, using fallback:', error)
     return fallbackServices
   }
-}
+})

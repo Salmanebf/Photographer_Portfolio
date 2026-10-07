@@ -11,7 +11,7 @@ For non-developer content editing, read [`CONTENT.md`](./CONTENT.md).
 ## Quick start
 
 ```bash
-npm ci                      # 
+npm ci
 cp .env.example .env.local  # optional: only DATABASE_URL is really needed
 npx prisma generate
 npx prisma db push          # creates prisma/db/custom.db
@@ -22,7 +22,7 @@ npm run dev                 # http://localhost:3000
 | ------------------- | ---------------------------------------------------------------------------- |
 | `npm run dev`       | Next dev server on :3000 (output also tee'd to `dev.log`)                    |
 | `npm run build`     | `next build` (standalone output) + copies `.next/static` and `public` into it |
-| `npm run start`     | Runs `.next/standalone/server.js` **with bun**                                |
+| `npm run start`     | Runs the standalone server (`node .next/standalone/server.js`)               |
 | `npm run lint`      | ESLint                           |
 | `npm run typecheck` | `tsc --noEmit`                                                               |
 | `npm run db:*`      | Prisma `push` / `generate` / `migrate` / `reset`                             |
@@ -85,8 +85,6 @@ sanity/schemas/           project, service, testimonial, siteSettings (singleton
 sanity.config.ts          Studio config (basePath /studio, singleton structure, Vision tool)
 prisma/schema.prisma      one model: ContactMessage
 public/images/            hero, about and film images
-.zscripts/                platform deploy scripts (build/start/dev + mini-services) — see Deployment
-Caddyfile                 reverse proxy :81 → :3000
 ```
 
 ### Rendering model
@@ -114,12 +112,10 @@ Sanity `project` mirrors it, plus `order`. `ContactMessage` (Prisma): `id, name,
 | `NEXT_PUBLIC_SITE_URL`                            | Canonical/OG/sitemap base URL                                    |
 | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL`    | Optional email on new contact message                            |
 | `CONTACT_ADMIN_TOKEN`                             | Enables `GET /api/contact` (Bearer token); unset = 404           |
-| `NEXT_PUBLIC_ENABLE_ANALYTICS`                    | Enables beacon to `/api/analytics` (endpoint not implemented yet) |
 
 ### Deployment
 
-- `output: "standalone"`; run with `node`/`bun .next/standalone/server.js`. Remember to copy
+- `output: "standalone"`; run with `node .next/standalone/server.js`. Remember to copy
   `.next/static` and `public` (the `build` script does this).
-- `.zscripts/` and `Caddyfile` are platform-specific deploy helpers (bun + Caddy) and are optional.
 - Set `DATABASE_URL` to an absolute path on persistent storage. SQLite is not persistent on
   serverless hosts; use a hosted database there.

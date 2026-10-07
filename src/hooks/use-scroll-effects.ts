@@ -73,6 +73,7 @@ export function useCountUp(end: number, duration = 2000, startOnView = true) {
     if (!started) return
 
     let startTime: number
+    let frame = 0
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime
       const elapsed = currentTime - startTime
@@ -80,11 +81,12 @@ export function useCountUp(end: number, duration = 2000, startOnView = true) {
       const eased = 1 - Math.pow(1 - progressRatio, 3)
       setCount(Math.floor(eased * end))
       if (progressRatio < 1) {
-        requestAnimationFrame(animate)
+        frame = requestAnimationFrame(animate)
       }
     }
 
-    requestAnimationFrame(animate)
+    frame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frame)
   }, [started, end, duration])
 
   return { count, ref }

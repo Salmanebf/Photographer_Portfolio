@@ -58,7 +58,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSiteSettings();
-  const brandColor = settings.brand.color || "#c9a96e";
+  const DEFAULT_BRAND = "#c9a96e";
+  // Only a plain hex colour may reach the inline <style> below
+  const brandColor = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(settings.brand.color)
+    ? settings.brand.color
+    : DEFAULT_BRAND;
 
   // Brand color override — non-devs change this in /studio or site.config.ts
   const themeStyle = `

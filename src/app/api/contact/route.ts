@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/lib/db'
@@ -19,8 +20,8 @@ const contactSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(5000, 'Message too long')
     .trim(),
-  /** Honeypot — must be empty */
-  website: z.string().max(0).optional(),
+  /** Honeypot — real users leave it empty; bots fill it in */
+  website: z.string().max(500).optional(),
 })
 
 /* ============================================================ */
@@ -30,29 +31,48 @@ const contactSchema = z.object({
 
 const RATE_LIMIT_WINDOW_MS = 60_000 // 1 min
 const RATE_LIMIT_MAX = 5 // 5 requests per minute per IP
+const GLOBAL_LIMIT_MAX = 60 // overall ceiling per minute, regardless of IP
+const GLOBAL_KEY = '*'
 
 type Bucket = { count: number; resetAt: number }
 const buckets = new Map<string, Bucket>()
 
+/**
+ * Client IP as seen by the closest trusted proxy. The left-most
+ * X-Forwarded-For entry is client-controlled and trivially spoofed, so we use
+ * the platform-set X-Real-IP or the right-most (proxy-appended) entry.
+ */
 function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get('x-forwarded-for')
-  if (fwd) return fwd.split(',')[0].trim()
   const real = req.headers.get('x-real-ip')
-  if (real) return real
+  if (real) return real.trim()
+  const fwd = req.headers.get('x-forwarded-for')
+  if (fwd) return fwd.split(',').pop()!.trim()
   return 'unknown'
 }
 
-function checkRateLimit(ip: string): { allowed: boolean; resetAt: number } {
+function hit(key: string, max: number): { allowed: boolean; resetAt: number } {
   const now = Date.now()
-  const bucket = buckets.get(ip)
+  const bucket = buckets.get(key)
   if (!bucket || now > bucket.resetAt) {
     const resetAt = now + RATE_LIMIT_WINDOW_MS
-    buckets.set(ip, { count: 1, resetAt })
+    buckets.set(key, { count: 1, resetAt })
     return { allowed: true, resetAt }
   }
-  if (bucket.count >= RATE_LIMIT_MAX) return { allowed: false, resetAt: bucket.resetAt }
+  if (bucket.count >= max) return { allowed: false, resetAt: bucket.resetAt }
   bucket.count++
   return { allowed: true, resetAt: bucket.resetAt }
+}
+
+function checkRateLimit(ip: string): { allowed: boolean; resetAt: number } {
+  const perIp = hit(ip, RATE_LIMIT_MAX)
+  if (!perIp.allowed) return perIp
+  return hit(GLOBAL_KEY, GLOBAL_LIMIT_MAX)
+}
+
+function safeEqual(a: string, b: string): boolean {
+  const ha = createHash('sha256').update(a).digest()
+  const hb = createHash('sha256').update(b).digest()
+  return timingSafeEqual(ha, hb)
 }
 
 // Periodic cleanup
@@ -133,8 +153,8 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Fire-and-forget email
-    void sendEmail(parsed.data)
+    // sendEmail never throws; awaited so serverless runtimes don't cut it off
+    await sendEmail(parsed.data)
 
     return NextResponse.json(
       { success: true, id: contactMessage.id },
@@ -161,7 +181,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Disabled' }, { status: 404 })
   }
   const auth = request.headers.get('authorization') ?? ''
-  if (auth !== `Bearer ${adminToken}`) {
+  if (!safeEqual(auth, `Bearer ${adminToken}`)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

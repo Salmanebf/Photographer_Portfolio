@@ -55,9 +55,6 @@ site falls back to `site.config.ts` / `data.ts`.
 
 - Meta description / SEO keywords are **not** read from the studio yet; edit
   `seo` in `src/lib/site.config.ts`.
-- A film's **Trailer / Video URL** set in the studio is currently not displayed
- . Set it in `src/lib/data.ts` for now.
-- The newsletter box in the footer is a visual stub; it doesn't store emails.
 - The awards ticker and the 4 "process" steps in Services are hard-coded in
   `src/components/awards-marquee.tsx` and `src/components/services.tsx`.
 - Images from hosts other than `cdn.sanity.io` / `images.unsplash.com` must be
@@ -99,18 +96,9 @@ Without a token the endpoint is disabled (404).
 > address of your Resend account. To email anyone else, verify your own domain
 > in Resend and change the `from` address in `src/app/api/contact/route.ts`.
 
-> **Production database:** set `DATABASE_URL` to an **absolute** path
-> (e.g. `file:/app/data/custom.db`). The default relative path works in
-> `npm run dev` but fails in the standalone production build.
-
----
-
-## Analytics (optional)
-
-`NEXT_PUBLIC_ENABLE_ANALYTICS=true` makes the site send a pageview beacon to
-`/api/analytics`, **but that endpoint does not exist yet** (it returns 404). Create
-`src/app/api/analytics/route.ts` or swap `src/components/analytics.tsx` for your
-provider before enabling it.
+> **Database path:** a relative `DATABASE_URL` (default `file:./db/custom.db`)
+> is resolved against the `prisma/` folder. In production, prefer an
+> **absolute** path on persistent storage (e.g. `file:/app/data/custom.db`).
 
 ---
 

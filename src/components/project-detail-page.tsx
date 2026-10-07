@@ -115,12 +115,15 @@ export default function ProjectDetailPage({ project }: ProjectDetailPageProps) {
               {project.duration} · {project.year}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Award size={14} className="text-gold" />
-            <span className="text-muted-foreground">
-              {project.awards.length} Awards
-            </span>
-          </div>
+          {project.awards.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Award size={14} className="text-gold" />
+              <span className="text-muted-foreground">
+                {project.awards.length}{' '}
+                {project.awards.length === 1 ? 'Award' : 'Awards'}
+              </span>
+            </div>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12 lg:gap-16">
@@ -137,65 +140,69 @@ export default function ProjectDetailPage({ project }: ProjectDetailPageProps) {
               </p>
             </div>
 
-            <div
-              ref={galleryRef}
-              className={`scale-fade ${galleryRevealed ? 'revealed' : ''}`}
-            >
-              <h2 className="text-[9px] uppercase tracking-[0.5em] text-gold mb-5">
-                Gallery
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {project.gallery.map((img, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className="aspect-video overflow-hidden group relative"
-                  >
-                    <Image
-                      src={img}
-                      alt={`${project.title} — gallery image ${i + 1}`}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </motion.div>
-                ))}
+            {project.gallery.length > 0 && (
+              <div
+                ref={galleryRef}
+                className={`scale-fade ${galleryRevealed ? 'revealed' : ''}`}
+              >
+                <h2 className="text-[9px] uppercase tracking-[0.5em] text-gold mb-5">
+                  Gallery
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {project.gallery.map((img, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1, duration: 0.5 }}
+                      className="aspect-video overflow-hidden group relative"
+                    >
+                      <Image
+                        src={img}
+                        alt={`${project.title} — gallery image ${i + 1}`}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <aside
             ref={sidebarRef}
             className={`slide-right ${sidebarRevealed ? 'revealed' : ''} space-y-10`}
           >
-            <div>
-              <h2 className="text-[9px] uppercase tracking-[0.5em] text-gold mb-5">
-                Awards
-              </h2>
-              <div className="space-y-0">
-                {project.awards.map((award, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-3 py-3 border-b border-border/30 last:border-0"
-                  >
-                    <div className="w-1 h-1 rounded-full bg-gold mt-2 shrink-0" />
-                    <span className="text-sm text-foreground leading-snug">{award}</span>
-                  </div>
-                ))}
+            {project.awards.length > 0 && (
+              <div>
+                <h2 className="text-[9px] uppercase tracking-[0.5em] text-gold mb-5">
+                  Awards
+                </h2>
+                <div className="space-y-0">
+                  {project.awards.map((award, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 py-3 border-b border-border/30 last:border-0"
+                    >
+                      <div className="w-1 h-1 rounded-full bg-gold mt-2 shrink-0" />
+                      <span className="text-sm text-foreground leading-snug">{award}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div>
               <h2 className="text-[9px] uppercase tracking-[0.5em] text-gold mb-5">
                 Credits
               </h2>
               <div className="space-y-3">
-                {project.credits.map((credit) => (
+                {project.credits.map((credit, i) => (
                   <div
-                    key={credit.role}
+                    key={`${credit.role}-${i}`}
                     className="flex justify-between items-baseline gap-4"
                   >
                     <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">

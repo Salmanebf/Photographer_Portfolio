@@ -109,10 +109,5 @@ export const siteConfig = {
   footer: {
     tagline:
       'Award-winning documentary filmmaker telling stories that illuminate, inspire, and drive change.',
-    newsletter: {
-      enabled: true,
-      headline: 'Stay Updated',
-      description: 'Behind-the-scenes updates and new film releases.',
-    },
   },
 } as const
