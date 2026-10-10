@@ -3,6 +3,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
+import VideoLoop from '@/shared/media/video-loop'
 import { useCountUp } from '@/shared/hooks/use-scroll-effects'
 import type { SiteSettings } from '@/lib/queries'
 import Magnetic from '@/shared/effects/magnetic'
@@ -60,14 +61,11 @@ export default function Hero({ settings }: HeroProps) {
         className="absolute -inset-y-[10%] inset-x-0 z-0"
       >
         {hero.video ? (
-          <video
+          <VideoLoop
+            eager
             src={hero.video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
             poster={hero.image}
+            className="w-full h-full object-cover"
           />
         ) : (
           <Image

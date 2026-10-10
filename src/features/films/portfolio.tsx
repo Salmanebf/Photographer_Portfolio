@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
+import VideoLoop from '@/shared/media/video-loop'
 import Link from 'next/link'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import type { DocumentaryProject } from '@/lib/data'
@@ -127,6 +128,11 @@ export default function Portfolio({ projects }: PortfolioProps) {
                       fill
                       sizes="440px"
                       className="object-cover"
+                    />
+                    <VideoLoop
+                      src={displayProject.preview}
+                      poster={displayProject.image}
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
@@ -253,6 +259,10 @@ function MobileProjectCard({
             fill
             sizes="(max-width: 640px) 100vw, 50vw"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <VideoLoop
+            src={project.preview}
+            className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
           <div className="absolute top-3 left-3 flex items-center gap-2">

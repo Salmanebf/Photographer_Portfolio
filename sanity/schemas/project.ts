@@ -47,9 +47,29 @@ export const project = defineType({
     }),
     defineField({
       name: 'video',
-      title: 'Trailer / Video URL',
-      description: 'YouTube or Vimeo URL',
-      type: 'url',
+      title: 'Trailer / Video',
+      description:
+        'Bunny video: type bunny:<video-id> (copy the ID from Bunny Stream). Or paste a YouTube / Vimeo / MP4 URL.',
+      type: 'string',
+      validation: (Rule) =>
+        Rule.custom((v) =>
+          !v || /^(bunny:[A-Za-z0-9-]{8,64}|https?:\/\/\S+)$/.test(v)
+            ? true
+            : 'Use bunny:<video-id> or a full https:// URL'
+        ),
+    }),
+    defineField({
+      name: 'preview',
+      title: 'Preview loop (short, silent)',
+      description:
+        'A 5–10 second silent clip shown on the project card. bunny:<video-id> or an MP4 URL. Keep it under ~3 MB.',
+      type: 'string',
+      validation: (Rule) =>
+        Rule.custom((v) =>
+          !v || /^(bunny:[A-Za-z0-9-]{8,64}|https?:\/\/\S+)$/.test(v)
+            ? true
+            : 'Use bunny:<video-id> or a full https:// URL'
+        ),
     }),
     defineField({ name: 'year', title: 'Year', type: 'string' }),
     defineField({

@@ -64,8 +64,9 @@ site falls back to `site.config.ts` / `data.ts`.
 
 - **Site Settings** — brand color, logo (image or monogram), hero copy +
   background image/video, hero stats, about section, contact info, socials.
-- **Documentary Projects** — title, slug, cover image, video URL,
-  awards, credits, gallery, tags. (Each project gets a public page at
+- **Documentary Projects** — title, slug, cover image, trailer/video
+  (`bunny:<id>` or a YouTube/Vimeo/MP4 URL), a short silent *preview loop* for
+  the card, awards, credits, gallery, tags. (Each project gets a public page at
   `/work/<slug>`.)
 - **Services** — title + description for each offering.
 - **Testimonials** — quotes, names, roles, optional linked project.

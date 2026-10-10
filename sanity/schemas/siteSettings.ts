@@ -83,9 +83,10 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'heroVideo',
-      title: 'Hero Background Video URL (optional)',
-      description: 'MP4/WebM URL — when set, plays muted as hero background',
-      type: 'url',
+      title: 'Hero Background Video (optional)',
+      description:
+        'bunny:<video-id> or an MP4/WebM URL — when set, plays muted as the hero background',
+      type: 'string',
       group: 'hero',
     }),
     defineField({

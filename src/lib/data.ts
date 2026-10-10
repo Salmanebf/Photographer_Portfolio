@@ -14,8 +14,10 @@ export interface DocumentaryProject {
   credits: { role: string; name: string }[]
   gallery: string[]
   tags: string[]
-  /** Optional trailer / video URL (YouTube/Vimeo/MP4) */
+  /** Optional trailer / video: `bunny:<id>`, YouTube/Vimeo URL, or MP4 URL */
   video?: string
+  /** Optional short silent loop for cards/previews: `bunny:<id>` or MP4 URL */
+  preview?: string
   /** Optional flag for hero/featured display */
   featured?: boolean
 }

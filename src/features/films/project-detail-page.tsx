@@ -7,7 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { DocumentaryProject } from '@/lib/data'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
-import VideoPlayer from './video-player'
+import StreamPlayer from '@/shared/media/stream-player'
 
 interface ProjectDetailPageProps {
   project: DocumentaryProject
@@ -31,7 +31,7 @@ export default function ProjectDetailPage({ project }: ProjectDetailPageProps) {
       {/* Hero — video player or image */}
       <div ref={heroRef} className="relative h-[70vh] sm:h-[85vh] overflow-hidden bg-background">
         <motion.div style={{ scale: heroScale, y: heroY }} className="absolute inset-0">
-          <VideoPlayer
+          <StreamPlayer
             url={project.video}
             poster={project.image}
             title={project.title}

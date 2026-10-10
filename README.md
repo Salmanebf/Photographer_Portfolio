@@ -70,7 +70,7 @@ src/
     layout.tsx page.tsx work/[slug]/ studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
   features/
     hero/ about/ awards/ services/ testimonials/    home-page sections
-    films/                portfolio grid, film detail page, video player
+    films/                portfolio grid, film detail page
     contact/
       schema.ts           zod validation
       rate-limit.ts       in-memory per-IP limiter (swap the store for Redis)
@@ -81,6 +81,7 @@ src/
     layout/               navigation, footer
     effects/              custom cursor, magnetic, scroll progress
     ui/                   shadcn primitives + section heading
+    media/                VideoLoop, StreamPlayer, playback limiter, viewer prefs — see docs/PERFORMANCE.md
     hooks/ lib/           scroll effects, toast, `cn`
   lib/                    data layer: site.config, data (fallback content), queries (Sanity), db
 sanity/schemas/           project, service, testimonial, siteSettings (singleton)
@@ -115,6 +116,7 @@ Sanity `project` mirrors it, plus `order`. `ContactMessage` (Prisma): `id, name,
 | `NEXT_PUBLIC_SITE_URL`                            | Canonical/OG/sitemap base URL                                    |
 | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL`    | Optional email on new contact message                            |
 | `CONTACT_ADMIN_TOKEN`                             | Enables `GET /api/contact` (Bearer token); unset = 404           |
+| `NEXT_PUBLIC_BUNNY_CDN_HOST`                      | Bunny Stream library hostname; unset = `bunny:` videos show only their poster |
 
 ### Deployment
 

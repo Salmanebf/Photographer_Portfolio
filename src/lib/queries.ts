@@ -33,6 +33,7 @@ const PROJECTS_QUERY = `*[_type == "project"] | order(coalesce(order, 0) asc, ye
   credits,
   tags,
   video,
+  preview,
   featured,
   "image": image.asset->url,
   "gallery": gallery[].asset->url
@@ -53,6 +54,7 @@ const PROJECT_BY_SLUG_QUERY = `*[_type == "project" && slug.current == $slug][0]
   credits,
   tags,
   video,
+  preview,
   featured,
   "image": image.asset->url,
   "gallery": gallery[].asset->url
@@ -217,6 +219,7 @@ function normalizeSanityProject(p: any): DocumentaryProject {
       : [],
     tags: p.tags ?? [],
     video: p.video || undefined,
+    preview: p.preview || undefined,
     featured: Boolean(p.featured),
   }
 }
