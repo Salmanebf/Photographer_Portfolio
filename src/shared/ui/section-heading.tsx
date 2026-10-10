@@ -1,6 +1,6 @@
 'use client'
 
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 
 interface SectionHeadingProps {
   label: string

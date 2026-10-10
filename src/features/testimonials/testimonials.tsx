@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
-import SectionHeading from './section-heading'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
+import SectionHeading from '@/shared/ui/section-heading'
 import type { Testimonial } from '@/lib/queries'
 
 interface TestimonialsProps {

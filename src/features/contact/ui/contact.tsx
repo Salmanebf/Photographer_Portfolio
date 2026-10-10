@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { Send, MapPin, Mail, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/hooks/use-toast'
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
-import SectionHeading from './section-heading'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { Textarea } from '@/shared/ui/textarea'
+import { useToast } from '@/shared/hooks/use-toast'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
+import SectionHeading from '@/shared/ui/section-heading'
 import type { SiteSettings } from '@/lib/queries'
 
 interface ContactProps {

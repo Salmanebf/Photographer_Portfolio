@@ -3,8 +3,8 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
-import SectionHeading from './section-heading'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
+import SectionHeading from '@/shared/ui/section-heading'
 import type { SiteSettings } from '@/lib/queries'
 
 interface AboutProps {

@@ -6,7 +6,7 @@ import { MapPin, Clock, Award, ArrowLeft, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { DocumentaryProject } from '@/lib/data'
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import VideoPlayer from './video-player'
 
 interface ProjectDetailPageProps {

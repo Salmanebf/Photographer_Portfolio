@@ -6,7 +6,7 @@ import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import type { SiteSettings } from '@/lib/queries'
-import Magnetic from './magnetic'
+import Magnetic from '@/shared/effects/magnetic'
 
 const navLinks = [
   { href: '#home', label: 'Home' },

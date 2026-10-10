@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import type { DocumentaryProject } from '@/lib/data'
-import SectionHeading from './section-heading'
+import SectionHeading from '@/shared/ui/section-heading'
 
 interface PortfolioProps {
   projects: DocumentaryProject[]

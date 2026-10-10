@@ -1,7 +1,7 @@
 'use client'
 
-import { useScrollReveal } from '@/hooks/use-scroll-effects'
-import SectionHeading from './section-heading'
+import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
+import SectionHeading from '@/shared/ui/section-heading'
 
 const process = [
   {

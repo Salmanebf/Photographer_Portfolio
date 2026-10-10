@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getAllProjectSlugs, getProjectBySlug, getSiteSettings } from '@/lib/queries'
 import { siteConfig } from '@/lib/site.config'
-import Navigation from '@/components/navigation'
-import Footer from '@/components/footer'
-import ScrollProgress from '@/components/scroll-progress'
-import CustomCursor from '@/components/custom-cursor'
-import ProjectDetailPage from '@/components/project-detail-page'
+import Navigation from '@/shared/layout/navigation'
+import Footer from '@/shared/layout/footer'
+import ScrollProgress from '@/shared/effects/scroll-progress'
+import CustomCursor from '@/shared/effects/custom-cursor'
+import ProjectDetailPage from '@/features/films/project-detail-page'
 
 export const revalidate = 60
 

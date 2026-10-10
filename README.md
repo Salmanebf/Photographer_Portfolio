@@ -25,9 +25,10 @@ npm run dev                 # http://localhost:3000
 | `npm run start`     | Runs the standalone server (`node .next/standalone/server.js`)               |
 | `npm run lint`      | ESLint                           |
 | `npm run typecheck` | `tsc --noEmit`                                                               |
+| `npm test`          | Vitest unit tests (`test:watch` for watch mode)                              |
 | `npm run db:*`      | Prisma `push` / `generate` / `migrate` / `reset`                             |
 
-There is **no test suite**.
+Tests: `npm test` (Vitest, unit tests next to the code). CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR.
 
 ---
 
@@ -60,32 +61,34 @@ So the site works with zero external services, and editing is "code-only" (Path 
 
 ### Directory map
 
+The code is organised **by feature**: each feature owns its UI, logic and data shape, so one can be
+replaced (e.g. the contact form → a booking form) without touching the rest.
+
 ```
 src/
-  app/
-    layout.tsx            fonts (Geist), global <Metadata>, injects --gold brand colour as inline <style>
-    page.tsx              home page composition (revalidate = 60)
-    work/[slug]/page.tsx  film detail page + per-film OG/Twitter metadata
-    studio/[[...tool]]/   Sanity Studio mount (own layout)
-    api/contact/route.ts  contact endpoint (zod, in-memory rate limit, honeypot, Resend)
-    globals.css           design tokens (dark theme), scroll-reveal utility classes, marquee, cursor
-    sitemap.ts robots.ts not-found.tsx
-  components/             one file per section (hero, about, portfolio, services, testimonials, contact,
-                          footer, navigation) + effects (custom-cursor, magnetic, scroll-progress,
-                          awards-marquee) + video-player + project-detail-page
-    ui/                   only 5 shadcn primitives: button, input, textarea, toast, toaster
-  hooks/                  use-scroll-effects (reveal / count-up / progress), use-toast
-  lib/
-    site.config.ts        ALL editable brand/copy/SEO defaults (typed `as const`)
-    data.ts               fallback films, services, testimonials + `DocumentaryProject` type
-    queries.ts            GROQ queries + Sanity→app normalisation + fallbacks
-    sanity.client.ts      client + image-url helper; `sanityEnabled` flag
-    db.ts                 Prisma singleton
+  app/                    routes only — thin adapters that compose features
+    layout.tsx page.tsx work/[slug]/ studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
+  features/
+    hero/ about/ awards/ services/ testimonials/    home-page sections
+    films/                portfolio grid, film detail page, video player
+    contact/
+      schema.ts           zod validation
+      rate-limit.ts       in-memory per-IP limiter (swap the store for Redis)
+      service.ts          runs the handlers in order (critical vs best-effort)
+      handlers/           database.ts, email.ts … ← add/remove what happens on submit
+      ui/contact.tsx      the form section (swap for a booking form)
+  shared/
+    layout/               navigation, footer
+    effects/              custom cursor, magnetic, scroll progress
+    ui/                   shadcn primitives + section heading
+    hooks/ lib/           scroll effects, toast, `cn`
+  lib/                    data layer: site.config, data (fallback content), queries (Sanity), db
 sanity/schemas/           project, service, testimonial, siteSettings (singleton)
-sanity.config.ts          Studio config (basePath /studio, singleton structure, Vision tool)
 prisma/schema.prisma      one model: ContactMessage
 public/images/            hero, about and film images
 ```
+
+Rule of thumb: `features/*` may import from `shared/*` and `lib/*`, never from another feature.
 
 ### Rendering model
 

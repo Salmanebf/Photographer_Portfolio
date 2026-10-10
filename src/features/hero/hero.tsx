@@ -3,9 +3,9 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
-import { useCountUp } from '@/hooks/use-scroll-effects'
+import { useCountUp } from '@/shared/hooks/use-scroll-effects'
 import type { SiteSettings } from '@/lib/queries'
-import Magnetic from './magnetic'
+import Magnetic from '@/shared/effects/magnetic'
 
 function StatCounter({
   end,
