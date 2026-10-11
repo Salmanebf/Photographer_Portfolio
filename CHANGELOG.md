@@ -19,7 +19,7 @@ Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./doc
   mirrored arrows; checked with a temporary fake `ar` locale (not enabled).
 - **Fixes found by testing:** header overflowed at tablet widths (now full nav ≥1024 px, Collaborate ≥1280 px); stray
   horizontal scrollbar from the off-screen slide-in contact column (`overflow-x: clip`).
-- Tests: 95 (with a database; 91 without). New `docs/TESTING.md` entry U6.
+- Tests: 95 (with a database; 91 without). New `docs/TESTING.md` entry U6. GitHub CI run #3 passed every step.
 
 ## 2026-10-11 — Database changed to PostgreSQL (Neon), provider set by one env var
 

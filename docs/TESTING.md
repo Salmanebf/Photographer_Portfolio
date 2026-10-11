@@ -72,6 +72,7 @@ Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have f
 | Check | Result |
 | ----- | ------ |
 | Lint, typecheck, Sanity schema validation (0 errors) | pass |
+| **GitHub CI** (run #3, commit `ba99f76`): install, lint, typecheck, tests with a real Postgres service, and the production build | all green |
 | Tests: **95 pass** with a real Postgres (91 without; 4 need a database) — new: language negotiation, hreflang/sitemap, merge/localize helpers, **English/French message files have identical keys and placeholders**, **every film/service/testimonial has a French translation with unchanged names**, CMS normalisers (language + English fallback + old plain-string content), contact error codes, `locale` column incl. **upgrading an old table under 10 simultaneous requests** | pass |
 | Production build: `/en`, `/fr` and 12 film pages (6 films × 2 languages) pre-rendered | pass |
 | `/` redirect: no header → /en; `fr-FR` → /fr; German only → /en; cookie beats browser; invalid cookie ignored | 6/6 |
