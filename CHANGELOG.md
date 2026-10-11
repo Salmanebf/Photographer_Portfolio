@@ -17,7 +17,7 @@ Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./doc
 - **Studio:** brand theme + monogram logo (from `site.config.ts`), organised sidebar with icons, Site Settings tabs, `@sanity/icons` added.
 - **Fake Sanity API** (`npm run cms:mock`, `scripts/mock-sanity`, `groq-js`) + 12 CMS-path tests that run the real client and real GROQ
   queries; the CMS path had never been executed before.
-- Tests: 130 with a database (126 without). New `docs/TESTING.md` entry U7.
+- Tests: 130 with a database (126 without). New `docs/TESTING.md` entry U7. GitHub CI run #5 passed every step.
 
 ## 2026-10-11 — Phase 3: English / French (Arabic prepared)
 

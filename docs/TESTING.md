@@ -75,6 +75,7 @@ Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have f
 | Check | Result |
 | ----- | ------ |
 | Lint, typecheck, Sanity schema validation (0 errors, 0 warnings) | pass |
+| **GitHub CI** (run #5, commit `0099702`): install, lint, typecheck, all tests incl. the CMS-path tests with a real Postgres service, and the production build | all green |
 | Tests: **130 pass** with a real Postgres (126 without; 4 need a database). New: per-feature tests (films, services, testimonials, photography), site-settings normaliser (awards, steps, SEO, sharing image), **12 CMS-path tests that run the real Sanity client + the real GROQ queries against the fake API** (languages + English fallback, references followed, draft vs published, token only in preview, wrong/missing token, server errors, empty CMS), preview-link safety (open-redirect cases), real component renders (steps adapt/hide, awards band hides) | pass |
 | Production build: `/en`, `/fr` and film pages are still **statically generated** (reading preview mode did not make them dynamic); the two preview routes are on-demand | pass |
 | **Browser, built against the fake Sanity API** (EN and FR): page title, hero text, films / services / testimonial all from the CMS (no placeholders), exactly the 3 CMS "how I work" steps in a 3-column grid, CMS awards band, **brand colour from the CMS**, SEO keywords + description, social image = the CMS sharing image, indexable, no JS errors | pass |
