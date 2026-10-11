@@ -21,7 +21,7 @@ hero must paint its headline immediately; animate decoration, not the LCP text.
 Measure (needs Chrome/Chromium):
 
 ```bash
-npm run build && PORT=3000 node .next/standalone/server.js &
+npm run build && npm start &
 CHROME_PATH=/path/to/chrome npx lighthouse http://localhost:3000 \
   --only-categories=performance --form-factor=mobile --chrome-flags="--headless=new --no-sandbox"
 ```
@@ -51,7 +51,7 @@ with scroll, ≤ 3 concurrent clips on mobile, zero video requests with reduced 
 1. bunny.net → **Stream** → *Add Video Library*.
 2. Library → **Encoding**: enable **MP4 Fallback** (needed for preview loops).
 3. Library → **API / CDN**: copy the **CDN Hostname** (`vz-xxxxxxxx-xxx.b-cdn.net`) into
-   `NEXT_PUBLIC_BUNNY_CDN_HOST` (Vercel → Settings → Environment Variables).
+   `NEXT_PUBLIC_BUNNY_CDN_HOST` (your host's environment-variable settings, e.g. Vercel → Settings → Environment Variables).
 4. Upload a video, copy its **Video ID** (a GUID), and in the CMS enter `bunny:<that-id>`
    in *Trailer / Video* (film) or *Preview loop* (card clip).
 

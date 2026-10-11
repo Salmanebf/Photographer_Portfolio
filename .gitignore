@@ -51,9 +51,8 @@ test
 prompt
 
 server.log
-# database files (sqlite)
-db/*.db
-prisma/db/*.db
+# local database (libSQL/SQLite file used in dev)
+/local.db*
 *.db-journal
 
 # runtime artifacts

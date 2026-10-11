@@ -1,29 +1,32 @@
-import path from 'node:path'
-import { PrismaClient } from '@prisma/client'
+import { createClient, type Client } from '@libsql/client'
 
 /**
- * Prisma resolves a relative `file:` URL against the schema directory at
- * CLI time, but against its generated client at runtime (which breaks in the
- * standalone build). Resolve it here so dev and production agree:
- * relative paths are taken relative to `<cwd>/prisma`, absolute paths as-is.
+ * Database connection (libSQL / Turso).
+ *
+ *  - Production: set TURSO_DATABASE_URL (`libsql://…`) and TURSO_AUTH_TOKEN.
+ *  - Local dev:  nothing to set — falls back to a SQLite file, `local.db`.
+ *
+ * The same client works on every host (Vercel, Netlify, Docker/VPS) because it
+ * talks to Turso over HTTP/WebSocket. Only each feature's `store.ts` issues SQL,
+ * so moving to another database means rewriting those, nothing else.
  */
-function resolveDatabaseUrl(): string | undefined {
-  const url = process.env.DATABASE_URL
-  if (!url || !url.startsWith('file:')) return url
-  const file = url.slice('file:'.length).split('?')[0]
-  if (path.isAbsolute(file)) return url
-  return `file:${path.resolve(process.cwd(), 'prisma', file)}`
-}
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+const globalForDb = globalThis as unknown as { __libsql?: Client }
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    datasourceUrl: resolveDatabaseUrl(),
-    log: ['warn', 'error'],
+export function getDb(): Client {
+  if (globalForDb.__libsql) return globalForDb.__libsql
+
+  const url = process.env.TURSO_DATABASE_URL || 'file:local.db'
+  if (process.env.NODE_ENV === 'production' && url.startsWith('file:')) {
+    console.warn(
+      '[db] TURSO_DATABASE_URL is not set — using a local file. ' +
+        'Hosted platforms do not keep local files, so data will be lost. Set Turso credentials.'
+    )
+  }
+
+  globalForDb.__libsql = createClient({
+    url,
+    authToken: process.env.TURSO_AUTH_TOKEN || undefined,
   })
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+  return globalForDb.__libsql
+}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { contactStore } from '@/features/contact/store'
 import { contactSchema } from '@/features/contact/schema'
 import { checkRateLimit, getClientIp } from '@/features/contact/rate-limit'
 import { isAdminAuthorized } from '@/features/contact/admin-auth'
@@ -67,10 +67,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const messages = await db.contactMessage.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    })
+    const messages = await contactStore().list(50)
     return NextResponse.json({ messages })
   } catch (error) {
     console.error('Fetch messages error:', error)

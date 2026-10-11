@@ -25,7 +25,8 @@ Open `src/lib/site.config.ts`. Everything you can change is there:
 Films, services and testimonials live in `src/lib/data.ts`. Same idea:
 edit the array, save, refresh.
 
-After edits, redeploy (or restart `npm run dev`).
+After edits, redeploy (or restart `npm run dev`). Everything here is
+placeholder content until real content replaces it.
 
 ---
 
@@ -38,12 +39,16 @@ Sanity is a free CMS that gives the filmmaker a friendly editor at
 
 1. Sign up free at <https://www.sanity.io/>
 2. Create a project — copy the **Project ID** it gives you.
-3. Create a `.env.local` file in the project root (copy from `.env.example`):
+3. In the Sanity dashboard (*manage → API → CORS origins*) add your site's URL
+   (and `http://localhost:3000` while developing) with **credentials allowed**.
+   Without this, the Studio at `/studio` cannot sign in.
+4. Set the two variables — in `.env.local` locally, or in your hosting
+   dashboard in production (see `.env.example`):
    ```
    NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id_here
    NEXT_PUBLIC_SANITY_DATASET=production
    ```
-4. Restart the dev server, then visit `/studio`.
+   Then restart/redeploy and visit `/studio`.
 5. Sign in with the Sanity account you created in step 1.
 6. Click **Site Settings** to fill in brand color, logo, hero copy, etc.
 
@@ -56,7 +61,7 @@ site falls back to `site.config.ts` / `data.ts`.
 - Meta description / SEO keywords are **not** read from the studio yet; edit
   `seo` in `src/lib/site.config.ts`.
 - The awards ticker and the 4 "process" steps in Services are hard-coded in
-  `src/components/awards-marquee.tsx` and `src/components/services.tsx`.
+  `src/features/awards/awards-marquee.tsx` and `src/features/services/services.tsx`.
 - Images from hosts other than `cdn.sanity.io` / `images.unsplash.com` must be
   added to `images.remotePatterns` in `next.config.ts`.
 
@@ -66,14 +71,32 @@ site falls back to `site.config.ts` / `data.ts`.
   background image/video, hero stats, about section, contact info, socials.
 - **Documentary Projects** — title, slug, cover image, trailer/video
   (`bunny:<id>` or a YouTube/Vimeo/MP4 URL), a short silent *preview loop* for
-  the card, awards, credits, gallery, tags. (Each project gets a public page at
+  the card, awards, credits, gallery, tags.
+  See **Adding videos** below. (Each project gets a public page at
   `/work/<slug>`.)
 - **Services** — title + description for each offering.
 - **Testimonials** — quotes, names, roles, optional linked project.
 
+### Adding videos (Bunny Stream)
+
+Videos are not uploaded to the website. Upload them to your **Bunny Stream**
+library, then copy the video's **ID** into the Studio:
+
+- **Trailer / Video** (film page): `bunny:<video-id>` — plays on click, adaptive quality.
+  A YouTube / Vimeo / MP4 link also works.
+- **Preview loop** (the card / hover preview): `bunny:<video-id>` of a short
+  5–10 second **silent** clip, kept small (about 3 MB or less).
+- **Hero background video** (Site Settings): same format.
+
+Always keep a cover image — it is what shows first, and what visitors with
+"reduce motion" or Data Saver see instead of the clip. One-time Bunny setup
+(CDN hostname, MP4 fallback) is in `docs/PERFORMANCE.md`.
+
 ### Deploying the studio
 
 The studio is bundled with the site at `/studio`. No separate hosting needed.
+Content lives in Sanity, so **changing the website's host does not affect it**
+(only add the new site URL to Sanity's CORS origins).
 
 ---
 
@@ -88,18 +111,19 @@ To receive an email every time someone submits the contact form:
    CONTACT_NOTIFICATION_EMAIL=you@example.com
    ```
 
-Without these, the form still works — submissions just save to the database.
+Without these, the form still works — submissions are still saved to the database.
 To read them, set `CONTACT_ADMIN_TOKEN` and call
 `GET /api/contact` with the header `Authorization: Bearer <token>` (returns the latest 50).
 Without a token the endpoint is disabled (404).
 
 > Resend's default sender (`onboarding@resend.dev`) only delivers to the email
 > address of your Resend account. To email anyone else, verify your own domain
-> in Resend and change the `from` address in `src/app/api/contact/route.ts`.
+> in Resend and change the `from` address in `src/features/contact/handlers/email.ts`.
 
-> **Database path:** a relative `DATABASE_URL` (default `file:./db/custom.db`)
-> is resolved against the `prisma/` folder. In production, prefer an
-> **absolute** path on persistent storage (e.g. `file:/app/data/custom.db`).
+> **Where messages are stored:** in a Turso database (`TURSO_DATABASE_URL` +
+> `TURSO_AUTH_TOKEN`). Without those, a local `local.db` file is used — fine on
+> your own computer, but hosted platforms don't keep files, so **always set the
+> Turso variables in production**. The table is created automatically.
 
 ---
 

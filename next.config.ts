@@ -19,7 +19,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Hosted platforms (Vercel, Netlify…) build their own way. A self-contained
+  // server for Docker / a VPS is opt-in: BUILD_STANDALONE=1 npm run build
+  ...(process.env.BUILD_STANDALONE === "1" ? { output: "standalone" as const } : {}),
   reactStrictMode: true,
   poweredByHeader: false,
   images: {

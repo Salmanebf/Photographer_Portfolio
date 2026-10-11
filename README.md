@@ -1,10 +1,52 @@
 # Documentary Filmmaker Portfolio
 
-A cinematic, single-page portfolio for a documentary filmmaker (placeholder persona: **Alex Rivera**),
-plus one detail page per film. Built with **Next.js 16 (App Router) · React 19 · Tailwind CSS 4 ·
-Framer Motion**, with an optional **Sanity CMS** and a **Prisma + SQLite** contact-form backend.
+A cinematic portfolio for a documentary filmmaker, built to **show the work and win new commissions** —
+from businesses to individuals with a story to tell (an artist, a collector…).
+Dark editorial design, one page per film, lots of short looping video, and a CMS the filmmaker edits himself.
 
-For non-developer content editing, read [`CONTENT.md`](./CONTENT.md).
+> **All current content (name "Alex Rivera", films, awards, testimonials, images) is generated placeholder
+> content.** The structure is what matters; real content replaces it later through the CMS.
+
+**Status:** under active development on a phased plan → see [`docs/ROADMAP.md`](./docs/ROADMAP.md)
+(what is done, what is next, and the decisions behind it). Notable changes → [`CHANGELOG.md`](./CHANGELOG.md).
+
+---
+
+## The stack at a glance
+
+| Concern            | Service / tech                  | Why                                                   | Portable?                                  |
+| ------------------ | ------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
+| Code & hosting     | **Vercel** (Next.js 16)         | Zero-config Next.js, preview URL per branch           | **Yes** — see [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) |
+| Video streaming    | **Bunny Stream**                | Adaptive HLS, pay per GB, cheapest quality/price      | Swap by editing `src/shared/media/`        |
+| Database           | **Turso** (libSQL = SQLite-compatible, *not* Postgres) | Tiny data (contact messages), works on any host | Swap by editing each feature's `store.ts` |
+| Content (CMS)      | **Sanity** (embedded at `/studio`) | The filmmaker's admin dashboard: films, text, images | Content lives in Sanity, independent of hosting |
+| Contact email      | **Resend** (optional)           | Email notification on a new message                   | One handler: `features/contact/handlers/email.ts` |
+
+Front end: **Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · Framer Motion**. Language: TypeScript.
+Tests: Vitest. CI: GitHub Actions.
+
+```
+Browser ─► Vercel (Next.js)
+             ├─ /                  home page (sections, server-rendered, revalidate 60 s)
+             ├─ /work/[slug]       one page per film (SSG + ISR)
+             ├─ /studio            Sanity Studio — the admin dashboard
+             ├─ /api/contact       POST: validate → rate-limit → handlers (Turso, email)
+             │                     GET : admin list, gated by CONTACT_ADMIN_TOKEN
+             ├─ /sitemap.xml, /robots.txt
+             ├─ content  ◄─ Sanity (falls back to src/lib/site.config.ts + data.ts if unset)
+             ├─ videos   ◄─ Bunny Stream (HLS) — never served from the site itself
+             └─ messages ─► Turso (libSQL)
+```
+
+## Site structure
+
+**Live today** (home page, in order): Hero · About · Awards ticker · Films · Services · Testimonials · Contact · Footer,
+plus a detail page per film at `/work/<slug>`.
+
+**Planned redesign** (details and phase in the roadmap): new orbit-style Hero with playing video cards ·
+creative About that sells a filmmaker with no awards yet · "Films" renamed **Projects** · Services reduced to
+*what I offer* · new **Timeline** section (how a project is made, linking to a detail page) ·
+Testimonials restyled and renamed · Contact unchanged · later: a photo gallery page. Languages: **EN/FR now, AR later**.
 
 ---
 
@@ -12,115 +54,113 @@ For non-developer content editing, read [`CONTENT.md`](./CONTENT.md).
 
 ```bash
 npm ci
-cp .env.example .env.local  # optional: only DATABASE_URL is really needed
-npx prisma generate
-npx prisma db push          # creates prisma/db/custom.db
-npm run dev                 # http://localhost:3000
+cp .env.example .env.local   # everything is optional for local development
+npm run dev                  # http://localhost:3000   (Studio at /studio)
 ```
 
-| Command             | What it does                                                                 |
-| ------------------- | ---------------------------------------------------------------------------- |
-| `npm run dev`       | Next dev server on :3000 (output also tee'd to `dev.log`)                    |
-| `npm run build`     | `next build` (standalone output) + copies `.next/static` and `public` into it |
-| `npm run start`     | Runs the standalone server (`node .next/standalone/server.js`)               |
-| `npm run lint`      | ESLint                           |
-| `npm run typecheck` | `tsc --noEmit`                                                               |
-| `npm test`          | Vitest unit tests (`test:watch` for watch mode)                              |
-| `npm run db:*`      | Prisma `push` / `generate` / `migrate` / `reset`                             |
+With **no environment variables** the site runs fully on placeholder content and a local SQLite file
+(`local.db`, git-ignored) — nothing external is needed to develop.
 
-Tests: `npm test` (Vitest, unit tests next to the code). CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR.
+| Command                 | What it does                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `npm run dev`           | Dev server on :3000                                                          |
+| `npm run build`         | `next build` — what Vercel/Netlify run                                       |
+| `npm start`             | `next start` — production server on any Node host                            |
+| `npm run lint`          | ESLint                                                                       |
+| `npm run typecheck`     | `tsc --noEmit`                                                               |
+| `npm test`              | Vitest unit tests (`npm run test:watch` for watch mode)                      |
+| `BUILD_STANDALONE=1 npm run build` | Self-contained server for Docker/VPS (see `Dockerfile`)            |
+
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR.
+
+## Environment variables
+
+Copy `.env.example`. All are optional locally; set them in the host's dashboard for production.
+
+| Variable                                       | Purpose                                                              |
+| ---------------------------------------------- | -------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                         | Canonical / Open Graph / sitemap base URL (your real domain)         |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID`, `…_DATASET`   | Turns the CMS on; unset = placeholder content from code             |
+| `NEXT_PUBLIC_BUNNY_CDN_HOST`                   | Bunny library hostname; unset = `bunny:` videos show only the poster |
+| `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`       | Contact-message database; unset = local `local.db` file (dev only)   |
+| `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL` | Email on each new contact message                                    |
+| `CONTACT_ADMIN_TOKEN`                          | Enables `GET /api/contact` (Bearer token); unset = 404               |
+| `BUILD_STANDALONE`                             | Build-time only; `1` = standalone output for Docker                  |
 
 ---
 
 ## Architecture
 
-```
-Browser ──► Next.js (App Router, port 3000)
-              │
-              ├─ /                 server component: fetches 4 datasets, renders all sections
-              ├─ /work/[slug]      SSG + ISR (revalidate 60s) per-film page
-              ├─ /studio/[[...tool]]  embedded Sanity Studio (client component)
-              ├─ /api/contact      POST: validate → rate-limit → SQLite (Prisma) → optional Resend email
-              │                    GET : admin list, gated by CONTACT_ADMIN_TOKEN
-              ├─ /sitemap.xml, /robots.txt   generated by src/app/sitemap.ts, robots.ts
-              │
-              ├─ Data layer  src/lib/queries.ts ──► Sanity (if configured) ──fallback──► site.config.ts + data.ts
-              └─ Prisma → prisma/db/custom.db (SQLite)   model ContactMessage
-```
-
-### The key idea: CMS with graceful fallback
-
-`src/lib/queries.ts` is the single data-access layer. Every getter (`getSiteSettings`, `getProjects`,
-`getProjectBySlug`, `getServices`, `getTestimonials`) does:
-
-1. If `NEXT_PUBLIC_SANITY_PROJECT_ID` is unset → return static fallback (`site.config.ts` / `data.ts`).
-2. Otherwise run a GROQ query; on error or empty result → fall back to static data.
-3. For settings, Sanity values are **merged field-by-field over** the static config (empty CMS field = keep default).
-
-So the site works with zero external services, and editing is "code-only" (Path A) or "Studio" (Path B).
-
-### Directory map
-
-The code is organised **by feature**: each feature owns its UI, logic and data shape, so one can be
-replaced (e.g. the contact form → a booking form) without touching the rest.
+The code is organised **by feature**, so one piece (e.g. the contact form → a booking form) can be replaced
+without touching the rest.
 
 ```
 src/
   app/                    routes only — thin adapters that compose features
     layout.tsx page.tsx work/[slug]/ studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
   features/
-    hero/ about/ awards/ services/ testimonials/    home-page sections
-    films/                portfolio grid, film detail page
+    hero/ about/ awards/ services/ testimonials/   home-page sections
+    films/                project grid + hover preview, film detail page
     contact/
       schema.ts           zod validation
-      rate-limit.ts       in-memory per-IP limiter (swap the store for Redis)
+      rate-limit.ts       in-memory per-IP limiter
       service.ts          runs the handlers in order (critical vs best-effort)
       handlers/           database.ts, email.ts … ← add/remove what happens on submit
+      store.ts            ALL SQL for contact messages (table auto-created on first use)
       ui/contact.tsx      the form section (swap for a booking form)
   shared/
+    media/                VideoLoop, StreamPlayer, playback limiter, viewer prefs  → docs/PERFORMANCE.md
     layout/               navigation, footer
     effects/              custom cursor, magnetic, scroll progress
     ui/                   shadcn primitives + section heading
-    media/                VideoLoop, StreamPlayer, playback limiter, viewer prefs — see docs/PERFORMANCE.md
     hooks/ lib/           scroll effects, toast, `cn`
-  lib/                    data layer: site.config, data (fallback content), queries (Sanity), db
+  lib/                    data layer: site.config, data (fallback content), queries (Sanity), db (libSQL client)
 sanity/schemas/           project, service, testimonial, siteSettings (singleton)
-prisma/schema.prisma      one model: ContactMessage
+docs/                     ROADMAP, DEPLOYMENT, PERFORMANCE
 public/images/            hero, about and film images
 ```
 
-Rule of thumb: `features/*` may import from `shared/*` and `lib/*`, never from another feature.
+Rules (also enforced by tests where possible):
+- `features/*` may import from `shared/*` and `lib/*`, **never from another feature**.
+- Video/iframe playback goes through `shared/media/` only.
+- SQL lives only in a feature's `store.ts`.
+- **No hosting-vendor code** (`@vercel/*`, `VERCEL_*`, `NETLIFY_*`) anywhere in the app — `src/portability.test.ts` fails if it appears.
 
-### Rendering model
+### Content with graceful fallback
 
-- `/` and `/work/[slug]` are server components that pass plain props to client section components.
-- Both use ISR (`revalidate = 60`); Sanity client also uses the CDN in production.
-- Scroll/entrance animation = `useScrollReveal` (IntersectionObserver adds a `.revealed` class) +
-  CSS utility classes (`slide-left`, `scale-fade`, `blur-in`, …) in `globals.css`; heavier motion
-  (hero parallax, letterbox bars, preview panel) uses Framer Motion.
-- Theme is dark-only (`<html class="dark">`); the accent colour is the `--gold` CSS variable,
-  overridden at runtime from `brand.color`.
+`src/lib/queries.ts` is the single data-access layer. Each getter reads Sanity if
+`NEXT_PUBLIC_SANITY_PROJECT_ID` is set, and falls back to `site.config.ts` / `data.ts` on a missing
+config, an error or an empty result. Site settings are merged field-by-field over the static config.
+So the site always renders, with or without the CMS.
+
+### Videos
+
+A video is one string in a content field: `bunny:<video-id>`, a YouTube/Vimeo URL, or a direct file URL.
+Films get a click-to-play player (adaptive HLS from Bunny, loaded only on click); cards and the hero get
+short silent loops that load only when on screen, pause when scrolled away and never exceed 3 playing at once.
+Reduced-motion / Data Saver / 2G visitors get the poster instead. Details, budgets and Bunny setup:
+[`docs/PERFORMANCE.md`](./docs/PERFORMANCE.md).
 
 ### Data model
 
-`DocumentaryProject` (`src/lib/data.ts`): `id, slug, title, subtitle, category, image, year, duration,
-location, shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], tags[], video?, featured?`.
-Sanity `project` mirrors it, plus `order`. `ContactMessage` (Prisma): `id, name, email, subject, message, read, createdAt, updatedAt`.
+`DocumentaryProject` (`src/lib/data.ts`): `id, slug, title, subtitle, category, image, year, duration, location,
+shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], tags[], video?, preview?, featured?`.
+The Sanity `project` type mirrors it, plus `order`. Contact messages: table `contact_messages`
+(`id, name, email, subject, message, is_read, created_at`), created automatically on first use.
 
-### Environment variables
+## Editing content
 
-| Variable                                          | Purpose                                                          |
-| ------------------------------------------------- | ---------------------------------------------------------------- |
-| `DATABASE_URL`                                    | SQLite path. Use an absolute path in production |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID`, `..._DATASET`    | Enables Sanity; unset = static fallbacks                         |
-| `NEXT_PUBLIC_SITE_URL`                            | Canonical/OG/sitemap base URL                                    |
-| `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL`    | Optional email on new contact message                            |
-| `CONTACT_ADMIN_TOKEN`                             | Enables `GET /api/contact` (Bearer token); unset = 404           |
-| `NEXT_PUBLIC_BUNNY_CDN_HOST`                      | Bunny Stream library hostname; unset = `bunny:` videos show only their poster |
+The filmmaker edits everything at **`/studio`** (Sanity) — see [`CONTENT.md`](./CONTENT.md) (non-developer guide).
+Developers can also edit the fallback content directly in `src/lib/site.config.ts` and `src/lib/data.ts`.
 
-### Deployment
+## Deploying
 
-- `output: "standalone"`; run with `node .next/standalone/server.js`. Remember to copy
-  `.next/static` and `public` (the `build` script does this).
-- Set `DATABASE_URL` to an absolute path on persistent storage. SQLite is not persistent on
-  serverless hosts; use a hosted database there.
+Primary target is Vercel; the code is deliberately host-neutral (Netlify or a Docker/VPS host need only
+config changes, no code changes). Step-by-step setup for each service, the switch-hosts checklist and known
+limitations: [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
+
+## Contributing / maintenance
+
+- Run `npm run lint && npm run typecheck && npm test` before pushing.
+- **Docs are part of every change**: update `README.md`, `CONTENT.md`, `docs/*`, `.env.example`,
+  `docs/ROADMAP.md` (status) and `CHANGELOG.md` in the same commit as the code. See `CLAUDE.md`.
