@@ -1,7 +1,7 @@
 # Roadmap & decisions
 
 Keep this file current: update the status column and decision log whenever work lands.
-Last updated: 2026-10-11.
+Last updated: 2026-10-11 (PostgreSQL switch).
 
 ## Goal
 
@@ -15,7 +15,7 @@ content is replaced later. Heavy use of short video must not hurt loading.
 | -- | ------------------------ | ------------- | --------------- |
 | 1  | Foundation               | ✅ Done        | `features/`+`shared/` structure, pluggable contact handlers, Vitest, CI, dead code removed |
 | 2  | Media engine             | ✅ Done *(real Bunny playback unverified — needs a Bunny library)* | `VideoLoop`, `StreamPlayer`, playback limiter, viewer preferences, `bunny:<id>` refs, performance budget |
-| —  | Hosting stack & database | ✅ Done (pulled forward from 6) | Turso replaces Prisma/SQLite; host-neutral build; `DEPLOYMENT.md`; portability test |
+| —  | Hosting stack & database | ✅ Done (pulled forward from 6) | PostgreSQL (Neon) via `DATABASE_URL` replaces Prisma/SQLite; host-neutral build; `DEPLOYMENT.md`; portability test |
 | 3  | i18n                     | ⏭ Next        | EN/FR via URL locales, localized CMS fields, language switcher, `hreflang`; layout RTL-ready for AR later |
 | 4  | Content model & CMS      | Planned       | Photo series type, make awards/process/SEO editable, branded Studio, draft preview, split data layer per feature |
 | 5  | Sections & design        | Planned       | New hero (orbit design, video cards), creative About, Projects, Services (what I offer), Timeline, Testimonials restyle, fix LCP (see below) |
@@ -47,14 +47,15 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-10 | Keep **Sanity** (embedded `/studio`) instead of a custom admin | Already included, branded, localizable; a custom admin = weeks of work and security risk |
 | 2026-10-10 | Features own their code; contact logic = pluggable handlers | Client wants to swap the form for a booking form later |
 | 2026-10-10 | Video via **Bunny Stream** | Pay per GB, free standard encoding, cheaper than Cloudflare Stream / Mux for this volume. *Check delivery pricing if most clients are in Middle East / Africa.* |
-| 2026-10-11 | **Vercel** for code, **Turso** for DB, **Sanity** for content | Client's final choice. Turso is libSQL/SQLite, not Postgres — fine for one small table |
-| 2026-10-11 | Replace Prisma with `@libsql/client` + a per-feature `store.ts` | Prisma + Turso needs an adapter and manual migrations; one table doesn't justify it; portable everywhere |
+| 2026-10-11 | **Vercel** for code, **Bunny** for video, **Sanity** for content | Client's final choice |
+| 2026-10-11 | Database: **PostgreSQL (Neon)**, driven only by `DATABASE_URL` — *supersedes the same-day Turso choice* | Client prefers real Postgres and a provider-agnostic setup: switching provider = change one env var |
+| 2026-10-11 | Replace Prisma with the plain `pg` driver + a per-feature `store.ts`; in-process Postgres (PGlite) for dev/tests | One table doesn't justify an ORM/migrations; works on any Postgres host; zero-setup local dev |
 | 2026-10-11 | Stay host-neutral: standalone output opt-in, no vendor SDKs, guarded by a test | Client wants to switch hosts (e.g. Netlify) with minor adjustments |
 
 ## Open items / risks
 
 - Bunny URL shapes were written from Bunny's docs; verify on first upload (`PERFORMANCE.md`).
 - **LCP is 3.5 s** (target 2.5 s): hero tagline hidden ~2.6 s by its entrance animation. Fix in Phase 5.
-- Not yet deployed anywhere; Docker image and Netlify unverified (see `DEPLOYMENT.md`).
+- Not yet deployed anywhere; Docker image, Netlify, real Neon, real Sanity and real Bunny are unverified — see the "Not yet tested" table in [`TESTING.md`](./TESTING.md).
 - Rate limiting is per-instance on serverless hosts until Phase 6.
 - Bunny delivery cost depends on where visitors are; confirm the audience's regions.

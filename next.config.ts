@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
   ...(process.env.BUILD_STANDALONE === "1" ? { output: "standalone" as const } : {}),
   reactStrictMode: true,
   poweredByHeader: false,
+  // Loaded from node_modules at runtime instead of being bundled (native/WASM database drivers).
+  serverExternalPackages: ["pg", "@electric-sql/pglite"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "/**" },

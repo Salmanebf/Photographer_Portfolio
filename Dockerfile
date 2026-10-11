@@ -8,7 +8,7 @@
 #   docker run -p 3000:3000 --env-file .env.local portfolio
 #
 # NEXT_PUBLIC_* values are baked in at build time (build args); server secrets
-# (TURSO_*, RESEND_API_KEY, CONTACT_*) are read at runtime (--env-file).
+# (DATABASE_URL, RESEND_API_KEY, CONTACT_*) are read at runtime (--env-file).
 
 FROM node:22-alpine AS deps
 WORKDIR /app

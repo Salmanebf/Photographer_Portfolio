@@ -1,6 +1,6 @@
 # Deployment & portability
 
-**Final stack:** Vercel (code) · Bunny Stream (video) · Turso (database) · Sanity (content).
+**Final stack:** Vercel (code) · Bunny Stream (video) · Neon (PostgreSQL database) · Sanity (content).
 Only the first one is a *host*; the other three are independent services reached over the internet,
 so **moving the code to another host never moves your data, videos or content.**
 
@@ -13,7 +13,7 @@ so **moving the code to another host never moves your data, videos or content.**
 | Piece                  | Lives at          | Tied to the host? |
 | ---------------------- | ----------------- | ----------------- |
 | App code               | Git repo → host   | No hosting-vendor code in the app (guarded by `src/portability.test.ts`) |
-| Contact messages       | Turso             | No — any host reaches it with the same two env vars |
+| Contact messages       | Neon (Postgres)   | No — any host reaches it with one env var, `DATABASE_URL` |
 | Films / text / images  | Sanity            | No — only needs the host's domain added to Sanity's CORS list |
 | Videos                 | Bunny Stream      | No — a hostname in an env var |
 | Domain / DNS           | Registrar         | No — repoint it when you move |
@@ -26,9 +26,10 @@ No `vercel.json` / `netlify.toml` is required; the app has none.
 
 1. **Sanity** — create a project at sanity.io, copy the Project ID. In *manage → API → CORS origins* add
    your site URL (and `http://localhost:3000`) with **credentials allowed** so `/studio` can sign in.
-2. **Turso** — create a database (dashboard, or Vercel's Turso integration, which injects the two variables
-   for you). You need `TURSO_DATABASE_URL` (`libsql://…`) and `TURSO_AUTH_TOKEN`. No migration step:
-   the table is created on the first message.
+2. **Database (Neon)** — create a project at neon.tech, open *Connection details* and copy the **pooled**
+   connection string (the host contains `-pooler`; pooling is what serverless hosts need). Set it as
+   `DATABASE_URL`. No migration step: the table is created on the first message. Vercel's Neon integration
+   can also create and inject this variable for you.
 3. **Bunny Stream** — create a video library, enable *MP4 Fallback*, copy the CDN hostname
    (see [`PERFORMANCE.md`](./PERFORMANCE.md) for the full steps).
 4. **Vercel** — import the GitHub repo; framework is auto-detected. Add the environment variables from
@@ -61,6 +62,8 @@ Self-hosting means you own updates, backups and uptime.
 
 - **Rate limiter is in-memory per server instance.** On serverless hosts each instance has its own counters,
   so the limit is soft. A database-backed limiter is planned with the contact rework (Phase 6).
-- Turso is **SQLite-compatible, not Postgres**. Fine for this data; a different database later means rewriting
-  only each feature's `store.ts`.
-- Local `file:` databases don't persist on hosted platforms — the app logs a warning if production runs without Turso credentials.
+- **Switching database provider** (Neon → Supabase, Railway, your own server…) = change `DATABASE_URL`, nothing else.
+  Existing messages don't move by themselves: export with `pg_dump -t contact_messages` and import into the new one.
+- In production the app **refuses to start the form without `DATABASE_URL`** (error + log) rather than silently using a local
+  database that hosted platforms would erase. Development without it uses an in-process Postgres.
+- Only the standard Postgres wire protocol is used (no Neon-specific SDK), so non-Postgres databases would require rewriting each feature's `store.ts`.

@@ -111,7 +111,7 @@ To receive an email every time someone submits the contact form:
    CONTACT_NOTIFICATION_EMAIL=you@example.com
    ```
 
-Without these, the form still works — submissions are still saved to the database.
+Without these, the form still works — submissions are still saved in the database.
 To read them, set `CONTACT_ADMIN_TOKEN` and call
 `GET /api/contact` with the header `Authorization: Bearer <token>` (returns the latest 50).
 Without a token the endpoint is disabled (404).
@@ -120,10 +120,12 @@ Without a token the endpoint is disabled (404).
 > address of your Resend account. To email anyone else, verify your own domain
 > in Resend and change the `from` address in `src/features/contact/handlers/email.ts`.
 
-> **Where messages are stored:** in a Turso database (`TURSO_DATABASE_URL` +
-> `TURSO_AUTH_TOKEN`). Without those, a local `local.db` file is used — fine on
-> your own computer, but hosted platforms don't keep files, so **always set the
-> Turso variables in production**. The table is created automatically.
+> **Where messages are stored:** in a PostgreSQL database (`DATABASE_URL`, e.g. a
+> free Neon database). To read them, open your database provider's SQL editor and
+> run `select * from contact_messages order by created_at desc`. On your own
+> computer (no `DATABASE_URL`) a built-in test database is used. **In production
+> `DATABASE_URL` is required** — without it the form reports an error instead of
+> silently losing messages. The table is created automatically.
 
 ---
 

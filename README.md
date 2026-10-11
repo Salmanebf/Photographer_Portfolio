@@ -9,6 +9,7 @@ Dark editorial design, one page per film, lots of short looping video, and a CMS
 
 **Status:** under active development on a phased plan → see [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 (what is done, what is next, and the decisions behind it). Notable changes → [`CHANGELOG.md`](./CHANGELOG.md).
+**What to test and how → [`docs/TESTING.md`](./docs/TESTING.md).**
 
 ---
 
@@ -18,7 +19,7 @@ Dark editorial design, one page per film, lots of short looping video, and a CMS
 | ------------------ | ------------------------------- | ----------------------------------------------------- | ------------------------------------------ |
 | Code & hosting     | **Vercel** (Next.js 16)         | Zero-config Next.js, preview URL per branch           | **Yes** — see [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) |
 | Video streaming    | **Bunny Stream**                | Adaptive HLS, pay per GB, cheapest quality/price      | Swap by editing `src/shared/media/`        |
-| Database           | **Turso** (libSQL = SQLite-compatible, *not* Postgres) | Tiny data (contact messages), works on any host | Swap by editing each feature's `store.ts` |
+| Database           | **Neon** (serverless **PostgreSQL**) | Contact messages; standard Postgres, so the provider is just a connection string | **Yes — any Postgres: change only `DATABASE_URL`** |
 | Content (CMS)      | **Sanity** (embedded at `/studio`) | The filmmaker's admin dashboard: films, text, images | Content lives in Sanity, independent of hosting |
 | Contact email      | **Resend** (optional)           | Email notification on a new message                   | One handler: `features/contact/handlers/email.ts` |
 
@@ -30,12 +31,12 @@ Browser ─► Vercel (Next.js)
              ├─ /                  home page (sections, server-rendered, revalidate 60 s)
              ├─ /work/[slug]       one page per film (SSG + ISR)
              ├─ /studio            Sanity Studio — the admin dashboard
-             ├─ /api/contact       POST: validate → rate-limit → handlers (Turso, email)
+             ├─ /api/contact       POST: validate → rate-limit → handlers (PostgreSQL, email)
              │                     GET : admin list, gated by CONTACT_ADMIN_TOKEN
              ├─ /sitemap.xml, /robots.txt
              ├─ content  ◄─ Sanity (falls back to src/lib/site.config.ts + data.ts if unset)
              ├─ videos   ◄─ Bunny Stream (HLS) — never served from the site itself
-             └─ messages ─► Turso (libSQL)
+             └─ messages ─► PostgreSQL (Neon) via DATABASE_URL
 ```
 
 ## Site structure
@@ -58,8 +59,9 @@ cp .env.example .env.local   # everything is optional for local development
 npm run dev                  # http://localhost:3000   (Studio at /studio)
 ```
 
-With **no environment variables** the site runs fully on placeholder content and a local SQLite file
-(`local.db`, git-ignored) — nothing external is needed to develop.
+With **no environment variables** the site runs fully on placeholder content and an in-process Postgres
+(PGlite, stored in `.pglite/`, git-ignored) — nothing external needs installing to develop.
+To develop against a real Postgres, set `DATABASE_URL` in `.env.local`.
 
 | Command                 | What it does                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------- |
@@ -68,10 +70,13 @@ With **no environment variables** the site runs fully on placeholder content and
 | `npm start`             | `next start` — production server on any Node host                            |
 | `npm run lint`          | ESLint                                                                       |
 | `npm run typecheck`     | `tsc --noEmit`                                                               |
-| `npm test`              | Vitest unit tests (`npm run test:watch` for watch mode)                      |
+| `npm test`              | Vitest tests (`npm run test:watch` for watch mode). Set `TEST_DATABASE_URL` to also run the real-Postgres tests |
 | `BUILD_STANDALONE=1 npm run build` | Self-contained server for Docker/VPS (see `Dockerfile`)            |
 
-CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and build on every push and PR.
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests (with a real Postgres service) and build on every push and PR.
+
+**Testing the latest changes yourself:** [`docs/TESTING.md`](./docs/TESTING.md) lists every update, how to test it,
+and what has *not* been verified yet.
 
 ## Environment variables
 
@@ -82,7 +87,7 @@ Copy `.env.example`. All are optional locally; set them in the host's dashboard 
 | `NEXT_PUBLIC_SITE_URL`                         | Canonical / Open Graph / sitemap base URL (your real domain)         |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `…_DATASET`   | Turns the CMS on; unset = placeholder content from code             |
 | `NEXT_PUBLIC_BUNNY_CDN_HOST`                   | Bunny library hostname; unset = `bunny:` videos show only the poster |
-| `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`       | Contact-message database; unset = local `local.db` file (dev only)   |
+| `DATABASE_URL`                                 | PostgreSQL connection string (any provider; Neon: use the *pooled* one). Required in production; unset in dev = in-process Postgres |
 | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL` | Email on each new contact message                                    |
 | `CONTACT_ADMIN_TOKEN`                          | Enables `GET /api/contact` (Bearer token); unset = 404               |
 | `BUILD_STANDALONE`                             | Build-time only; `1` = standalone output for Docker                  |
@@ -114,7 +119,7 @@ src/
     effects/              custom cursor, magnetic, scroll progress
     ui/                   shadcn primitives + section heading
     hooks/ lib/           scroll effects, toast, `cn`
-  lib/                    data layer: site.config, data (fallback content), queries (Sanity), db (libSQL client)
+  lib/                    data layer: site.config, data (fallback content), queries (Sanity), db (Postgres client)
 sanity/schemas/           project, service, testimonial, siteSettings (singleton)
 docs/                     ROADMAP, DEPLOYMENT, PERFORMANCE
 public/images/            hero, about and film images
@@ -123,7 +128,7 @@ public/images/            hero, about and film images
 Rules (also enforced by tests where possible):
 - `features/*` may import from `shared/*` and `lib/*`, **never from another feature**.
 - Video/iframe playback goes through `shared/media/` only.
-- SQL lives only in a feature's `store.ts`.
+- SQL lives only in a feature's `store.ts`; the database client comes from `src/lib/db.ts`.
 - **No hosting-vendor code** (`@vercel/*`, `VERCEL_*`, `NETLIFY_*`) anywhere in the app — `src/portability.test.ts` fails if it appears.
 
 ### Content with graceful fallback
@@ -146,7 +151,9 @@ Reduced-motion / Data Saver / 2G visitors get the poster instead. Details, budge
 `DocumentaryProject` (`src/lib/data.ts`): `id, slug, title, subtitle, category, image, year, duration, location,
 shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], tags[], video?, preview?, featured?`.
 The Sanity `project` type mirrors it, plus `order`. Contact messages: table `contact_messages`
-(`id, name, email, subject, message, is_read, created_at`), created automatically on first use.
+(`id uuid, name, email, subject, message, is_read boolean, created_at timestamptz`), created automatically on first use.
+To read messages: SQL editor of your database provider (`select * from contact_messages order by created_at desc`)
+or `GET /api/contact` with `CONTACT_ADMIN_TOKEN`.
 
 ## Editing content
 
@@ -163,4 +170,4 @@ limitations: [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
 
 - Run `npm run lint && npm run typecheck && npm test` before pushing.
 - **Docs are part of every change**: update `README.md`, `CONTENT.md`, `docs/*`, `.env.example`,
-  `docs/ROADMAP.md` (status) and `CHANGELOG.md` in the same commit as the code. See `CLAUDE.md`.
+  `docs/ROADMAP.md` (status), `docs/TESTING.md` and `CHANGELOG.md` in the same commit as the code. See `CLAUDE.md`.
