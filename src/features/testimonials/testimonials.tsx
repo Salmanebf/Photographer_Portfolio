@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import { useTranslations } from 'next-intl'
 import SectionHeading from '@/shared/ui/section-heading'
-import type { Testimonial } from '@/lib/queries'
+import type { Testimonial } from './types'
 
 interface TestimonialsProps {
   testimonials: Testimonial[]

@@ -31,22 +31,13 @@
     "years": "Years",
     "approach": "Approach & Tools",
     "imageAlt": "{name}, documentary filmmaker",
-    "marqueeWords": ["Documentary", "Truth", "Story", "Reality", "Culture", "Heritage"]
-  },
-  "awards": {
-    "items": [
-      "Sundance — Grand Jury Prize",
-      "Cannes — Climate Prize",
-      "Berlin — Best Documentary",
-      "Venice — Best Documentary",
-      "Tribeca — Special Jury",
-      "IDFA — Best Doc",
-      "SXSW — Audience Award",
-      "Hot Docs — Audience Award",
-      "Peabody Nominee",
-      "Emmy Nominee",
-      "Wildscreen — Golden Panda",
-      "Jackson Wild — Grand Teton"
+    "marqueeWords": [
+      "Documentary",
+      "Truth",
+      "Story",
+      "Reality",
+      "Culture",
+      "Heritage"
     ]
   },
   "films": {
@@ -84,25 +75,7 @@
     "description": "End-to-end documentary filmmaking, from initial concept to global distribution and impact.",
     "processLabel": "Process",
     "processTitle": "How I Work",
-    "processDescription": "Every documentary begins with a question and unfolds through a deeply intentional creative process.",
-    "steps": [
-      {
-        "title": "Discovery",
-        "description": "Deep research and immersion, building trust with communities and identifying the emotional core."
-      },
-      {
-        "title": "Production",
-        "description": "Extended field shoots with cinematic cameras, capturing authentic moments and intimate interviews."
-      },
-      {
-        "title": "Crafting",
-        "description": "Meticulous editing, sound design, and color grading that transforms raw footage into a compelling narrative."
-      },
-      {
-        "title": "Impact",
-        "description": "Festival strategy, distribution, and impact campaigns ensuring your documentary reaches and moves audiences."
-      }
-    ]
+    "processDescription": "Every documentary begins with a question and unfolds through a deeply intentional creative process."
   },
   "testimonials": {
     "label": "Testimonials",
@@ -160,5 +133,9 @@
     "title": "Not Found",
     "description": "The page you're looking for doesn't exist — or has been moved.",
     "back": "Back to home"
+  },
+  "draft": {
+    "banner": "Preview mode — you are seeing unpublished changes",
+    "exit": "Exit preview"
   }
 }

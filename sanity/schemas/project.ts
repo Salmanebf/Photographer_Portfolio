@@ -1,10 +1,12 @@
 import { defineField, defineType } from 'sanity'
+import { PlayIcon } from '@sanity/icons'
 import { requireDefaultLanguage } from './locale'
 
 export const project = defineType({
   name: 'project',
   title: 'Documentary Project',
   type: 'document',
+  icon: PlayIcon,
   fields: [
     defineField({
       name: 'title',

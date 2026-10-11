@@ -8,7 +8,7 @@ import VideoLoop from '@/shared/media/video-loop'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
-import type { DocumentaryProject } from '@/lib/data'
+import type { DocumentaryProject } from './types'
 import SectionHeading from '@/shared/ui/section-heading'
 
 interface PortfolioProps {

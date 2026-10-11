@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import SectionHeading from '@/shared/ui/section-heading'
-import type { SiteSettings } from '@/lib/queries'
+import type { SiteSettings } from '@/shared/content/types'
 
 interface AboutProps {
   settings: SiteSettings

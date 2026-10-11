@@ -5,10 +5,12 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { geistSans, geistMono } from '../fonts'
 import '../globals.css'
 import { Toaster } from '@/shared/ui/toaster'
-import { getSiteSettings } from '@/lib/queries'
+import { getSiteSettings } from '@/shared/content/site-settings'
 import { siteConfig } from '@/lib/site.config'
 import { dirOf, isLocale, locales, ogLocales } from '@/i18n/config'
 import { siteBase } from '@/i18n/seo'
+import { isDraftMode } from '@/lib/cms/draft'
+import DraftBanner from '@/shared/layout/draft-banner'
 
 /** Only the configured languages exist; anything else is a 404. */
 export const dynamicParams = false
@@ -25,11 +27,13 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
 
-  const settings = await getSiteSettings(locale)
+  const [settings, draft] = await Promise.all([getSiteSettings(locale), isDraftMode()])
   const siteUrl = siteBase(process.env.NEXT_PUBLIC_SITE_URL || siteConfig.seo.siteUrl)
-  const image = settings.hero.image || settings.seo.ogImage
+  const image = settings.seo.ogImage || settings.hero.image
 
   return {
+    // unpublished previews must never be indexed
+    ...(draft ? { robots: { index: false, follow: false } } : {}),
     title: { default: settings.seo.title, template: `%s | ${settings.brand.name}` },
     description: settings.seo.description,
     keywords: settings.seo.keywords,
@@ -63,10 +67,11 @@ export default async function LocaleLayout({
   if (!isLocale(locale)) notFound()
   setRequestLocale(locale)
 
-  const [settings, messages, t] = await Promise.all([
+  const [settings, messages, t, draft] = await Promise.all([
     getSiteSettings(locale),
     getMessages({ locale }),
     getTranslations({ locale, namespace: 'common' }),
+    isDraftMode(),
   ])
 
   const DEFAULT_BRAND = '#c9a96e'
@@ -98,6 +103,7 @@ export default async function LocaleLayout({
             {t('skipToContent')}
           </a>
           {children}
+          {draft && <DraftBanner />}
           <Toaster />
         </NextIntlClientProvider>
       </body>

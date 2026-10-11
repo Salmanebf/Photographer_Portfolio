@@ -6,7 +6,7 @@ import { MapPin, Clock, Award, ArrowLeft, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
-import type { DocumentaryProject } from '@/lib/data'
+import type { DocumentaryProject } from './types'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import StreamPlayer from '@/shared/media/stream-player'
 

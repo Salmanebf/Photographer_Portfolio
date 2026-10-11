@@ -12,7 +12,10 @@ import Footer from '@/shared/layout/footer'
 import ScrollProgress from '@/shared/effects/scroll-progress'
 import CustomCursor from '@/shared/effects/custom-cursor'
 import AwardsMarquee from '@/features/awards/awards-marquee'
-import { getSiteSettings, getProjects, getServices, getTestimonials } from '@/lib/queries'
+import { getSiteSettings } from '@/shared/content/site-settings'
+import { getProjects } from '@/features/films/data'
+import { getServices } from '@/features/services/data'
+import { getTestimonials } from '@/features/testimonials/data'
 import { siteConfig } from '@/lib/site.config'
 import { isLocale } from '@/i18n/config'
 import { localizedAlternates } from '@/i18n/seo'
@@ -50,9 +53,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <main id="main" className="flex-1">
         <Hero settings={settings} />
         <About settings={settings} />
-        <AwardsMarquee />
+        <AwardsMarquee items={settings.recognitions} />
         <Portfolio projects={projects} />
-        <Services services={services} />
+        <Services services={services} process={settings.process} />
         <Testimonials testimonials={testimonials} />
         <Contact settings={settings} />
       </main>

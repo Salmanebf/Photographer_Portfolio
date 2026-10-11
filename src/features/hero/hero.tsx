@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import VideoLoop from '@/shared/media/video-loop'
 import { useCountUp } from '@/shared/hooks/use-scroll-effects'
-import type { SiteSettings } from '@/lib/queries'
+import type { SiteSettings } from '@/shared/content/types'
 import Magnetic from '@/shared/effects/magnetic'
 
 function StatCounter({

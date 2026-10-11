@@ -1,10 +1,12 @@
 import { defineField, defineType } from 'sanity'
+import { CogIcon } from '@sanity/icons'
 import { requireDefaultLanguage } from './locale'
 
 export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  icon: CogIcon,
   description: 'Global brand & site configuration. There should only be one of these.',
   fields: [
     defineField({
@@ -18,12 +20,30 @@ export const siteSettings = defineType({
       title: 'Search Engine Title',
       description: 'Shown in Google results and browser tabs',
       type: 'localeString',
+      group: 'seo',
     }),
     defineField({
       name: 'seoDescription',
       title: 'Search Engine Description',
       description: 'The short summary shown under the title in Google results',
       type: 'localeText',
+      group: 'seo',
+    }),
+    defineField({
+      name: 'seoKeywords',
+      title: 'Search Engine Keywords',
+      description: 'A few words people might search for (one per line, in each language)',
+      type: 'array',
+      of: [{ type: 'localeString' }],
+      group: 'seo',
+    }),
+    defineField({
+      name: 'seoImage',
+      title: 'Social Sharing Image',
+      description: 'The picture shown when the site is shared on social networks (1200×630 works best). Defaults to the hero image.',
+      type: 'image',
+      options: { hotspot: true },
+      group: 'seo',
     }),
     defineField({
       name: 'brandColor',
@@ -168,6 +188,39 @@ export const siteSettings = defineType({
       ],
     }),
 
+    // AWARDS & PRESS
+    defineField({
+      name: 'recognitions',
+      title: 'Awards & Press Mentions',
+      description:
+        'Shown as a scrolling band under the introduction. Add one line per award or mention. Leave the list empty to hide the band.',
+      type: 'array',
+      of: [{ type: 'localeString' }],
+      group: 'recognition',
+    }),
+
+    // HOW I WORK
+    defineField({
+      name: 'processSteps',
+      title: 'How I Work — Steps',
+      description: 'The phases of a project, in order (shown in the Services section)',
+      type: 'array',
+      group: 'process',
+      of: [
+        {
+          type: 'object',
+          name: 'processStep',
+          fields: [
+            { name: 'title', title: 'Step title', type: 'localeString', validation: requireDefaultLanguage },
+            { name: 'description', title: 'What happens', type: 'localeText' },
+          ],
+          preview: {
+            select: { title: 'title.en', subtitle: 'description.en' },
+          },
+        },
+      ],
+    }),
+
     // CONTACT
     defineField({
       name: 'contactEmail',
@@ -229,8 +282,11 @@ export const siteSettings = defineType({
   groups: [
     { name: 'hero', title: 'Hero', default: true },
     { name: 'about', title: 'About' },
+    { name: 'recognition', title: 'Awards & Press' },
+    { name: 'process', title: 'How I Work' },
     { name: 'contact', title: 'Contact' },
     { name: 'footer', title: 'Footer' },
+    { name: 'seo', title: 'Search & Sharing' },
   ],
   preview: {
     prepare: () => ({ title: 'Site Settings' }),

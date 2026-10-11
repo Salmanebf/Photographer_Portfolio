@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-11 (Phase 3) · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-11 (Phase 4) · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,7 +20,7 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (91 tests; 4 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (126 tests; 4 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
 
@@ -35,7 +35,10 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | Pri | Item | Why it wasn't tested | Where to test |
 | --- | ---- | -------------------- | ------------- |
 | 🔴 | **Real Neon database** (SSL, pooled URL, cold-start latency) | No Neon account in the dev environment; tested against a real local Postgres 16 instead | U4 · step 2 |
-| 🔴 | **Real Sanity project**: sign in at `/studio`, edit films/settings, new `bunny:` fields, **per-language boxes (English/Français)**, content appears on site in each language, CORS | No Sanity project exists; only the schema was validated (0 errors) and the no-CMS fallback + language normalisers tested | U5 and U6 · step 8 |
+| 🔴 | **Real Sanity project**: sign in at `/studio`; the Studio's look (theme, logo, sidebar, tabs, per-language boxes, validation, Photo Series editor); content appears on the site in each language; CORS | No Sanity project exists. The CMS code path was tested against a **fake** Sanity API; the schema validates; the Studio only boots far enough to load its config | U5, U6 · step 8, U7 · steps 2–6 |
+| 🔴 | **Draft preview with a real token** (Viewer token, unpublished edits visible only to the editor, `noindex`) on a deployed site | Needs your Sanity project and a deployment; tested against the fake API only | U7 · step 7 |
+| 🟠 | **Publish → visible delay** (should be ≤ 60 s) and deleting content → 404 | Needs real Sanity + a deployment | U7 · step 8 |
+| 🟠 | **Look** of the new states: 5+ "how I work" steps, an awards band with 1–2 items, an empty band | Checked by class names/structure, not by eye | U7 |
 | 🔴 | **Real Bunny Stream**: URL shapes, MP4 fallback file names, playback, hotlink-protection setting | No Bunny account; tested with a fake local CDN that mimics the documented URLs | U2 · step 5 |
 | 🔴 | **Deploy on Vercel** (build, env vars, ISR, `pg` on serverless, preview URL) | Nothing is deployed; needs your account | U3 · step 4 |
 | 🟠 | **French translation quality** (draft) + a visual read of every French section for cramped text | Machine-assisted draft; only the French hero was reviewed by eye | U6 · step 3 |
@@ -54,6 +57,58 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 
 Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; setup steps are in
 [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md).
+
+---
+
+## U7 · 2026-10-11 — Phase 4: content model & CMS (data layer split, new content types, draft preview, branded Studio)
+
+**What changed**
+- **Data layer split per feature.** Films, services, testimonials, photography and site settings each own their types, placeholder content (EN + FR), CMS query and normaliser. All CMS access goes through one function (`cmsFetch`). The site looks and behaves the same.
+- **New: Photo Series** (Studio type + data layer). The public gallery page is a later phase, so nothing about it shows on the site yet.
+- **Now editable in the Studio** (they were fixed in code): the **awards band** (empty list hides it), the **"How I work" steps** (any number; the grid adapts, an empty list hides the section), **SEO keywords** and the **social sharing image** (defaults to the hero image).
+- **Draft preview:** a secret link shows unpublished edits and unpublished films on the real site, with a "Preview mode" bar and an exit link. Needs two optional environment variables (`SANITY_API_READ_TOKEN`, `SANITY_PREVIEW_SECRET`).
+- **Branded, organised Studio:** brand colour theme, monogram logo, a clearer sidebar (Settings · Films, Photo Series · Services, Testimonials) with icons, Site Settings tabs (*Hero, About, Awards & Press, How I Work, Contact, Footer, Search & Sharing*).
+- **A film now exists only if it is in the list.** Previously a deleted/unpublished film could still be reached through its placeholder version.
+- **New test tool:** `npm run cms:mock` — a fake Sanity API with test documents, so the CMS code path can be tried (and was tested) without a Sanity account.
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck, Sanity schema validation (0 errors, 0 warnings) | pass |
+| Tests: **130 pass** with a real Postgres (126 without; 4 need a database). New: per-feature tests (films, services, testimonials, photography), site-settings normaliser (awards, steps, SEO, sharing image), **12 CMS-path tests that run the real Sanity client + the real GROQ queries against the fake API** (languages + English fallback, references followed, draft vs published, token only in preview, wrong/missing token, server errors, empty CMS), preview-link safety (open-redirect cases), real component renders (steps adapt/hide, awards band hides) | pass |
+| Production build: `/en`, `/fr` and film pages are still **statically generated** (reading preview mode did not make them dynamic); the two preview routes are on-demand | pass |
+| **Browser, built against the fake Sanity API** (EN and FR): page title, hero text, films / services / testimonial all from the CMS (no placeholders), exactly the 3 CMS "how I work" steps in a 3-column grid, CMS awards band, **brand colour from the CMS**, SEO keywords + description, social image = the CMS sharing image, indexable, no JS errors | pass |
+| CMS film pages exist in both languages (title, description, credit role, category, images from referenced assets); the **placeholder films and a never-published film return 404**; the sitemap lists exactly the CMS films in both languages | pass |
+| Public traffic (and the build) **never sent the read token and never asked for drafts** | pass |
+| Preview link: no/wrong secret → 401; right secret → redirect + cookie; `//evil.com` is neutralised to `/`; disabled (404) when no secret is set; clear error (500) when the token is missing | pass |
+| Preview mode (EN and FR): shows the unpublished edit **and** the unpublished film (it gets its own page), "Preview mode" bar, page is `noindex`, response is `private, no-store`; the CMS was asked for drafts **only with the token** (14/14 authorised); **Exit preview** restores published content and clears the cookie | pass |
+| A normal visitor never sees drafts or the bar; normal pages stay cacheable (`s-maxage=60`) | pass |
+| **No-CMS placeholder mode** still works: awards band and 4 steps from the placeholders (EN/FR), preview routes disabled, no banner/noindex | pass |
+| **The whole Phase 3 browser suite re-run** (languages, redirect, switcher, forms against the real database, 404s, sitemap, mobile): | all pass |
+| Studio in a real browser with the new theme/logo/structure config: the app boots and gets as far as calling the Sanity API (no configuration, theme or schema errors) — it then shows its own "unable to recover" screen because there is no real project/network here | pass (boots) |
+| `npm run cms:mock` starts and prints the command to run the site against it | pass |
+
+**🧪 You test**
+1. **Try the CMS without any account (10 min).** Terminal 1: `npm run cms:mock`. Terminal 2 (the exact command is printed by the first one):
+   `NEXT_PUBLIC_SANITY_PROJECT_ID=mock SANITY_API_HOST=http://127.0.0.1:3333 SANITY_API_READ_TOKEN=mock-read-token SANITY_PREVIEW_SECRET=letmein npm run dev`.
+   Open `/en` and `/fr`: everything from the CMS is labelled "(CMS)" or "Mock …" (3 steps, 3 awards, teal brand colour, "Mock Film One/Two"; Film Two has no French so it stays English). `/en/work/the-last-craftsman` is a 404 (placeholders are not used when a CMS has content).
+   Then open `http://localhost:3000/api/draft?secret=letmein&path=/en` → you see **DRAFT TITLE of Film One** and **UNPUBLISHED Mock Film** and the "Preview mode" bar; click **Exit preview** → they disappear.
+2. **Real Sanity (needs your project — see U5):** open `/studio`. Check the sidebar order and icons, the gold theme, the **AR / ALEX RIVERA** logo, the tab title "Alex Rivera — Studio", and that **Site Settings** has the tabs *Hero · About · Awards & Press · How I Work · Contact · Footer · Search & Sharing*.
+3. **Awards & Press:** add two lines (English + French), publish, reload `/en` within a minute → the band shows them. Remove all lines, publish → the band disappears.
+4. **How I Work:** with 3 steps the section shows 3 columns; with 4, four; delete all steps → the placeholder steps return (so the section is never broken).
+5. **Search & Sharing:** set keywords and a sharing image, publish; *View source* on `/en`: `meta name="keywords"` and `og:image` show them. Clear the sharing image → `og:image` becomes the hero image.
+6. **Photo Series:** create one with two photos; leave one **description** empty → the Studio shows a warning. Publish. (No page on the site yet — expected.) In the Studio's **Vision** tool run `*[_type=="photoSeries"]{title, "photos": photos[].image.asset->url}` → your photos come back.
+7. **Draft preview with real Sanity:** in sanity.io → API → Tokens create a token with **Viewer** rights; set `SANITY_API_READ_TOKEN` and a long random `SANITY_PREVIEW_SECRET` on your host and redeploy. Edit a film title *without publishing*; open `https://your-site/api/draft?secret=…&path=/en`: you see the edit, others do not. *View source* in preview shows `noindex`; the normal page does not.
+8. **Deleting content:** unpublish/delete a film in the Studio; within ~60 s its page returns 404 and it leaves `/sitemap.xml`.
+9. **Automated:** `npm test` → 126 passed, 4 skipped; with `TEST_DATABASE_URL=…` → 130 passed.
+
+**⚠️ Not tested by the developer**
+- **Everything on real Sanity**: how the Studio looks and behaves (sidebar, brand theme readability, logo, per-language boxes, validation warnings, the Photo Series editor), real query results and the CDN, token permissions, how long a publish takes to appear (expected ≤ 60 s), and the real draft semantics (the fake API imitates only "drafts laid over published" and the token check).
+- **Preview on a deployed host** (cookie `Secure`/`SameSite=None`, behind a CDN), and Sanity's Presentation / visual-editing tool (not integrated).
+- **Visual look** of the new states: only checked structurally (3-column class, items present). 5+ steps wrap into rows whose divider lines may look off; a band with only 1–2 awards may look sparse. Please look at both.
+- **The Studio's own screens** — it could only be started far enough to prove its configuration loads.
+- **Photo gallery page**: does not exist yet (model + Studio type only).
+- Instant refresh via a Sanity webhook: not built (pages refresh within 60 s).
 
 ---
 
@@ -104,7 +159,7 @@ Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have f
 7. **Screen sizes.** Resize the browser to ≈1280, 1024, 768 and 390 px wide on both `/en` and `/fr`: no horizontal scrollbar at any point (also at the very top of the page), the header never overflows, the hamburger menu appears below 1024 px.
 8. **Sanity (needs your project — see U5).** Open a film in `/studio`: each text field shows *English (default)* and *Français*. Fill only English → the French page shows the English text. Add French → it appears on `/fr`. The slug comes from the English title. Category is a dropdown.
 9. **Arabic layout preview (optional, 5 minutes).** In `src/i18n/config.ts` add `'ar'` to `locales`, `ar: 'العربية'` to `localeNames` and `ar: 'ar_AR'` to `ogLocales`; create `src/messages/ar.json` containing `{}`; run `npm run dev` and open `/ar`. The layout is mirrored and English text is used where Arabic doesn't exist. **Undo these edits afterwards** (Arabic text, a font and a review come later).
-10. **Automated.** `npm test` → 91 passed, 4 skipped; with `TEST_DATABASE_URL=…` → 95 passed.
+10. **Automated.** `npm test` → all pass (see §0.1 for the current numbers; Phase 3 had 91 passed + 4 skipped, 95 with a database).
 
 **⚠️ Not tested by the developer**
 - **The quality of the French** (draft translation of placeholder text; also the gender-neutral wording "cinéaste documentariste" should be agreed with the filmmaker).
@@ -119,7 +174,7 @@ Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have f
 
 ## U5 · Sanity CMS checks (applies to every update that touched content fields)
 
-Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), film **Preview loop**, **Hero background video**.
+Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), film **Preview loop**, **Hero background video**, every text field per language (Phase 3), and (Phase 4) **Photo Series**, **Awards & Press**, **How I Work**, **SEO keywords**, **sharing image**. Step-by-step checks for the newest ones are in U7. You can also try the whole CMS path without a Sanity account: see U7 · step 1.
 
 - ✅ `npx sanity schema validate` → 0 errors, 0 warnings.
 - ✅ The validation pattern accepts `bunny:<guid>` and `https://…`, rejects `bunny:x`, `ftp://…`, plain text (checked directly).
@@ -212,7 +267,7 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 | Lighthouse mobile baseline: score 90, LCP 3.5 s (hero text hidden by its entrance animation — to be fixed in the Phase 5 hero), 371 KiB | recorded |
 
 **🧪 You test**
-1. **Local clip.** Put a short `.mp4` (H.264, ≤3 MB) at `public/videos/clip.mp4`. In `src/lib/site.config.ts` set `hero.video: '/videos/clip.mp4'`; in `src/lib/data.ts` add `preview: '/videos/clip.mp4'` and `video: '/videos/clip.mp4'` to one project. `npm run dev`.
+1. **Local clip.** Put a short `.mp4` (H.264, ≤3 MB) at `public/videos/clip.mp4`. In `src/lib/site.config.ts` set `hero.video: '/videos/clip.mp4'`; in `src/features/films/content/en.ts` add `preview: '/videos/clip.mp4'` and `video: '/videos/clip.mp4'` to one project. `npm run dev`.
 2. Chrome DevTools → **Network** → filter **Media**. Load `/`: only the hero clip is requested. Scroll: other clips start only as they approach the screen. Scroll far away: the hero stops (check it has stopped via the tab's CPU or by pausing indicators).
 3. Hover a film row in the list → its preview plays in the side panel. On a narrow window (<1024 px) cards show their loop when scrolled into view.
 4. Open that film's page → poster + play button → click → the video plays; before clicking there is no video request.

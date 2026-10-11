@@ -9,7 +9,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import { useToast } from '@/shared/hooks/use-toast'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import SectionHeading from '@/shared/ui/section-heading'
-import type { SiteSettings } from '@/lib/queries'
+import type { SiteSettings } from '@/shared/content/types'
 import { isContactErrorCode } from '../error-codes'
 
 /** A failed submission, carrying the server's error code so it can be shown in the visitor's language. */

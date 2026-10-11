@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { dirOf } from '@/i18n/config'
-import type { SiteSettings } from '@/lib/queries'
+import type { SiteSettings } from '@/shared/content/types'
 import Magnetic from '@/shared/effects/magnetic'
 import LanguageSwitcher from './language-switcher'
 

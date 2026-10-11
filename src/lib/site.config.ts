@@ -105,6 +105,46 @@ export const siteConfig = {
     },
   },
 
+  /* === RECOGNITION — the scrolling band of awards/press. Leave the list empty to hide it === */
+  recognitions: [
+    'Sundance — Grand Jury Prize',
+    'Cannes — Climate Prize',
+    'Berlin — Best Documentary',
+    'Venice — Best Documentary',
+    'Tribeca — Special Jury',
+    'IDFA — Best Doc',
+    'SXSW — Audience Award',
+    'Hot Docs — Audience Award',
+    'Peabody Nominee',
+    'Emmy Nominee',
+    'Wildscreen — Golden Panda',
+    'Jackson Wild — Grand Teton',
+  ],
+
+  /* === PROCESS — the "How I Work" steps === */
+  process: [
+    {
+      title: 'Discovery',
+      description:
+        'Deep research and immersion, building trust with communities and identifying the emotional core.',
+    },
+    {
+      title: 'Production',
+      description:
+        'Extended field shoots with cinematic cameras, capturing authentic moments and intimate interviews.',
+    },
+    {
+      title: 'Crafting',
+      description:
+        'Meticulous editing, sound design, and color grading that transforms raw footage into a compelling narrative.',
+    },
+    {
+      title: 'Impact',
+      description:
+        'Festival strategy, distribution, and impact campaigns ensuring your documentary reaches and moves audiences.',
+    },
+  ],
+
   /* === FOOTER === */
   footer: {
     tagline:

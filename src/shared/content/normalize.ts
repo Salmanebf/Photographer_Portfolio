@@ -1,21 +1,13 @@
 /**
- * Turns raw Sanity documents into the shapes the pages use, in one language.
- * Pure functions (no network) so they can be tested without a CMS.
- *
- * Translatable CMS fields hold `{ en, fr }`; `pickLocale` returns the wanted
- * language and falls back to English. Plain strings (older content) still work.
+ * Turns the CMS "Site Settings" document into `SiteSettings`, in one language.
+ * Pure (no network) so it can be tested without a CMS. Empty CMS fields keep
+ * the placeholder/base value; a missing translation falls back to English.
  */
 import type { Locale } from '@/i18n/config'
-import type { DocumentaryProject } from './data'
-import type { Service, SiteSettings, Testimonial } from './content/types'
-import { pickLocale, pickLocaleList } from './localize'
-import { imageUrl } from './sanity.client'
+import { pickLocale, pickLocaleList } from '@/lib/cms/localize'
+import type { SiteSettings } from './types'
 
-export function applySanitySettings(
-  base: SiteSettings,
-  data: any,
-  locale: Locale
-): SiteSettings {
+export function applySanitySettings(base: SiteSettings, data: any, locale: Locale): SiteSettings {
   const merged: SiteSettings = JSON.parse(JSON.stringify(base))
   const text = (v: unknown) => pickLocale(v, locale)
 
@@ -27,6 +19,11 @@ export function applySanitySettings(
 
   if (text(data.seoTitle)) merged.seo.title = text(data.seoTitle)!
   if (text(data.seoDescription)) merged.seo.description = text(data.seoDescription)!
+  const keywords = pickLocaleList(data.seoKeywords, locale)
+  if (keywords.length) merged.seo.keywords = keywords
+  // Social image: the one chosen for sharing, else the hero image (as the Studio says)
+  if (data.seoImageUrl) merged.seo.ogImage = data.seoImageUrl
+  else if (data.heroImageUrl) merged.seo.ogImage = data.heroImageUrl
 
   if (text(data.heroEyebrow)) merged.hero.eyebrow = text(data.heroEyebrow)!
   if (data.heroNameLine1) merged.hero.nameLine1 = data.heroNameLine1
@@ -63,10 +60,20 @@ export function applySanitySettings(
     }))
   }
 
+  // An editor who clears the list on purpose wants the band hidden, so an
+  // explicitly saved (even empty) list replaces the placeholder awards.
+  if (Array.isArray(data.recognitions)) {
+    merged.recognitions = pickLocaleList(data.recognitions, locale)
+  }
+  if (Array.isArray(data.processSteps) && data.processSteps.length) {
+    merged.process = data.processSteps
+      .map((s: any) => ({ title: text(s.title) ?? '', description: text(s.description) ?? '' }))
+      .filter((s: { title: string }) => s.title)
+  }
+
   if (data.contactEmail) merged.contact.email = data.contactEmail
   if (text(data.contactLocation)) merged.contact.location = text(data.contactLocation)!
-  if (text(data.contactResponseTime))
-    merged.contact.responseTime = text(data.contactResponseTime)!
+  if (text(data.contactResponseTime)) merged.contact.responseTime = text(data.contactResponseTime)!
   if (text(data.studioHours)) merged.contact.studioHours = text(data.studioHours)!
   if (typeof data.isAvailable === 'boolean') merged.contact.isAvailable = data.isAvailable
   if (data.availabilityYear) merged.contact.availabilityYear = data.availabilityYear
@@ -82,49 +89,4 @@ export function applySanitySettings(
   if (text(data.footerTagline)) merged.footer.tagline = text(data.footerTagline)!
 
   return merged
-}
-
-export function normalizeSanityProject(p: any, locale: Locale): DocumentaryProject {
-  const text = (v: unknown) => pickLocale(v, locale) ?? ''
-  return {
-    id: p._id ?? p.slug,
-    slug: p.slug,
-    title: text(p.title),
-    subtitle: text(p.subtitle),
-    category: p.category ?? 'other',
-    image: typeof p.image === 'string' ? p.image : imageUrl(p.image) ?? '',
-    year: p.year ?? '',
-    duration: p.duration ?? '',
-    location: text(p.location),
-    shortDescription: text(p.shortDescription),
-    fullDescription: text(p.fullDescription),
-    awards: Array.isArray(p.awards) ? p.awards.filter(Boolean) : [],
-    credits: Array.isArray(p.credits)
-      ? p.credits.map((c: any) => ({ role: text(c.role), name: c.name ?? '' }))
-      : [],
-    gallery: Array.isArray(p.gallery)
-      ? p.gallery.map((g: any) => (typeof g === 'string' ? g : imageUrl(g) ?? ''))
-      : [],
-    tags: Array.isArray(p.tags) ? p.tags : [],
-    video: p.video || undefined,
-    preview: p.preview || undefined,
-    featured: Boolean(p.featured),
-  }
-}
-
-export function normalizeSanityTestimonial(t: any, locale: Locale): Testimonial {
-  return {
-    id: t._id,
-    name: t.name ?? '',
-    role: pickLocale(t.role, locale) ?? '',
-    content: pickLocale(t.content, locale) ?? '',
-    project: pickLocale(t.project, locale) ?? '',
-  }
-}
-
-export function normalizeSanityService(s: any, locale: Locale): Service {
-  return {
-    title: pickLocale(s.title, locale) ?? '',
-    description: pickLocale(s.description, locale) ?? '',
-  }
 }

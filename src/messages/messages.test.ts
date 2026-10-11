@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import en from './en.json'
 import fr from './fr.json'
 import { contactErrorMessages } from '@/features/contact/error-codes'
-import { projects } from '@/lib/data'
+import { projects } from '@/features/films/content/en'
 
 type Json = string | Json[] | { [k: string]: Json }
 

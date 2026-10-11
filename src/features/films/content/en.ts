@@ -1,28 +1,10 @@
-export interface DocumentaryProject {
-  id: string
-  slug: string
-  title: string
-  subtitle: string
-  /** Stable key (e.g. `cultural-heritage`); the visible label comes from messages `categories.<key>` */
-  category: string
-  image: string
-  year: string
-  duration: string
-  location: string
-  shortDescription: string
-  fullDescription: string
-  awards: string[]
-  credits: { role: string; name: string }[]
-  gallery: string[]
-  tags: string[]
-  /** Optional trailer / video: `bunny:<id>`, YouTube/Vimeo URL, or MP4 URL */
-  video?: string
-  /** Optional short silent loop for cards/previews: `bunny:<id>` or MP4 URL */
-  preview?: string
-  /** Optional flag for hero/featured display */
-  featured?: boolean
-}
+import type { DocumentaryProject } from '../types'
 
+/**
+ * Placeholder films (English). Edit here for the no-CMS fallback; the French
+ * version of each film is in `fr.ts` (matched by `slug`). With the CMS configured,
+ * films come from the Studio instead.
+ */
 export const projects: DocumentaryProject[] = [
   {
     id: '1',
@@ -161,61 +143,5 @@ export const projects: DocumentaryProject[] = [
     ],
     gallery: ['/images/doc-ink.png', '/images/doc-craftsman.png', '/images/doc-voices.png'],
     tags: ['Tattoo', 'Indigenous', 'Culture', 'Pacific', 'Heritage'],
-  },
-]
-
-export const serviceCategories = [
-  {
-    title: 'Feature Documentaries',
-    description: 'Full-length documentary films that dive deep into stories that matter, from development through final delivery.',
-  },
-  {
-    title: 'Short-Form Docs',
-    description: 'Impactful short documentaries for digital platforms, broadcast, and festival circuits.',
-  },
-  {
-    title: 'Docu-Series',
-    description: 'Multi-episode documentary series for streaming platforms, with sustained narrative arcs.',
-  },
-  {
-    title: 'Impact Campaigns',
-    description: 'Documentary content paired with social impact strategy to drive real-world change.',
-  },
-]
-
-export const fallbackServices = serviceCategories
-
-export const fallbackTestimonials = [
-  {
-    id: 't1',
-    name: 'Dr. Maria Santos',
-    role: 'Linguist, Subject of "Vanishing Voices"',
-    content:
-      "Alex didn't just document our work — she became part of the journey. The film has brought more attention to language preservation than a thousand academic papers ever could.",
-    project: 'Vanishing Voices',
-  },
-  {
-    id: 't2',
-    name: 'Ingrid Larsen',
-    role: 'Producer, "Beneath the Ice"',
-    content:
-      "Working with Alex on the Arctic expedition was a masterclass in documentary filmmaking. She endured -40°C temperatures while producing some of the most breathtaking footage I've ever seen.",
-    project: 'Beneath the Ice',
-  },
-  {
-    id: 't3',
-    name: 'Denise Williams',
-    role: 'Community Leader, Detroit',
-    content:
-      "She earned our trust by showing up — not just with a camera, but with her hands in the soil. 'Urban Roots' tells our story with the dignity and honesty we deserve.",
-    project: 'Urban Roots',
-  },
-  {
-    id: 't4',
-    name: 'Yuki Tanaka',
-    role: 'Co-Producer, "The Last Craftsman"',
-    content:
-      "Alex spent three years building the relationship that made 'The Last Craftsman' possible. That patience and respect is what sets her apart. A masterpiece of restraint and emotional depth.",
-    project: 'The Last Craftsman',
   },
 ]

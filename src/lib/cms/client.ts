@@ -8,15 +8,41 @@ export const apiVersion = '2024-01-01'
 /** True only when Sanity env vars are set. Components fall back to static data otherwise. */
 export const sanityEnabled = Boolean(projectId)
 
+/**
+ * Optional: talk to a different Sanity API address (a local test server — see
+ * `npm run cms:mock` — or a proxy). Unset = the normal Sanity cloud.
+ */
+const apiHost = process.env.SANITY_API_HOST?.trim() || undefined
+
+const base = {
+  projectId: projectId ?? '',
+  dataset,
+  apiVersion,
+  ...(apiHost ? { apiHost, useProjectHostname: false } : {}),
+}
+
+/** What visitors see: published content only, via the CDN in production. */
 export const sanityClient: SanityClient | null = sanityEnabled
   ? createClient({
-      projectId: projectId!,
-      dataset,
-      apiVersion,
-      useCdn: process.env.NODE_ENV === 'production',
+      ...base,
+      useCdn: process.env.NODE_ENV === 'production' && !apiHost,
       perspective: 'published',
     })
   : null
+
+/** Read token for draft preview (server only; never sent unless draft mode is on). */
+export const hasPreviewToken = Boolean(process.env.SANITY_API_READ_TOKEN?.trim())
+
+/** What an editor sees in draft mode: unpublished changes too. Needs SANITY_API_READ_TOKEN. */
+export const sanityDraftClient: SanityClient | null =
+  sanityEnabled && hasPreviewToken
+    ? createClient({
+        ...base,
+        useCdn: false, // the CDN never serves drafts
+        perspective: 'drafts',
+        token: process.env.SANITY_API_READ_TOKEN!.trim(),
+      })
+    : null
 
 const builder = sanityClient ? imageUrlBuilder(sanityClient) : null
 

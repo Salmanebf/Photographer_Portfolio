@@ -4,7 +4,7 @@ import { ArrowUp } from 'lucide-react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
-import type { SiteSettings } from '@/lib/queries'
+import type { SiteSettings } from '@/shared/content/types'
 
 const navLinks = [
   { key: 'home', href: '#home' },

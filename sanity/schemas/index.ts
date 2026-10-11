@@ -2,6 +2,7 @@ import { siteSettings } from './siteSettings'
 import { project } from './project'
 import { service } from './service'
 import { testimonial } from './testimonial'
+import { photoSeries } from './photoSeries'
 import { localeString, localeText } from './locale'
 
 export const schemaTypes = [
@@ -9,6 +10,7 @@ export const schemaTypes = [
   project,
   service,
   testimonial,
+  photoSeries,
   localeString,
   localeText,
 ]

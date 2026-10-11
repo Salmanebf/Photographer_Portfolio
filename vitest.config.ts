@@ -7,7 +7,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
     // Force the CMS off so data-layer tests always exercise the static fallback.
     env: { NEXT_PUBLIC_SANITY_PROJECT_ID: '' },
   },

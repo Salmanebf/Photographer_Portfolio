@@ -46,5 +46,10 @@ The client does not test changes as they land; they test later from `docs/TESTIN
   enforces it); content text goes in the CMS or `site.config.ts`/`data.ts` (English) and `src/lib/content/fr.ts` (French).
   Use `Link`/`useRouter`/`usePathname` from `@/i18n/routing`, and logical CSS (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`)
   instead of left/right so Arabic (right-to-left) works. Never add middleware/proxy — keep the language handling host-neutral.
-- Content must keep working with no CMS configured (fallbacks in `src/lib/site.config.ts` and `data.ts`).
+- Content must keep working with no CMS configured (placeholders in `src/lib/site.config.ts` and each feature's `content/` folder).
+- Each feature owns its content: `features/<name>/{types,content/{en,fr,index},normalize,data}.ts`. CMS access goes only through
+  `cmsFetch` (`src/lib/cms/fetch.ts`) — it alone decides published vs draft and uses the read token. Never read the token
+  elsewhere, never expose it to the browser, and keep every new CMS-backed field covered by `src/lib/cms/cms-path.test.ts`.
+- To test the CMS path without an account use the fake Sanity API (`npm run cms:mock`, `scripts/mock-sanity/`); extend its
+  `dataset.mjs` when you add a content type. It does not replace verifying against real Sanity — say so in `docs/TESTING.md`.
 - Current content is placeholder; never present it as real.

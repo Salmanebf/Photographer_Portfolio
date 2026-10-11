@@ -31,22 +31,13 @@
     "years": "Ans",
     "approach": "Approche et outils",
     "imageAlt": "{name}, cinéaste documentariste",
-    "marqueeWords": ["Documentaire", "Vérité", "Histoire", "Réalité", "Culture", "Patrimoine"]
-  },
-  "awards": {
-    "items": [
-      "Sundance — Grand prix du jury",
-      "Cannes — Prix du climat",
-      "Berlin — Meilleur documentaire",
-      "Venise — Meilleur documentaire",
-      "Tribeca — Mention spéciale du jury",
-      "IDFA — Meilleur documentaire",
-      "SXSW — Prix du public",
-      "Hot Docs — Prix du public",
-      "Nominé aux Peabody",
-      "Nominé aux Emmy",
-      "Wildscreen — Panda d'or",
-      "Jackson Wild — Grand Teton"
+    "marqueeWords": [
+      "Documentaire",
+      "Vérité",
+      "Histoire",
+      "Réalité",
+      "Culture",
+      "Patrimoine"
     ]
   },
   "films": {
@@ -84,25 +75,7 @@
     "description": "Une réalisation documentaire de bout en bout, de l'idée initiale à la diffusion mondiale et à l'impact.",
     "processLabel": "Processus",
     "processTitle": "Ma méthode",
-    "processDescription": "Chaque documentaire commence par une question et se déploie à travers un processus créatif profondément réfléchi.",
-    "steps": [
-      {
-        "title": "Découverte",
-        "description": "Recherche approfondie et immersion, création d'un lien de confiance avec les communautés et identification du cœur émotionnel."
-      },
-      {
-        "title": "Production",
-        "description": "Longs tournages sur le terrain avec des caméras de cinéma, pour capter des moments authentiques et des entretiens intimes."
-      },
-      {
-        "title": "Création",
-        "description": "Montage minutieux, conception sonore et étalonnage qui transforment les rushes en un récit captivant."
-      },
-      {
-        "title": "Impact",
-        "description": "Stratégie de festivals, distribution et campagnes d'impact pour que votre documentaire touche et émeuve le public."
-      }
-    ]
+    "processDescription": "Chaque documentaire commence par une question et se déploie à travers un processus créatif profondément réfléchi."
   },
   "testimonials": {
     "label": "Témoignages",
@@ -160,5 +133,9 @@
     "title": "Introuvable",
     "description": "La page que vous cherchez n'existe pas — ou a été déplacée.",
     "back": "Retour à l'accueil"
+  },
+  "draft": {
+    "banner": "Mode aperçu — vous voyez des modifications non publiées",
+    "exit": "Quitter l'aperçu"
   }
 }

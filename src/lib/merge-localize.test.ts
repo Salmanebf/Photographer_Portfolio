@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { deepMerge } from './merge'
-import { pickLocale, pickLocaleList } from './localize'
+import { pickLocale, pickLocaleList } from './cms/localize'
 
 describe('deepMerge', () => {
   const base = { a: 1, nested: { x: 'x', y: 'y' }, list: [1, 2, 3] }

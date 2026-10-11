@@ -25,15 +25,21 @@ change both when you change a sentence):
   `hero.video` to an mp4/webm URL.
 - **About section**, **stats**, **tools**, **contact info**, **socials**,
   **studio hours** — all in this file.
+- **Awards band** (`recognitions`) — the scrolling list of awards/press. Empty
+  list = the band is hidden. **"How I work" steps** (`process`) — title and text
+  of each step; add or remove steps freely.
 
-Films, services and testimonials live in `src/lib/data.ts` (English); their
-French versions are in `src/lib/content/fr.ts`. Same idea: edit, save, refresh.
+Films, services, testimonials and photo series each live in their own folder:
+`src/features/films/content/en.ts`, `src/features/services/content/en.ts`,
+`src/features/testimonials/content/en.ts` and
+`src/features/photography/content/en.ts` (English), with the French versions in
+the `fr.ts` next to each. Same idea: edit, save, refresh.
 A film's `category` is a fixed key (`cultural-heritage`, `cultural-preservation`,
 `environmental`, `social-impact`, `other`); its visible name comes from
 `src/messages/en.json` / `fr.json` (`categories`).
 
 **Interface text** (buttons, form labels, section titles that are not content, error
-messages, the awards ticker, the 4 "How I work" steps) lives in
+messages) lives in
 `src/messages/en.json` and `src/messages/fr.json`. Keep both files in step —
 the automated tests fail if a key exists in one but not the other.
 
@@ -70,11 +76,12 @@ site falls back to `site.config.ts` / `data.ts`.
 
 ### Limits to know about
 
-- The search-engine **title and description** are editable in the studio (Site
-  Settings → Search Engine Title/Description, per language). SEO *keywords* are not
-  in the studio yet; edit `seo.keywords` in `src/lib/site.config.ts`.
-- The awards ticker and the 4 "How I work" steps are not in the studio; they are
-  in `src/messages/en.json` / `fr.json` (`awards.items`, `services.steps`).
+- The **Studio's colour and logo** come from `src/lib/site.config.ts`
+  (`brand.color`, `brand.logoMark`), not from the "Brand Color" field in Site
+  Settings (the Studio cannot read its own content before it starts). The website
+  itself does use the field.
+- **Photo Series** are created in the Studio but the public gallery pages come in a
+  later phase, so they do not appear on the site yet.
 - The French content that ships with the site is a **draft translation** of the
   placeholder text — a native speaker should review it before launch.
 - Images from hosts other than `cdn.sanity.io` / `images.unsplash.com` must be
@@ -82,9 +89,12 @@ site falls back to `site.config.ts` / `data.ts`.
 
 ### What can be edited in the studio
 
-- **Site Settings** — brand color, logo (image or monogram), hero copy +
-  background image/video, hero stats, about section, contact info, socials,
-  search-engine title/description.
+- **Site Settings** (tabs): *Hero*, *About*, **Awards & Press** (one line per award
+  or mention; leave empty to hide the scrolling band), **How I Work** (the project
+  steps: title + what happens), *Contact*, *Footer*, and **Search & Sharing**
+  (search-engine title, description, keywords, and the picture shown when the site
+  is shared — it defaults to the hero image). Also: brand color, logo (image or
+  monogram).
 - **Translations** — every text field shows one box per language
   (*English (default)* and *Français*). Fill in English first; French can be added
   any time. An empty French box shows the English text on the French site.
@@ -95,8 +105,27 @@ site falls back to `site.config.ts` / `data.ts`.
   The *Category* is picked from a list and is translated automatically.
   See **Adding videos** below. (Each project gets a public page in every language:
   `/en/work/<slug>` and `/fr/work/<slug>`; the slug is built from the English title.)
+- **Photo Series** — title, slug (from the English title), cover image, intro,
+  location, year, the photos (each with a **description for screen readers and search
+  engines**, and an optional caption), an optional link to the film it was shot
+  alongside, order. Describe every photo — the Studio warns when it is empty.
 - **Services** — title + description for each offering.
 - **Testimonials** — quotes, names, roles, optional linked project.
+
+### Previewing before you publish
+
+Edits become visible to visitors only when you press **Publish**. To check an
+unpublished edit (or a brand-new, unpublished film) on the real website first, open
+the **preview link** the developer gave you:
+
+`https://your-site/api/draft?secret=<your preview secret>&path=/en/work/your-film`
+
+You will see the site with your unpublished changes and a bar saying **Preview
+mode**. Click **Exit preview** in that bar when you are done. Nobody else sees your
+unpublished changes, and the preview pages are never indexed by search engines.
+Keep the link private — anyone who has it can preview unpublished content. (It
+needs `SANITY_PREVIEW_SECRET` and `SANITY_API_READ_TOKEN` to be set on the server —
+see the README.)
 
 ### Adding videos (Bunny Stream)
 

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getAllProjectSlugs } from '@/lib/queries'
+import { getAllProjectSlugs } from '@/features/films/data'
 import { siteConfig } from '@/lib/site.config'
 import { locales } from '@/i18n/config'
 import { localizedAlternates } from '@/i18n/seo'

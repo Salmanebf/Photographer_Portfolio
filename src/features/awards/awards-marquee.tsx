@@ -6,10 +6,15 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
 
-export default function AwardsMarquee() {
-  const AWARDS = useTranslations('awards').raw('items') as string[]
+interface AwardsMarqueeProps {
+  /** Awards / press mentions. Empty = nothing is shown. */
+  items: string[]
+}
+
+export default function AwardsMarquee({ items }: AwardsMarqueeProps) {
+  if (items.length === 0) return null
+  const AWARDS = items
   return (
     <div
       className="relative w-full overflow-hidden border-y border-border/40 bg-card/30 py-8"

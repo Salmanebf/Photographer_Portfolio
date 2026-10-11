@@ -1,7 +1,7 @@
 # Roadmap & decisions
 
 Keep this file current: update the status column and decision log whenever work lands.
-Last updated: 2026-10-11 (Phase 3: languages).
+Last updated: 2026-10-11 (Phase 4: content model & CMS).
 
 ## Goal
 
@@ -17,8 +17,8 @@ content is replaced later. Heavy use of short video must not hurt loading.
 | 2  | Media engine             | ✅ Done *(real Bunny playback unverified — needs a Bunny library)* | `VideoLoop`, `StreamPlayer`, playback limiter, viewer preferences, `bunny:<id>` refs, performance budget |
 | —  | Hosting stack & database | ✅ Done (pulled forward from 6) | PostgreSQL (Neon) via `DATABASE_URL` replaces Prisma/SQLite; host-neutral build; `DEPLOYMENT.md`; portability test |
 | 3  | i18n                     | ✅ Done *(French is a draft needing native review; Arabic prepared, not enabled)* | `/en` `/fr` URLs, `/` redirect, UI messages, French content, per-language CMS fields, language switcher, hreflang + sitemap, RTL-ready layout, contact errors/locale in your language |
-| 4  | Content model & CMS      | ⏭ Next        | Photo series type, make awards/process/SEO editable, branded Studio, draft preview, split data layer per feature |
-| 5  | Sections & design        | Planned       | New hero (orbit design, video cards), creative About, Projects, Services (what I offer), Timeline, Testimonials restyle, fix LCP (see below) |
+| 4  | Content model & CMS      | ✅ Done *(real Sanity not yet verified — see TESTING)* | Data layer split per feature (`cmsFetch`), photo-series model (no page yet), awards band / "how I work" steps / SEO keywords & sharing image editable, branded + organised Studio, secret-link draft preview, fake-Sanity test tool |
+| 5  | Sections & design        | ⏭ Next        | New hero (orbit design, video cards), creative About, Projects, Services (what I offer), Timeline, Testimonials restyle, fix LCP (see below) |
 | 6  | Contact rework           | Planned (partly done) | DB-backed rate limit / spam protection; email sender domain; ready for a booking form |
 | 7  | Launch                   | Planned       | Domain & DNS, redirects, analytics, backups, editor walkthrough |
 | ∞  | Later                    | Ideas         | Photo gallery page, booking form, Arabic, prints/client galleries (separate scope) |
@@ -58,12 +58,24 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-11 | Gender-neutral French ("cinéaste documentariste") | The persona's gender is unspecified; real wording to be set with the filmmaker |
 | 2026-10-11 | Header: full nav from 1024 px, "Collaborate" button from 1280 px; `overflow-x: clip` on `html, body` | The nav already overflowed at tablet widths (worse with the switcher and longer French); a contact column waiting to slide in caused a stray horizontal scrollbar |
 
+| 2026-10-11 | Each feature owns its content, types, CMS query and normaliser (`features/*/{types,content,normalize,data}.ts`); shared CMS plumbing in `lib/cms`; site settings in `shared/content` | Matches the "separate parts" goal; Phase 5 can redesign a section without touching the others |
+| 2026-10-11 | A film/photo series exists only if it is in the list (placeholders only when there is no CMS or it is empty) | Deleted/unpublished content must be a 404, never a leftover placeholder |
+| 2026-10-11 | Awards band and "how I work" steps moved from translation files to editable content; empty awards list hides the band | The filmmaker has no awards yet; the Timeline (Phase 5) will reuse the steps model |
+| 2026-10-11 | Draft preview via a **secret link** (`/api/draft?secret=…`) and a Viewer token used only in preview mode, not Sanity's Presentation tool | Presentation needs a real Sanity project to verify and a public-bundle secret handling we cannot test here; the secret link is simple, safe and testable. Can be upgraded later |
+| 2026-10-11 | A **fake Sanity API** (`npm run cms:mock`, `groq-js`) for tests and local trials | The CMS code path had never run; this verifies queries, normalisers, pages and draft mode without an account — it does not replace a real Sanity check |
+| 2026-10-11 | Photo series: data layer + Studio type only, no public page yet | The roadmap places the gallery page in a later phase; editors can start entering photos now |
+
 ## Open items / risks
 
 - Bunny URL shapes were written from Bunny's docs; verify on first upload (`PERFORMANCE.md`).
 - **LCP is 3.5 s** (target 2.5 s): hero tagline hidden ~2.6 s by its entrance animation. Fix in Phase 5.
 - Not yet deployed anywhere; Docker image, Netlify, real Neon, real Sanity and real Bunny are unverified — see the "Not yet tested" table in [`TESTING.md`](./TESTING.md).
 - Rate limiting is per-instance on serverless hosts until Phase 6.
+- **Real Sanity is still unverified**: the Studio UI (sidebar, theme, logo, per-language boxes, validation, the "Photo Series" type),
+  real GROQ results, the CDN, tokens and the draft preview with a real token. Everything else on the CMS path was run against the fake API.
+- **Studio brand colour** comes from `site.config.ts`, not from the Site Settings field (the Studio cannot read content before it starts).
+- Ideas not done: on-demand revalidation via a Sanity webhook (pages currently refresh within 60 s), Sanity's Presentation / visual editing,
+  a public photo gallery page, image `blur` placeholders.
 - **French text is a draft** (placeholder content translated for structure). It must be reviewed by a native speaker, and
   real content re-translated, before launch. The gender-neutral wording should be settled with the filmmaker.
 - **Arabic** (planned later) still needs: translations, an Arabic font (the current fonts are Latin only), a native review,

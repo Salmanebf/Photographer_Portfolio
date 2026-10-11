@@ -2,6 +2,23 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-11 — Phase 4: content model & CMS
+
+- **Data layer split per feature:** `features/{films,services,testimonials,photography}/{types,content,normalize,data}.ts`,
+  site settings in `shared/content`, shared CMS plumbing in `lib/cms` (client, `cmsFetch`, draft detection, `pickLocale`).
+  Old `lib/queries.ts`, `lib/data.ts`, `lib/sanity-normalize.ts` removed. Behaviour unchanged.
+- **A film (or photo series) exists only if it is in the list** — a deleted/unpublished film is a 404, no longer a leftover placeholder.
+- **New content:** Photo Series (Studio type + data layer; no public page yet); editable **Awards & Press** band (empty = hidden) and
+  **How I Work** steps (any number; grid adapts; empty = hidden), moved from the translation files; **SEO keywords** and a **sharing image**
+  (defaults to the hero image) in Site Settings.
+- **Draft preview:** `/api/draft?secret=…` (+ `/api/draft/disable`) shows unpublished changes with a "Preview mode" bar; `SANITY_API_READ_TOKEN`
+  is used only in preview mode; previews are `noindex` and `no-store`; redirect targets are restricted to this site. New env vars:
+  `SANITY_API_READ_TOKEN`, `SANITY_PREVIEW_SECRET`, `SANITY_API_HOST` (advanced).
+- **Studio:** brand theme + monogram logo (from `site.config.ts`), organised sidebar with icons, Site Settings tabs, `@sanity/icons` added.
+- **Fake Sanity API** (`npm run cms:mock`, `scripts/mock-sanity`, `groq-js`) + 12 CMS-path tests that run the real client and real GROQ
+  queries; the CMS path had never been executed before.
+- Tests: 130 with a database (126 without). New `docs/TESTING.md` entry U7.
+
 ## 2026-10-11 — Phase 3: English / French (Arabic prepared)
 
 - **URLs and routing:** pages live under `/en` and `/fr` (`app/[locale]/…`); `/` redirects by saved choice → browser

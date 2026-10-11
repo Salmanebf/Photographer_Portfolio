@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import sitemap from './sitemap'
-import { projects } from '@/lib/data'
+import { projects } from '@/features/films/content/en'
 
 describe('sitemap', () => {
   it('lists every page in every language, each pointing at its translations', async () => {

@@ -26,6 +26,8 @@ No `vercel.json` / `netlify.toml` is required; the app has none.
 
 1. **Sanity** — create a project at sanity.io, copy the Project ID. In *manage → API → CORS origins* add
    your site URL (and `http://localhost:3000`) with **credentials allowed** so `/studio` can sign in.
+   Optional, for the draft preview: in *API → Tokens* create a token with **Viewer** rights → `SANITY_API_READ_TOKEN`,
+   and choose a long random `SANITY_PREVIEW_SECRET` (see the README → *Draft preview*).
 2. **Database (Neon)** — create a project at neon.tech, open *Connection details* and copy the **pooled**
    connection string (the host contains `-pooler`; pooling is what serverless hosts need). Set it as
    `DATABASE_URL`. No migration step: the table is created on the first message. Vercel's Neon integration
@@ -66,6 +68,16 @@ Self-hosting means you own updates, backups and uptime.
 - **`NEXT_PUBLIC_SITE_URL` is fixed at build time** (canonical links, hreflang, sitemap). Set it in the host's environment
   *before* the deploy that goes live, and redeploy when the domain changes.
 - Switching language needs no server setting; the choice is a cookie (`NEXT_LOCALE`) set in the browser.
+
+## CMS content, caching and preview
+
+- Content pages are pre-built and refresh in the background at most every 60 s after you publish in Sanity (ISR), so edits
+  appear within about a minute. (Instant refresh through a Sanity webhook is not set up yet.)
+- **Preview mode** serves the *draft-aware* version of a page dynamically with `Cache-Control: private, no-cache, no-store`;
+  keep it that way behind any CDN. The preview cookie is `Secure`, so preview needs `https` (localhost is exempt).
+- The Sanity read token is used only on the server, and only when the preview cookie is present. Never expose it as a
+  `NEXT_PUBLIC_*` variable.
+- All these variables have the same names on every host (Vercel, Netlify, Docker).
 
 ## Known limitations (all hosts)
 

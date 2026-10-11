@@ -1,10 +1,12 @@
 import { defineField, defineType } from 'sanity'
+import { ThListIcon } from '@sanity/icons'
 import { requireDefaultLanguage } from './locale'
 
 export const service = defineType({
   name: 'service',
   title: 'Service',
   type: 'document',
+  icon: ThListIcon,
   fields: [
     defineField({
       name: 'title',

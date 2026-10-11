@@ -6,11 +6,15 @@ import SectionHeading from '@/shared/ui/section-heading'
 
 interface ServicesProps {
   services: { title: string; description: string }[]
+  /** The "How I work" steps (editable in the CMS) */
+  process: { title: string; description: string }[]
 }
 
-export default function Services({ services }: ServicesProps) {
+export default function Services({ services, process }: ServicesProps) {
   const t = useTranslations('services')
-  const process = t.raw('steps') as { title: string; description: string }[]
+  // The steps are editable, so adapt the grid to how many there are (static class names so Tailwind sees them)
+  const columns =
+    process.length <= 2 ? 'lg:grid-cols-2' : process.length === 3 || process.length > 4 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal(0.1)
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal(0.1)
 
@@ -50,38 +54,42 @@ export default function Services({ services }: ServicesProps) {
           ))}
         </div>
 
-        <SectionHeading
-          label={t('processLabel')}
-          title={t('processTitle')}
-          description={t('processDescription')}
-        />
+        {process.length > 0 && (
+          <>
+            <SectionHeading
+              label={t('processLabel')}
+              title={t('processTitle')}
+              description={t('processDescription')}
+            />
 
-        <div
-          ref={processRef}
-          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 stagger-children ${
-            processRevealed ? 'revealed' : ''
-          }`}
-        >
-          {process.map((step, i) => (
             <div
-              key={step.title}
-              className={`group relative p-6 sm:p-8 hover:bg-muted/10 transition-colors duration-500 ${
-                i !== 0 ? 'lg:border-s border-border/40' : ''
-              } ${i !== process.length - 1 ? 'border-b sm:border-b-0 border-border/40' : ''}`}
+              ref={processRef}
+              className={`grid grid-cols-1 sm:grid-cols-2 ${columns} stagger-children ${
+                processRevealed ? 'revealed' : ''
+              }`}
             >
-              <div className="text-5xl font-bold text-gold/10 group-hover:text-gold/30 transition-colors duration-500 mb-6 leading-none">
-                {String(i + 1).padStart(2, '0')}
-              </div>
-              <div className="w-6 h-px bg-gold mb-5 group-hover:w-12 transition-all duration-500" />
-              <h3 className="font-semibold text-foreground mb-2 group-hover:text-gold transition-colors duration-400">
-                {step.title}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {step.description}
-              </p>
+              {process.map((step, i) => (
+                <div
+                  key={step.title}
+                  className={`group relative p-6 sm:p-8 hover:bg-muted/10 transition-colors duration-500 ${
+                    i !== 0 ? 'lg:border-s border-border/40' : ''
+                  } ${i !== process.length - 1 ? 'border-b sm:border-b-0 border-border/40' : ''}`}
+                >
+                  <div className="text-5xl font-bold text-gold/10 group-hover:text-gold/30 transition-colors duration-500 mb-6 leading-none">
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  <div className="w-6 h-px bg-gold mb-5 group-hover:w-12 transition-all duration-500" />
+                  <h3 className="font-semibold text-foreground mb-2 group-hover:text-gold transition-colors duration-400">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </section>
   )
