@@ -2,16 +2,17 @@
 
 import { ArrowUp } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
 import type { SiteSettings } from '@/lib/queries'
 
 const navLinks = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Films', href: '#portfolio' },
-  { label: 'Services', href: '#services' },
-  { label: 'Contact', href: '#contact' },
-]
+  { key: 'home', href: '#home' },
+  { key: 'about', href: '#about' },
+  { key: 'films', href: '#portfolio' },
+  { key: 'services', href: '#services' },
+  { key: 'contact', href: '#contact' },
+] as const
 
 interface FooterProps {
   settings: SiteSettings
@@ -20,6 +21,8 @@ interface FooterProps {
 export default function Footer({ settings }: FooterProps) {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
   const router = useRouter()
+  const t = useTranslations('footer')
+  const tNav = useTranslations('nav')
   const scrollTo = (href: string) => {
     const el = document.getElementById(href.slice(1))
     if (el) el.scrollIntoView({ behavior: 'smooth' })
@@ -111,16 +114,16 @@ export default function Footer({ settings }: FooterProps) {
 
           <div>
             <h3 className="text-[9px] uppercase tracking-[0.4em] text-gold font-medium mb-5">
-              Navigation
+              {t('navigation')}
             </h3>
             <ul className="space-y-2.5">
               {navLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.key}>
                   <button
                     onClick={() => scrollTo(link.href)}
                     className="text-xs text-muted-foreground hover:text-foreground hover-underline transition-colors duration-200"
                   >
-                    {link.label}
+                    {tNav(link.key)}
                   </button>
                 </li>
               ))}
@@ -131,13 +134,13 @@ export default function Footer({ settings }: FooterProps) {
 
         <div className="py-5 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[10px] text-muted-foreground tracking-wide">
-            © {new Date().getFullYear()} {settings.brand.name}. All rights reserved.
+            {t('rights', { year: new Date().getFullYear(), name: settings.brand.name })}
           </p>
           <button
             onClick={scrollToTop}
             className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors group"
           >
-            Back to top
+            {t('backToTop')}
             <ArrowUp size={12} className="group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </div>

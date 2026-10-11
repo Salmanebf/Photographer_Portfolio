@@ -4,18 +4,21 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
+import { dirOf } from '@/i18n/config'
 import type { SiteSettings } from '@/lib/queries'
 import Magnetic from '@/shared/effects/magnetic'
+import LanguageSwitcher from './language-switcher'
 
 const navLinks = [
-  { href: '#home', label: 'Home' },
-  { href: '#about', label: 'About' },
-  { href: '#portfolio', label: 'Films' },
-  { href: '#services', label: 'Services' },
-  { href: '#testimonials', label: 'Testimonials' },
-  { href: '#contact', label: 'Contact' },
-]
+  { href: '#home', key: 'home' },
+  { href: '#about', key: 'about' },
+  { href: '#portfolio', key: 'films' },
+  { href: '#services', key: 'services' },
+  { href: '#testimonials', key: 'testimonials' },
+  { href: '#contact', key: 'contact' },
+] as const
 
 interface NavigationProps {
   settings: SiteSettings
@@ -26,6 +29,8 @@ export default function Navigation({ settings }: NavigationProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const router = useRouter()
+  const t = useTranslations('nav')
+  const rtl = dirOf(useLocale()) === 'rtl'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +61,7 @@ export default function Navigation({ settings }: NavigationProps) {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-700 ${
           isScrolled
             ? 'bg-background/80 backdrop-blur-2xl border-b border-border/40'
             : 'bg-transparent'
@@ -67,7 +72,7 @@ export default function Navigation({ settings }: NavigationProps) {
             <button
               onClick={() => scrollTo('#home')}
               className="flex items-center gap-3 group"
-              aria-label="Back to top"
+              aria-label={t('backToTop')}
             >
               <span className="w-8 h-8 flex items-center justify-center border border-gold/30 group-hover:border-gold transition-colors duration-500 relative overflow-hidden">
                 {settings.brand.logoImage ? (
@@ -84,7 +89,7 @@ export default function Navigation({ settings }: NavigationProps) {
                   </span>
                 )}
               </span>
-              <div className="hidden sm:block leading-none text-left">
+              <div className="hidden sm:block leading-none text-start">
                 <div className="text-foreground text-[11px] font-semibold tracking-[0.25em] uppercase">
                   {settings.brand.name}
                 </div>
@@ -94,7 +99,7 @@ export default function Navigation({ settings }: NavigationProps) {
               </div>
             </button>
 
-            <nav className="hidden md:flex items-center gap-0.5" aria-label="Primary">
+            <nav className="hidden lg:flex items-center gap-0.5" aria-label={t('primary')}>
               {navLinks.map((link) => (
                 <button
                   key={link.href}
@@ -106,11 +111,11 @@ export default function Navigation({ settings }: NavigationProps) {
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  {link.label}
+                  {t(link.key)}
                   {activeSection === link.href.slice(1) && (
                     <motion.div
                       layoutId="nav-indicator"
-                      className="absolute bottom-0 left-4 right-4 h-px bg-gold"
+                      className="absolute bottom-0 inset-x-4 h-px bg-gold"
                       transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                     />
                   )}
@@ -118,20 +123,22 @@ export default function Navigation({ settings }: NavigationProps) {
               ))}
             </nav>
 
-            <Magnetic className="hidden md:inline-block">
+            <Magnetic className="hidden xl:inline-block">
               <button
                 onClick={() => scrollTo('#contact')}
                 className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-gold border border-gold/30 hover:border-gold hover:bg-gold hover:text-background px-5 py-2.5 transition-all duration-400"
                 data-cursor="hover"
               >
-                Collaborate
+                {t('collaborate')}
               </button>
             </Magnetic>
 
+            <LanguageSwitcher className="hidden lg:flex" />
+
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="md:hidden p-2 text-foreground hover:text-gold transition-colors"
-              aria-label={isMobileOpen ? 'Close menu' : 'Open menu'}
+              className="lg:hidden p-2 text-foreground hover:text-gold transition-colors"
+              aria-label={isMobileOpen ? t('closeMenu') : t('openMenu')}
               aria-expanded={isMobileOpen}
             >
               {isMobileOpen ? <X size={22} /> : <Menu size={22} />}
@@ -143,27 +150,27 @@ export default function Navigation({ settings }: NavigationProps) {
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
+            initial={{ opacity: 0, x: rtl ? '-100%' : '100%' }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
+            exit={{ opacity: 0, x: rtl ? '-100%' : '100%' }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-40 bg-background flex flex-col justify-center px-8"
           >
-            <nav className="space-y-1" aria-label="Mobile primary">
+            <nav className="space-y-1" aria-label={t('mobilePrimary')}>
               {navLinks.map((link, i) => (
                 <motion.button
                   key={link.href}
-                  initial={{ opacity: 0, x: 40 }}
+                  initial={{ opacity: 0, x: rtl ? -40 : 40 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => scrollTo(link.href)}
-                  className="flex items-baseline gap-4 w-full text-left py-4 border-b border-border/30 last:border-0 group"
+                  className="flex items-baseline gap-4 w-full text-start py-4 border-b border-border/30 last:border-0 group"
                 >
                   <span className="text-gold text-xs tracking-[0.3em] font-medium">
                     0{i + 1}
                   </span>
                   <span className="text-3xl font-bold text-foreground group-hover:text-gold transition-colors">
-                    {link.label}
+                    {t(link.key)}
                   </span>
                 </motion.button>
               ))}
@@ -178,8 +185,9 @@ export default function Navigation({ settings }: NavigationProps) {
                 onClick={() => scrollTo('#contact')}
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gold text-background font-semibold text-xs uppercase tracking-[0.25em] hover:bg-gold/90 transition-colors"
               >
-                Start a Project
+                {t('startProject')}
               </button>
+              <LanguageSwitcher className="mt-8" />
             </motion.div>
           </motion.div>
         )}

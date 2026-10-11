@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
+import { useTranslations } from 'next-intl'
 import SectionHeading from '@/shared/ui/section-heading'
 import type { Testimonial } from '@/lib/queries'
 
@@ -12,6 +13,7 @@ interface TestimonialsProps {
 }
 
 export default function Testimonials({ testimonials }: TestimonialsProps) {
+  const t = useTranslations('testimonials')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const { ref, isRevealed } = useScrollReveal(0.1)
@@ -47,7 +49,7 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10 relative">
-        <SectionHeading label="Testimonials" title="Words From the Field" />
+        <SectionHeading label={t('label')} title={t('title')} />
 
         <div
           ref={ref}
@@ -108,7 +110,7 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                         ? 'w-8 h-1 bg-gold'
                         : 'w-1 h-1 bg-border hover:bg-muted-foreground'
                     }`}
-                    aria-label={`Testimonial ${i + 1}`}
+                    aria-label={t('itemAria', { n: i + 1 })}
                   />
                 ))}
               </div>
@@ -117,14 +119,14 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                 <button
                   onClick={prev}
                   className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/40 transition-all duration-300"
-                  aria-label="Previous testimonial"
+                  aria-label={t('previous')}
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <button
                   onClick={next}
                   className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold/40 transition-all duration-300"
-                  aria-label="Next testimonial"
+                  aria-label={t('next')}
                 >
                   <ChevronRight size={16} />
                 </button>

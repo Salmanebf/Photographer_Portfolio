@@ -1,7 +1,9 @@
 # Editing Content (no code required)
 
 This site is designed so the filmmaker (or anyone) can change the brand color,
-logo, hero image, films, services, and testimonials **without editing code**.
+logo, hero image, films, services, and testimonials **without editing code** —
+in **English and French** (each language has its own box for every text).
+If a French text is left empty, the English one is shown, so nothing is ever blank.
 
 There are two paths — pick the one that fits.
 
@@ -9,7 +11,9 @@ There are two paths — pick the one that fits.
 
 ## Path A — Simple edits in one file (no setup)
 
-Open `src/lib/site.config.ts`. Everything you can change is there:
+Open `src/lib/site.config.ts`. Everything you can change is there
+(**English** text — the French version of each text is in `src/lib/content/fr.ts`;
+change both when you change a sentence):
 
 - **Brand color**: change `brand.color` to any hex (e.g. `'#c9a96e'`). It
   propagates to every accent on the site.
@@ -22,8 +26,16 @@ Open `src/lib/site.config.ts`. Everything you can change is there:
 - **About section**, **stats**, **tools**, **contact info**, **socials**,
   **studio hours** — all in this file.
 
-Films, services and testimonials live in `src/lib/data.ts`. Same idea:
-edit the array, save, refresh.
+Films, services and testimonials live in `src/lib/data.ts` (English); their
+French versions are in `src/lib/content/fr.ts`. Same idea: edit, save, refresh.
+A film's `category` is a fixed key (`cultural-heritage`, `cultural-preservation`,
+`environmental`, `social-impact`, `other`); its visible name comes from
+`src/messages/en.json` / `fr.json` (`categories`).
+
+**Interface text** (buttons, form labels, section titles that are not content, error
+messages, the awards ticker, the 4 "How I work" steps) lives in
+`src/messages/en.json` and `src/messages/fr.json`. Keep both files in step —
+the automated tests fail if a key exists in one but not the other.
 
 After edits, redeploy (or restart `npm run dev`). Everything here is
 placeholder content until real content replaces it.
@@ -58,22 +70,31 @@ site falls back to `site.config.ts` / `data.ts`.
 
 ### Limits to know about
 
-- Meta description / SEO keywords are **not** read from the studio yet; edit
-  `seo` in `src/lib/site.config.ts`.
-- The awards ticker and the 4 "process" steps in Services are hard-coded in
-  `src/features/awards/awards-marquee.tsx` and `src/features/services/services.tsx`.
+- The search-engine **title and description** are editable in the studio (Site
+  Settings → Search Engine Title/Description, per language). SEO *keywords* are not
+  in the studio yet; edit `seo.keywords` in `src/lib/site.config.ts`.
+- The awards ticker and the 4 "How I work" steps are not in the studio; they are
+  in `src/messages/en.json` / `fr.json` (`awards.items`, `services.steps`).
+- The French content that ships with the site is a **draft translation** of the
+  placeholder text — a native speaker should review it before launch.
 - Images from hosts other than `cdn.sanity.io` / `images.unsplash.com` must be
   added to `images.remotePatterns` in `next.config.ts`.
 
 ### What can be edited in the studio
 
 - **Site Settings** — brand color, logo (image or monogram), hero copy +
-  background image/video, hero stats, about section, contact info, socials.
+  background image/video, hero stats, about section, contact info, socials,
+  search-engine title/description.
+- **Translations** — every text field shows one box per language
+  (*English (default)* and *Français*). Fill in English first; French can be added
+  any time. An empty French box shows the English text on the French site.
+  Names of people, URLs and numbers are not translated.
 - **Documentary Projects** — title, slug, cover image, trailer/video
   (`bunny:<id>` or a YouTube/Vimeo/MP4 URL), a short silent *preview loop* for
   the card, awards, credits, gallery, tags.
-  See **Adding videos** below. (Each project gets a public page at
-  `/work/<slug>`.)
+  The *Category* is picked from a list and is translated automatically.
+  See **Adding videos** below. (Each project gets a public page in every language:
+  `/en/work/<slug>` and `/fr/work/<slug>`; the slug is built from the English title.)
 - **Services** — title + description for each offering.
 - **Testimonials** — quotes, names, roles, optional linked project.
 
@@ -122,7 +143,9 @@ Without a token the endpoint is disabled (404).
 
 > **Where messages are stored:** in a PostgreSQL database (`DATABASE_URL`, e.g. a
 > free Neon database). To read them, open your database provider's SQL editor and
-> run `select * from contact_messages order by created_at desc`. On your own
+> run `select * from contact_messages order by created_at desc`. The `locale`
+> column (`en` / `fr`) tells you **which language the visitor wrote from — reply in
+> that language** (the notification email says it too). On your own
 > computer (no `DATABASE_URL`) a built-in test database is used. **In production
 > `DATABASE_URL` is required** — without it the form reports an error instead of
 > silently losing messages. The table is created automatically.
@@ -133,6 +156,7 @@ Without a token the endpoint is disabled (404).
 
 - The sitemap is auto-generated at `/sitemap.xml`
 - `/robots.txt` is auto-generated
-- Each `/work/<slug>` page has its own Open Graph + Twitter card metadata
+- Each `/<language>/work/<slug>` page has its own Open Graph + Twitter card metadata,
+  plus `hreflang` links to its other-language version
 - Set `NEXT_PUBLIC_SITE_URL` in `.env.local` so canonical URLs and
   Open Graph images use your real domain.

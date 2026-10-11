@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getAllProjectSlugs, getProjectBySlug, getSiteSettings } from '@/lib/queries'
 import { siteConfig } from '@/lib/site.config'
 import Navigation from '@/shared/layout/navigation'
@@ -7,24 +8,31 @@ import Footer from '@/shared/layout/footer'
 import ScrollProgress from '@/shared/effects/scroll-progress'
 import CustomCursor from '@/shared/effects/custom-cursor'
 import ProjectDetailPage from '@/features/films/project-detail-page'
+import { isLocale, locales } from '@/i18n/config'
+import { localizedAlternates, siteBase } from '@/i18n/seo'
 
 export const revalidate = 60
 
 export async function generateStaticParams() {
   const slugs = await getAllProjectSlugs()
-  return slugs.map((slug) => ({ slug }))
+  return locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })))
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const project = await getProjectBySlug(slug)
-  if (!project) return { title: 'Project not found' }
+  const { locale, slug } = await params
+  if (!isLocale(locale)) return {}
+  const project = await getProjectBySlug(slug, locale)
+  if (!project) {
+    const t = await getTranslations({ locale, namespace: 'notFound' })
+    return { title: t('title') }
+  }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.seo.siteUrl
+  const siteUrl = siteBase(process.env.NEXT_PUBLIC_SITE_URL || siteConfig.seo.siteUrl)
+  const alternates = localizedAlternates(siteUrl, `/work/${project.slug}`, locale)
   return {
     title: project.title,
     description: project.shortDescription,
@@ -32,7 +40,7 @@ export async function generateMetadata({
       title: project.title,
       description: project.shortDescription,
       type: 'article',
-      url: `${siteUrl}/work/${project.slug}`,
+      url: alternates.canonical,
       images: project.image
         ? [{ url: project.image, width: 1200, height: 630, alt: project.title }]
         : undefined,
@@ -42,19 +50,22 @@ export async function generateMetadata({
       title: project.title,
       description: project.shortDescription,
     },
-    alternates: { canonical: `${siteUrl}/work/${project.slug}` },
+    alternates,
   }
 }
 
 export default async function WorkPage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }) {
-  const { slug } = await params
+  const { locale, slug } = await params
+  if (!isLocale(locale)) notFound()
+  setRequestLocale(locale)
+
   const [project, settings] = await Promise.all([
-    getProjectBySlug(slug),
-    getSiteSettings(),
+    getProjectBySlug(slug, locale),
+    getSiteSettings(locale),
   ])
 
   if (!project) notFound()

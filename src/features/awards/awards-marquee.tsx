@@ -6,23 +6,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-
-const AWARDS = [
-  'Sundance — Grand Jury Prize',
-  'Cannes — Climate Prize',
-  'Berlin — Best Documentary',
-  'Venice — Best Documentary',
-  'Tribeca — Special Jury',
-  'IDFA — Best Doc',
-  'SXSW — Audience Award',
-  'Hot Docs — Audience Award',
-  'Peabody Nominee',
-  'Emmy Nominee',
-  'Wildscreen — Golden Panda',
-  'Jackson Wild — Grand Teton',
-]
+import { useTranslations } from 'next-intl'
 
 export default function AwardsMarquee() {
+  const AWARDS = useTranslations('awards').raw('items') as string[]
   return (
     <div
       className="relative w-full overflow-hidden border-y border-border/40 bg-card/30 py-8"

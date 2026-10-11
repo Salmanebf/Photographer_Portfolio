@@ -130,6 +130,8 @@ body::before {
 ::-webkit-scrollbar-thumb:hover { background: #c9a96e; }
 
 html { scroll-behavior: smooth; }
+/* Elements waiting to slide in sit off to the side; clip (unlike hidden) avoids a stray horizontal scrollbar without breaking position: sticky */
+html, body { overflow-x: clip; }
 
 /* === SCROLL VISUAL EFFECTS === */
 .parallax-container { position: relative; overflow: hidden; }
@@ -168,6 +170,9 @@ html { scroll-behavior: smooth; }
   transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .slide-right.revealed { opacity: 1; transform: translateX(0); }
+/* Right-to-left languages: slide in from the other side */
+[dir='rtl'] .slide-left:not(.revealed) { transform: translateX(50px); }
+[dir='rtl'] .slide-right:not(.revealed) { transform: translateX(-50px); }
 
 .blur-in {
   opacity: 0;
@@ -237,7 +242,7 @@ html { scroll-behavior: smooth; }
   content: '';
   position: absolute;
   bottom: -2px;
-  left: 0;
+  inset-inline-start: 0;
   width: 0;
   height: 1px;
   background: #c9a96e;
@@ -255,6 +260,7 @@ html { scroll-behavior: smooth; }
   transform-origin: 0;
   transition: transform 0.1s linear;
 }
+[dir='rtl'] .scroll-progress { left: auto; right: 0; transform-origin: 100% 0; }
 
 /* === ADDITIONAL SCROLL ANIMATIONS === */
 

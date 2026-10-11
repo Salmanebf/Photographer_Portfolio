@@ -1,0 +1,164 @@
+{
+  "common": {
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "films": "Films",
+    "services": "Services",
+    "testimonials": "Testimonials",
+    "contact": "Contact",
+    "collaborate": "Collaborate",
+    "startProject": "Start a Project",
+    "backToTop": "Back to top",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "primary": "Primary",
+    "mobilePrimary": "Mobile primary"
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": "Switch language to {language}"
+  },
+  "hero": {
+    "scroll": "Scroll",
+    "viewFilms": "View My Films"
+  },
+  "about": {
+    "label": "About",
+    "title": "The Story Behind the Lens",
+    "years": "Years",
+    "approach": "Approach & Tools",
+    "imageAlt": "{name}, documentary filmmaker",
+    "marqueeWords": ["Documentary", "Truth", "Story", "Reality", "Culture", "Heritage"]
+  },
+  "awards": {
+    "items": [
+      "Sundance — Grand Jury Prize",
+      "Cannes — Climate Prize",
+      "Berlin — Best Documentary",
+      "Venice — Best Documentary",
+      "Tribeca — Special Jury",
+      "IDFA — Best Doc",
+      "SXSW — Audience Award",
+      "Hot Docs — Audience Award",
+      "Peabody Nominee",
+      "Emmy Nominee",
+      "Wildscreen — Golden Panda",
+      "Jackson Wild — Grand Teton"
+    ]
+  },
+  "films": {
+    "label": "Selected Works",
+    "title": "Documentary Films",
+    "description": "Each film is a journey into real stories that shape our understanding of the world.",
+    "all": "All",
+    "filterAria": "Filter projects by category",
+    "preview": "Preview",
+    "hoverHint": "Hover any film to preview",
+    "previewing": "Previewing",
+    "allFilms": "All Films",
+    "synopsis": "Synopsis",
+    "gallery": "Gallery",
+    "awards": "Awards",
+    "awardCount": "{count, plural, one {# Award} other {# Awards}}",
+    "credits": "Credits",
+    "topics": "Topics",
+    "discuss": "Discuss This Project",
+    "galleryImageAlt": "{title} — gallery image {n}"
+  },
+  "categories": {
+    "cultural-heritage": "Cultural Heritage",
+    "cultural-preservation": "Cultural Preservation",
+    "environmental": "Environmental",
+    "social-impact": "Social Impact",
+    "other": "Other"
+  },
+  "video": {
+    "play": "Play {title} trailer"
+  },
+  "services": {
+    "label": "Services",
+    "title": "What I Offer",
+    "description": "End-to-end documentary filmmaking, from initial concept to global distribution and impact.",
+    "processLabel": "Process",
+    "processTitle": "How I Work",
+    "processDescription": "Every documentary begins with a question and unfolds through a deeply intentional creative process.",
+    "steps": [
+      {
+        "title": "Discovery",
+        "description": "Deep research and immersion, building trust with communities and identifying the emotional core."
+      },
+      {
+        "title": "Production",
+        "description": "Extended field shoots with cinematic cameras, capturing authentic moments and intimate interviews."
+      },
+      {
+        "title": "Crafting",
+        "description": "Meticulous editing, sound design, and color grading that transforms raw footage into a compelling narrative."
+      },
+      {
+        "title": "Impact",
+        "description": "Festival strategy, distribution, and impact campaigns ensuring your documentary reaches and moves audiences."
+      }
+    ]
+  },
+  "testimonials": {
+    "label": "Testimonials",
+    "title": "Words From the Field",
+    "itemAria": "Testimonial {n}",
+    "previous": "Previous testimonial",
+    "next": "Next testimonial"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Let's Tell Your Story",
+    "description": "Have a story that needs to be told? I'd love to hear about it.",
+    "honeypot": "Website (leave empty)",
+    "name": "Name",
+    "email": "Email",
+    "project": "Project",
+    "message": "Message",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "your@email.com",
+    "projectPlaceholder": "Tell me about your documentary idea",
+    "messagePlaceholder": "Your story, vision, and timeline...",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "successTitle": "Message sent",
+    "successBody": "Thank you for reaching out. I'll respond within 24 hours.",
+    "errorTitle": "Error",
+    "errorGeneric": "Something went wrong. Please try again or email me directly.",
+    "available": "Available for Projects",
+    "availableBody": "Currently accepting documentary projects for {year}. Let's create something meaningful together.",
+    "basedIn": "Based In",
+    "emailLabel": "Email",
+    "response": "Response",
+    "studioHours": "Studio Hours",
+    "errors": {
+      "name_required": "Name is required",
+      "name_too_long": "Name is too long",
+      "email_invalid": "Invalid email address",
+      "email_too_long": "Email is too long",
+      "subject_required": "Project is required",
+      "subject_too_long": "Project title is too long",
+      "message_too_short": "Message must be at least 10 characters",
+      "message_too_long": "Message is too long",
+      "invalid_input": "Invalid input",
+      "rate_limited": "Too many requests — please try again in a minute.",
+      "server_error": "Failed to process your message"
+    }
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "rights": "© {year} {name}. All rights reserved.",
+    "backToTop": "Back to top"
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "title": "Not Found",
+    "description": "The page you're looking for doesn't exist — or has been moved.",
+    "back": "Back to home"
+  }
+}

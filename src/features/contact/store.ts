@@ -8,6 +8,8 @@ export type StoredContactMessage = {
   subject: string
   message: string
   read: boolean
+  /** language of the page the visitor wrote from (null for older messages) */
+  locale: string | null
   createdAt: string
 }
 
@@ -20,8 +22,12 @@ export const CREATE_TABLE = `
     subject    text NOT NULL,
     message    text NOT NULL,
     is_read    boolean NOT NULL DEFAULT false,
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    locale     text
   )`
+
+/** Brings a table created before the `locale` column existed up to date. */
+const ADD_LOCALE_COLUMN = `ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS locale text`
 
 type Row = {
   id: string
@@ -30,19 +36,35 @@ type Row = {
   subject: string
   message: string
   is_read: boolean
+  locale: string | null
   created_at: Date | string
 }
 
-/** Two requests creating the table at the same instant can collide in Postgres; that's harmless. */
-const isConcurrentCreate = (err: unknown) =>
-  ['42P07', '23505', '42710'].includes((err as { code?: string })?.code ?? '')
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+/**
+ * Creates/upgrades the table. Several requests can arrive at once on a fresh
+ * database and collide inside Postgres' catalog; every statement is idempotent,
+ * so a collided attempt is simply retried a moment later.
+ */
+async function migrate(client: SqlClient) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await client.query(CREATE_TABLE)
+      await client.query(ADD_LOCALE_COLUMN)
+      return
+    } catch (err) {
+      if (attempt >= 4) throw err
+      await sleep(30 * (attempt + 1))
+    }
+  }
+}
 
 /** All SQL for contact messages lives here. */
 export function createContactStore(getClient: () => Promise<SqlClient> = getDb) {
   let ready: Promise<unknown> | null = null
   const ensureTable = (client: SqlClient) => {
-    ready ??= client.query(CREATE_TABLE).catch((err) => {
-      if (isConcurrentCreate(err)) return
+    ready ??= migrate(client).catch((err) => {
       ready = null // allow a retry on the next request
       throw err
     })
@@ -50,14 +72,14 @@ export function createContactStore(getClient: () => Promise<SqlClient> = getDb) 
   }
 
   return {
-    async insert({ name, email, subject, message }: ContactInput): Promise<{ id: string }> {
+    async insert({ name, email, subject, message, locale }: ContactInput): Promise<{ id: string }> {
       const client = await getClient()
       await ensureTable(client)
       const id = crypto.randomUUID()
       await client.query(
-        `INSERT INTO contact_messages (id, name, email, subject, message)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [id, name, email, subject, message]
+        `INSERT INTO contact_messages (id, name, email, subject, message, locale)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [id, name, email, subject, message, locale ?? null]
       )
       return { id }
     },
@@ -66,7 +88,7 @@ export function createContactStore(getClient: () => Promise<SqlClient> = getDb) 
       const client = await getClient()
       await ensureTable(client)
       const { rows } = await client.query<Row>(
-        `SELECT id, name, email, subject, message, is_read, created_at
+        `SELECT id, name, email, subject, message, is_read, locale, created_at
          FROM contact_messages ORDER BY created_at DESC LIMIT $1`,
         [limit]
       )
@@ -77,6 +99,7 @@ export function createContactStore(getClient: () => Promise<SqlClient> = getDb) 
         subject: r.subject,
         message: r.message,
         read: r.is_read,
+        locale: r.locale,
         createdAt: new Date(r.created_at).toISOString(),
       }))
     },

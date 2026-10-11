@@ -59,4 +59,25 @@ describe.skipIf(!url)('contact store (real Postgres via DATABASE_URL)', () => {
     resetClient()
     await expect(createContactStore().insert(input)).resolves.toHaveProperty('id')
   })
+
+  it('upgrades an older table (no locale column) even when many requests arrive at once', async () => {
+    const client = await getDb()
+    await client.query('DROP TABLE IF EXISTS contact_messages')
+    await client.query(`CREATE TABLE contact_messages (
+      id uuid PRIMARY KEY, name text NOT NULL, email text NOT NULL, subject text NOT NULL,
+      message text NOT NULL, is_read boolean NOT NULL DEFAULT false,
+      created_at timestamptz NOT NULL DEFAULT now())`)
+    await client.query(
+      `INSERT INTO contact_messages (id, name, email, subject, message)
+       VALUES (gen_random_uuid(), 'Old', 'old@example.com', 'old', 'an old message here')`
+    )
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () => createContactStore().insert({ ...input, locale: 'fr' }))
+    )
+    expect(new Set(results.map((r) => r.id)).size).toBe(10)
+    const list = await createContactStore().list(100)
+    expect(list).toHaveLength(11)
+    expect(list.filter((m) => m.locale === 'fr')).toHaveLength(10)
+    expect(list.find((m) => m.subject === 'old')?.locale).toBeNull()
+  })
 })

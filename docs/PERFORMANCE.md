@@ -22,7 +22,8 @@ Measure (needs Chrome/Chromium):
 
 ```bash
 npm run build && npm start &
-CHROME_PATH=/path/to/chrome npx lighthouse http://localhost:3000 \
+# measure a language page directly ("/" only redirects): /en and /fr
+CHROME_PATH=/path/to/chrome npx lighthouse http://localhost:3000/en \
   --only-categories=performance --form-factor=mobile --chrome-flags="--headless=new --no-sandbox"
 ```
 

@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { bunnyUrls, parseVideoRef } from './sources'
 import VideoLoop from './video-loop'
 
@@ -74,6 +75,7 @@ function BunnyPlayer({ id, poster, title }: { id: string; poster: string; title:
 }
 
 export default function StreamPlayer({ url, poster, title, ambient }: StreamPlayerProps) {
+  const t = useTranslations('video')
   const [playing, setPlaying] = useState(false)
 
   let ref = parseVideoRef(url)
@@ -131,7 +133,7 @@ export default function StreamPlayer({ url, poster, title, ambient }: StreamPlay
         <button
           type="button"
           onClick={() => setPlaying(true)}
-          aria-label={`Play ${title} trailer`}
+          aria-label={t('play', { title })}
           className="absolute inset-0 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
           data-cursor="hover"
         >
@@ -143,7 +145,7 @@ export default function StreamPlayer({ url, poster, title, ambient }: StreamPlay
           >
             <Play
               size={28}
-              className="text-gold ml-1 group-hover:text-background group-hover:scale-110 transition-all"
+              className="text-gold ms-1 group-hover:text-background group-hover:scale-110 transition-all"
             />
             <span className="absolute inset-0 rounded-full border border-gold/30 animate-ping pointer-events-none" />
           </motion.span>

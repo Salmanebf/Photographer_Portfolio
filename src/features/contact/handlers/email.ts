@@ -16,7 +16,10 @@ export const emailHandler: ContactHandler = {
       to,
       replyTo: data.email,
       subject: `New inquiry: ${data.subject}`,
-      text: `From: ${data.name} <${data.email}>\n\n${data.message}`,
+      text:
+        `From: ${data.name} <${data.email}>\n` +
+        (data.locale ? `Language: ${data.locale} (reply in this language)\n` : '') +
+        `\n${data.message}`,
     })
   },
 }

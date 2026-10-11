@@ -42,5 +42,9 @@ The client does not test changes as they land; they test later from `docs/TESTIN
 - SQL only in a feature's `store.ts`; the Postgres client comes from `src/lib/db.ts`. The database provider must stay switchable by changing `DATABASE_URL` alone (no provider-specific SDKs).
 - The app must stay host-neutral: no `@vercel/*`, `@netlify/*`, `VERCEL_*`, `NETLIFY_*` in code
   (`src/portability.test.ts` enforces it). Platform specifics belong in `docs/DEPLOYMENT.md`.
+- **No visible text in components.** Interface text goes in `src/messages/en.json` and `fr.json` (identical keys — a test
+  enforces it); content text goes in the CMS or `site.config.ts`/`data.ts` (English) and `src/lib/content/fr.ts` (French).
+  Use `Link`/`useRouter`/`usePathname` from `@/i18n/routing`, and logical CSS (`ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`/`text-start`)
+  instead of left/right so Arabic (right-to-left) works. Never add middleware/proxy — keep the language handling host-neutral.
 - Content must keep working with no CMS configured (fallbacks in `src/lib/site.config.ts` and `data.ts`).
 - Current content is placeholder; never present it as real.

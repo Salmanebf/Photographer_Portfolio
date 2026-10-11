@@ -3,6 +3,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import VideoLoop from '@/shared/media/video-loop'
 import { useCountUp } from '@/shared/hooks/use-scroll-effects'
 import type { SiteSettings } from '@/lib/queries'
@@ -36,6 +37,7 @@ interface HeroProps {
 }
 
 export default function Hero({ settings }: HeroProps) {
+  const t = useTranslations('hero')
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -91,13 +93,13 @@ export default function Hero({ settings }: HeroProps) {
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute top-0 left-0 right-0 h-[6vh] bg-background z-[2] origin-left"
+        className="absolute top-0 inset-x-0 h-[6vh] bg-background z-[2] origin-left"
       />
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute bottom-0 left-0 right-0 h-[6vh] bg-background z-[2] origin-right"
+        className="absolute bottom-0 inset-x-0 h-[6vh] bg-background z-[2] origin-right"
       />
 
       <motion.div
@@ -167,7 +169,7 @@ export default function Hero({ settings }: HeroProps) {
                 className="inline-flex items-center gap-3 px-8 py-3.5 bg-gold text-background text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-gold/90 transition-all duration-300 hover:shadow-lg hover:shadow-gold/20"
                 data-cursor="hover"
               >
-                View My Films
+                {t('viewFilms')}
               </a>
             </Magnetic>
           </motion.div>
@@ -194,7 +196,7 @@ export default function Hero({ settings }: HeroProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2, duration: 1 }}
-        className="absolute right-6 sm:right-10 bottom-[10vh] z-10 hidden sm:flex flex-col items-center gap-3"
+        className="absolute end-6 sm:end-10 bottom-[10vh] z-10 hidden sm:flex flex-col items-center gap-3"
         aria-hidden="true"
       >
         <motion.div
@@ -203,7 +205,7 @@ export default function Hero({ settings }: HeroProps) {
           className="w-px h-16 bg-gradient-to-b from-transparent via-gold/50 to-transparent origin-top"
         />
         <span className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground -rotate-90 origin-center whitespace-nowrap mt-3">
-          Scroll
+          {t('scroll')}
         </span>
       </motion.div>
     </section>

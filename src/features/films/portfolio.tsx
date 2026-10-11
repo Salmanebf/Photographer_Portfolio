@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
 import VideoLoop from '@/shared/media/video-loop'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import type { DocumentaryProject } from '@/lib/data'
 import SectionHeading from '@/shared/ui/section-heading'
@@ -14,20 +15,31 @@ interface PortfolioProps {
   projects: DocumentaryProject[]
 }
 
+/** Filter value meaning "no filter" (can't clash with a category key). */
+const ALL = '__all__'
+
+/** Translated category name; unknown keys (older content) are shown as typed. */
+function useCategoryLabel() {
+  const t = useTranslations('categories')
+  return (key: string) => (t.has(key) ? t(key) : key)
+}
+
 export default function Portfolio({ projects }: PortfolioProps) {
-  const [activeFilter, setActiveFilter] = useState('All')
+  const t = useTranslations('films')
+  const categoryLabel = useCategoryLabel()
+  const [activeFilter, setActiveFilter] = useState(ALL)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const { ref: filterRef, isRevealed: filterRevealed } = useScrollReveal(0.2)
 
   const categories = useMemo(() => {
-    const set = new Set<string>(['All'])
+    const set = new Set<string>([ALL])
     projects.forEach((p) => set.add(p.category))
     return Array.from(set)
   }, [projects])
 
   const filteredProjects = useMemo(
     () =>
-      activeFilter === 'All'
+      activeFilter === ALL
         ? projects
         : projects.filter((p) => p.category === activeFilter),
     [projects, activeFilter]
@@ -43,9 +55,9 @@ export default function Portfolio({ projects }: PortfolioProps) {
     <section id="portfolio" className="py-24 sm:py-36 relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <SectionHeading
-          label="Selected Works"
-          title="Documentary Films"
-          description="Each film is a journey into real stories that shape our understanding of the world."
+          label={t('label')}
+          title={t('title')}
+          description={t('description')}
           align="left"
         />
 
@@ -55,7 +67,7 @@ export default function Portfolio({ projects }: PortfolioProps) {
             filterRevealed ? 'revealed' : ''
           }`}
           role="tablist"
-          aria-label="Filter projects by category"
+          aria-label={t('filterAria')}
         >
           {categories.map((cat) => (
             <button
@@ -69,7 +81,7 @@ export default function Portfolio({ projects }: PortfolioProps) {
                   : 'text-muted-foreground hover:text-foreground border-transparent'
               }`}
             >
-              {cat}
+              {cat === ALL ? t('all') : categoryLabel(cat)}
             </button>
           ))}
         </div>
@@ -105,10 +117,10 @@ export default function Portfolio({ projects }: PortfolioProps) {
                   <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
                 </div>
                 <div className="text-[9px] uppercase tracking-[0.5em] text-gold mb-3">
-                  Preview
+                  {t('preview')}
                 </div>
                 <p className="text-sm text-muted-foreground max-w-[200px] leading-relaxed">
-                  Hover any film to preview
+                  {t('hoverHint')}
                 </p>
               </div>
 
@@ -140,10 +152,10 @@ export default function Portfolio({ projects }: PortfolioProps) {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.25, duration: 0.5 }}
-                      className="absolute bottom-0 left-0 right-0 p-6"
+                      className="absolute bottom-0 inset-x-0 p-6"
                     >
                       <div className="text-[9px] uppercase tracking-[0.4em] text-gold mb-2">
-                        {displayProject.category}
+                        {categoryLabel(displayProject.category)}
                       </div>
                       <div className="text-2xl font-bold text-foreground leading-tight">
                         {displayProject.title}
@@ -153,17 +165,17 @@ export default function Portfolio({ projects }: PortfolioProps) {
                       </div>
                     </motion.div>
 
-                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <div className="absolute top-4 start-4 flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
                       <span className="text-[8px] uppercase tracking-[0.4em] text-gold">
-                        Previewing
+                        {t('previewing')}
                       </span>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <div className="absolute -bottom-3 -right-3 w-full h-full border border-gold/10 -z-10 pointer-events-none" />
+              <div className="absolute -bottom-3 -end-3 w-full h-full border border-gold/10 -z-10 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -243,6 +255,7 @@ function MobileProjectCard({
   index: number
 }) {
   const { ref, isRevealed } = useScrollReveal(0.1)
+  const categoryLabel = useCategoryLabel()
   const num = String(index + 1).padStart(2, '0')
 
   return (
@@ -265,10 +278,10 @@ function MobileProjectCard({
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
-          <div className="absolute top-3 left-3 flex items-center gap-2">
+          <div className="absolute top-3 start-3 flex items-center gap-2">
             <span className="text-gold text-[9px] tracking-[0.3em] font-medium">{num}</span>
             <span className="text-[9px] uppercase tracking-[0.3em] text-foreground bg-background/60 backdrop-blur-sm px-2 py-1">
-              {project.category}
+              {categoryLabel(project.category)}
             </span>
           </div>
         </div>

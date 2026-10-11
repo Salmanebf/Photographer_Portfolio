@@ -3,6 +3,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import SectionHeading from '@/shared/ui/section-heading'
 import type { SiteSettings } from '@/lib/queries'
@@ -12,6 +13,8 @@ interface AboutProps {
 }
 
 export default function About({ settings }: AboutProps) {
+  const t = useTranslations('about')
+  const marquee = (t.raw('marqueeWords') as string[]).join(' \u00a0 ') + ' \u00a0 '
   const sectionRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -31,14 +34,10 @@ export default function About({ settings }: AboutProps) {
       ref={sectionRef}
       className="py-24 sm:py-36 relative overflow-hidden"
     >
-      <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 overflow-hidden pointer-events-none opacity-[0.018]">
+      <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 overflow-hidden pointer-events-none opacity-[0.018]">
         <div className="animate-marquee whitespace-nowrap">
-          <span className="text-[15vw] font-bold uppercase tracking-tight">
-            Documentary &nbsp; Truth &nbsp; Story &nbsp; Reality &nbsp; Culture &nbsp; Heritage &nbsp;
-          </span>
-          <span className="text-[15vw] font-bold uppercase tracking-tight">
-            Documentary &nbsp; Truth &nbsp; Story &nbsp; Reality &nbsp; Culture &nbsp; Heritage &nbsp;
-          </span>
+          <span className="text-[15vw] font-bold uppercase tracking-tight">{marquee}</span>
+          <span className="text-[15vw] font-bold uppercase tracking-tight">{marquee}</span>
         </div>
       </div>
 
@@ -59,7 +58,7 @@ export default function About({ settings }: AboutProps) {
           </p>
         </div>
 
-        <SectionHeading label="About" title="The Story Behind the Lens" align="left" />
+        <SectionHeading label={t('label')} title={t('title')} align="left" />
 
         <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 items-start">
           <motion.div style={{ y: imgParallax }} className="relative">
@@ -69,23 +68,23 @@ export default function About({ settings }: AboutProps) {
             >
               <Image
                 src={about.image}
-                alt={`${settings.brand.name}, documentary filmmaker`}
+                alt={t('imageAlt', { name: settings.brand.name })}
                 fill
                 sizes="(max-width: 1024px) 100vw, 420px"
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
             </motion.div>
-            <div className="absolute -bottom-3 -right-3 w-full h-full border border-gold/15 -z-10" />
+            <div className="absolute -bottom-3 -end-3 w-full h-full border border-gold/15 -z-10" />
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="absolute -bottom-5 -right-5 bg-gold text-background px-6 py-4"
+              className="absolute -bottom-5 -end-5 bg-gold text-background px-6 py-4"
             >
               <div className="text-3xl font-bold leading-none">{about.yearsBadge}</div>
-              <div className="text-[9px] uppercase tracking-[0.35em] mt-1">Years</div>
+              <div className="text-[9px] uppercase tracking-[0.35em] mt-1">{t('years')}</div>
             </motion.div>
           </motion.div>
 
@@ -130,7 +129,7 @@ export default function About({ settings }: AboutProps) {
             {about.tools.length > 0 && (
               <div>
                 <h3 className="text-[9px] uppercase tracking-[0.4em] text-gold font-medium mb-4">
-                  Approach &amp; Tools
+                  {t('approach')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {about.tools.map((tool) => (

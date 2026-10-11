@@ -1,37 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactStore } from '@/features/contact/store'
 import { contactSchema } from '@/features/contact/schema'
+import {
+  contactErrorMessages,
+  isContactErrorCode,
+  type ContactErrorCode,
+} from '@/features/contact/error-codes'
 import { checkRateLimit, getClientIp } from '@/features/contact/rate-limit'
 import { isAdminAuthorized } from '@/features/contact/admin-auth'
 import { submitContact } from '@/features/contact/service'
 import { contactHandlers } from '@/features/contact/handlers'
 
 /** Thin HTTP adapter — the contact logic lives in `src/features/contact`. */
+const fail = (code: ContactErrorCode, status: number, headers?: Record<string, string>) =>
+  NextResponse.json({ error: contactErrorMessages[code], code }, { status, headers })
+
 export async function POST(request: NextRequest) {
   const rate = checkRateLimit(getClientIp(request.headers))
   if (!rate.allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests — please try again in a minute.' },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil((rate.resetAt - Date.now()) / 1000)) },
-      }
-    )
+    return fail('rate_limited', 429, {
+      'Retry-After': String(Math.ceil((rate.resetAt - Date.now()) / 1000)),
+    })
   }
 
   let payload: unknown
   try {
     payload = await request.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+    return fail('invalid_input', 400)
   }
 
   const parsed = contactSchema.safeParse(payload)
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? 'Invalid input' },
-      { status: 400 }
-    )
+    const code = parsed.error.issues[0]?.message
+    return fail(isContactErrorCode(code) ? code : 'invalid_input', 400)
   }
 
   // Honeypot triggered — silently succeed
@@ -44,10 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, id }, { status: 201 })
   } catch (error) {
     console.error('Contact form error:', error)
-    return NextResponse.json(
-      { error: 'Failed to process your message' },
-      { status: 500 }
-    )
+    return fail('server_error', 500)
   }
 }
 

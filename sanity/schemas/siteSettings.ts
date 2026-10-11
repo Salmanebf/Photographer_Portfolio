@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { requireDefaultLanguage } from './locale'
 
 export const siteSettings = defineType({
   name: 'siteSettings',
@@ -13,10 +14,16 @@ export const siteSettings = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'description',
-      title: 'Meta Description',
-      type: 'text',
-      rows: 3,
+      name: 'seoTitle',
+      title: 'Search Engine Title',
+      description: 'Shown in Google results and browser tabs',
+      type: 'localeString',
+    }),
+    defineField({
+      name: 'seoDescription',
+      title: 'Search Engine Description',
+      description: 'The short summary shown under the title in Google results',
+      type: 'localeText',
     }),
     defineField({
       name: 'brandColor',
@@ -45,14 +52,14 @@ export const siteSettings = defineType({
       name: 'discipline',
       title: 'Discipline',
       description: 'Subtitle under the logo (e.g. "Documentary")',
-      type: 'string',
+      type: 'localeString',
     }),
 
     // HERO
     defineField({
       name: 'heroEyebrow',
       title: 'Hero Eyebrow',
-      type: 'string',
+      type: 'localeString',
       group: 'hero',
     }),
     defineField({
@@ -70,8 +77,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'heroTagline',
       title: 'Hero Tagline',
-      type: 'text',
-      rows: 3,
+      type: 'localeText',
       group: 'hero',
     }),
     defineField({
@@ -100,10 +106,10 @@ export const siteSettings = defineType({
           fields: [
             { name: 'value', type: 'number', validation: (R) => R.required() },
             { name: 'suffix', type: 'string', initialValue: '+' },
-            { name: 'label', type: 'string', validation: (R) => R.required() },
+            { name: 'label', type: 'localeString', validation: requireDefaultLanguage },
           ],
           preview: {
-            select: { value: 'value', suffix: 'suffix', label: 'label' },
+            select: { value: 'value', suffix: 'suffix', label: 'label.en' },
             prepare: ({ value, suffix, label }) => ({
               title: `${value}${suffix ?? ''} — ${label}`,
             }),
@@ -116,8 +122,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'aboutQuote',
       title: 'About Pull Quote',
-      type: 'text',
-      rows: 2,
+      type: 'localeText',
       group: 'about',
     }),
     defineField({
@@ -137,14 +142,14 @@ export const siteSettings = defineType({
       name: 'aboutParagraphs',
       title: 'About Paragraphs',
       type: 'array',
-      of: [{ type: 'text', rows: 4 }],
+      of: [{ type: 'localeText' }],
       group: 'about',
     }),
     defineField({
       name: 'aboutTools',
       title: 'Tools & Approach',
       type: 'array',
-      of: [{ type: 'string' }],
+      of: [{ type: 'localeString' }],
       group: 'about',
     }),
     defineField({
@@ -157,7 +162,7 @@ export const siteSettings = defineType({
           type: 'object',
           fields: [
             { name: 'value', type: 'string' },
-            { name: 'label', type: 'string' },
+            { name: 'label', type: 'localeString' },
           ],
         },
       ],
@@ -173,20 +178,19 @@ export const siteSettings = defineType({
     defineField({
       name: 'contactLocation',
       title: 'Location',
-      type: 'string',
+      type: 'localeString',
       group: 'contact',
     }),
     defineField({
       name: 'contactResponseTime',
       title: 'Response Time',
-      type: 'string',
+      type: 'localeString',
       group: 'contact',
     }),
     defineField({
       name: 'studioHours',
       title: 'Studio Hours',
-      type: 'text',
-      rows: 3,
+      type: 'localeText',
       group: 'contact',
     }),
     defineField({
@@ -218,8 +222,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'footerTagline',
       title: 'Footer Tagline',
-      type: 'text',
-      rows: 2,
+      type: 'localeText',
       group: 'footer',
     }),
   ],

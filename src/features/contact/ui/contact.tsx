@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Send, MapPin, Mail, Clock } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
@@ -9,12 +10,22 @@ import { useToast } from '@/shared/hooks/use-toast'
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
 import SectionHeading from '@/shared/ui/section-heading'
 import type { SiteSettings } from '@/lib/queries'
+import { isContactErrorCode } from '../error-codes'
+
+/** A failed submission, carrying the server's error code so it can be shown in the visitor's language. */
+class ContactError extends Error {
+  constructor(readonly code?: string) {
+    super(code)
+  }
+}
 
 interface ContactProps {
   settings: SiteSettings
 }
 
 export default function Contact({ settings }: ContactProps) {
+  const t = useTranslations('contact')
+  const locale = useLocale()
   const { toast } = useToast()
   const { ref: formRef, isRevealed: formRevealed } = useScrollReveal(0.1)
   const { ref: infoRef, isRevealed: infoRevealed } = useScrollReveal(0.1)
@@ -34,10 +45,7 @@ export default function Contact({ settings }: ContactProps) {
 
     // Honeypot check (silently succeed if filled)
     if (formData.website) {
-      toast({
-        title: 'Message sent',
-        description: "Thank you for reaching out. I'll respond within 24 hours.",
-      })
+      toast({ title: t('successTitle'), description: t('successBody') })
       return
     }
 
@@ -46,25 +54,23 @@ export default function Contact({ settings }: ContactProps) {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, locale }),
       })
       if (res.ok) {
-        toast({
-          title: 'Message sent',
-          description: "Thank you for reaching out. I'll respond within 24 hours.",
-        })
+        toast({ title: t('successTitle'), description: t('successBody') })
         setFormData({ name: '', email: '', subject: '', message: '', website: '' })
       } else {
         const body = await res.json().catch(() => ({}))
-        throw new Error(body.error ?? 'Failed')
+        throw new ContactError(body.code)
       }
     } catch (err) {
+      const code = err instanceof ContactError ? err.code : undefined
       toast({
-        title: 'Error',
+        title: t('errorTitle'),
         description:
-          err instanceof Error
-            ? err.message
-            : 'Something went wrong. Please try again or email me directly.',
+          isContactErrorCode(code) && t.has(`errors.${code}`)
+            ? t(`errors.${code}`)
+            : t('errorGeneric'),
         variant: 'destructive',
       })
     } finally {
@@ -76,27 +82,27 @@ export default function Contact({ settings }: ContactProps) {
     'bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none h-12 px-0 placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground'
 
   const contactInfo = [
-    { icon: MapPin, label: 'Based In', value: settings.contact.location },
-    { icon: Mail, label: 'Email', value: settings.contact.email },
-    { icon: Clock, label: 'Response', value: settings.contact.responseTime },
+    { icon: MapPin, label: t('basedIn'), value: settings.contact.location },
+    { icon: Mail, label: t('emailLabel'), value: settings.contact.email, isEmail: true },
+    { icon: Clock, label: t('response'), value: settings.contact.responseTime },
   ]
 
   return (
     <section id="contact" className="py-24 sm:py-36 relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <SectionHeading
-          label="Contact"
-          title="Let's Tell Your Story"
-          description="Have a story that needs to be told? I'd love to hear about it."
+          label={t('label')}
+          title={t('title')}
+          description={t('description')}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-16 items-start">
           <div ref={formRef} className={`slide-left ${formRevealed ? 'revealed' : ''}`}>
             <form onSubmit={handleSubmit} noValidate>
               {/* Honeypot - hidden from users */}
-              <div className="absolute -left-[9999px]" aria-hidden="true">
+              <div className="absolute -start-[9999px]" aria-hidden="true">
                 <label>
-                  Website (leave empty)
+                  {t('honeypot')}
                   <input
                     type="text"
                     tabIndex={-1}
@@ -113,7 +119,7 @@ export default function Contact({ settings }: ContactProps) {
                     htmlFor="contact-name"
                     className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
                   >
-                    Name
+                    {t('name')}
                   </label>
                   <Input
                     id="contact-name"
@@ -121,7 +127,7 @@ export default function Contact({ settings }: ContactProps) {
                     autoComplete="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Your name"
+                    placeholder={t('namePlaceholder')}
                     className={inputCls}
                   />
                 </div>
@@ -130,7 +136,7 @@ export default function Contact({ settings }: ContactProps) {
                     htmlFor="contact-email"
                     className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
                   >
-                    Email
+                    {t('email')}
                   </label>
                   <Input
                     id="contact-email"
@@ -139,7 +145,7 @@ export default function Contact({ settings }: ContactProps) {
                     autoComplete="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="your@email.com"
+                    placeholder={t('emailPlaceholder')}
                     className={inputCls}
                   />
                 </div>
@@ -150,14 +156,14 @@ export default function Contact({ settings }: ContactProps) {
                   htmlFor="contact-subject"
                   className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
                 >
-                  Project
+                  {t('project')}
                 </label>
                 <Input
                   id="contact-subject"
                   required
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="Tell me about your documentary idea"
+                  placeholder={t('projectPlaceholder')}
                   className={inputCls}
                 />
               </div>
@@ -167,14 +173,14 @@ export default function Contact({ settings }: ContactProps) {
                   htmlFor="contact-message"
                   className="text-[9px] uppercase tracking-[0.4em] text-muted-foreground block"
                 >
-                  Message
+                  {t('message')}
                 </label>
                 <Textarea
                   id="contact-message"
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Your story, vision, and timeline..."
+                  placeholder={t('messagePlaceholder')}
                   rows={5}
                   className="bg-transparent border-0 border-b border-border/60 focus:border-gold rounded-none px-0 resize-none placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-gold transition-colors text-foreground"
                 />
@@ -188,11 +194,11 @@ export default function Contact({ settings }: ContactProps) {
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
-                    Sending...
+                    {t('sending')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-3">
-                    Send Message <Send size={14} />
+                    {t('send')} <Send size={14} className="rtl:-scale-x-100" />
                   </span>
                 )}
               </Button>
@@ -208,13 +214,11 @@ export default function Contact({ settings }: ContactProps) {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-[9px] uppercase tracking-[0.4em] text-emerald-400 font-semibold">
-                    Available for Projects
+                    {t('available')}
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Currently accepting documentary projects for{' '}
-                  {settings.contact.availabilityYear}. Let&apos;s create something
-                  meaningful together.
+                  {t('availableBody', { year: settings.contact.availabilityYear })}
                 </p>
               </div>
             )}
@@ -222,7 +226,7 @@ export default function Contact({ settings }: ContactProps) {
             <div className="space-y-6">
               {contactInfo.map((item) => {
                 const Icon = item.icon
-                const isEmail = item.label === 'Email'
+                const isEmail = 'isEmail' in item && item.isEmail
                 return (
                   <div key={item.label} className="flex items-start gap-4">
                     <div className="w-9 h-9 flex items-center justify-center bg-gold/[0.08] border border-gold/15 shrink-0">
@@ -252,7 +256,7 @@ export default function Contact({ settings }: ContactProps) {
 
             <div>
               <h3 className="text-[9px] uppercase tracking-[0.4em] text-gold font-medium mb-3">
-                Studio Hours
+                {t('studioHours')}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                 {settings.contact.studioHours}

@@ -58,4 +58,31 @@ describe('contact store (PGlite)', () => {
     expect(list).toHaveLength(1)
     expect(list[0].name).toContain('DROP TABLE')
   })
+
+  it("remembers the visitor's language, and null when none was sent", async () => {
+    const store = freshStore()
+    await store.insert({ ...input, subject: 'with', locale: 'fr' })
+    await new Promise((r) => setTimeout(r, 5))
+    await store.insert({ ...input, subject: 'without' })
+    const list = await store.list()
+    expect(list.find((m) => m.subject === 'with')?.locale).toBe('fr')
+    expect(list.find((m) => m.subject === 'without')?.locale).toBeNull()
+  })
+
+  it('upgrades a table created before the locale column existed, keeping its rows', async () => {
+    await db.query(`CREATE TABLE contact_messages (
+      id uuid PRIMARY KEY, name text NOT NULL, email text NOT NULL, subject text NOT NULL,
+      message text NOT NULL, is_read boolean NOT NULL DEFAULT false,
+      created_at timestamptz NOT NULL DEFAULT now())`)
+    await db.query(
+      `INSERT INTO contact_messages (id, name, email, subject, message)
+       VALUES (gen_random_uuid(), 'Old', 'old@example.com', 'old', 'an old message here')`
+    )
+    const store = freshStore()
+    await store.insert({ ...input, subject: 'new', locale: 'fr' })
+    const list = await store.list()
+    expect(list).toHaveLength(2)
+    expect(list.find((m) => m.subject === 'old')?.locale).toBeNull()
+    expect(list.find((m) => m.subject === 'new')?.locale).toBe('fr')
+  })
 })

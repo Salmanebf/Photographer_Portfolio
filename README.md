@@ -2,7 +2,8 @@
 
 A cinematic portfolio for a documentary filmmaker, built to **show the work and win new commissions** —
 from businesses to individuals with a story to tell (an artist, a collector…).
-Dark editorial design, one page per film, lots of short looping video, and a CMS the filmmaker edits himself.
+Dark editorial design, one page per film, lots of short looping video, a CMS the filmmaker edits himself, and a
+**bilingual site (English / French, Arabic prepared)**.
 
 > **All current content (name "Alex Rivera", films, awards, testimonials, images) is generated placeholder
 > content.** The structure is what matters; real content replaces it later through the CMS.
@@ -23,17 +24,18 @@ Dark editorial design, one page per film, lots of short looping video, and a CMS
 | Content (CMS)      | **Sanity** (embedded at `/studio`) | The filmmaker's admin dashboard: films, text, images | Content lives in Sanity, independent of hosting |
 | Contact email      | **Resend** (optional)           | Email notification on a new message                   | One handler: `features/contact/handlers/email.ts` |
 
-Front end: **Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · Framer Motion**. Language: TypeScript.
-Tests: Vitest. CI: GitHub Actions.
+Front end: **Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · Framer Motion** · translations with **next-intl**.
+Language: TypeScript. Tests: Vitest. CI: GitHub Actions.
 
 ```
 Browser ─► Vercel (Next.js)
-             ├─ /                  home page (sections, server-rendered, revalidate 60 s)
-             ├─ /work/[slug]       one page per film (SSG + ISR)
+             ├─ /                  redirects to /en or /fr (saved choice → browser language → English)
+             ├─ /en  /fr           home page in each language (sections, revalidate 60 s)
+             ├─ /en|fr/work/[slug] one page per film per language (SSG + ISR)
              ├─ /studio            Sanity Studio — the admin dashboard
              ├─ /api/contact       POST: validate → rate-limit → handlers (PostgreSQL, email)
              │                     GET : admin list, gated by CONTACT_ADMIN_TOKEN
-             ├─ /sitemap.xml, /robots.txt
+             ├─ /sitemap.xml (every page in every language + hreflang), /robots.txt
              ├─ content  ◄─ Sanity (falls back to src/lib/site.config.ts + data.ts if unset)
              ├─ videos   ◄─ Bunny Stream (HLS) — never served from the site itself
              └─ messages ─► PostgreSQL (Neon) via DATABASE_URL
@@ -42,12 +44,13 @@ Browser ─► Vercel (Next.js)
 ## Site structure
 
 **Live today** (home page, in order): Hero · About · Awards ticker · Films · Services · Testimonials · Contact · Footer,
-plus a detail page per film at `/work/<slug>`.
+plus a detail page per film at `/<language>/work/<slug>`. Every page exists in **English (`/en`) and French (`/fr`)**,
+with a language switcher in the header; the right-to-left layout for Arabic is prepared but Arabic is not enabled yet.
 
 **Planned redesign** (details and phase in the roadmap): new orbit-style Hero with playing video cards ·
 creative About that sells a filmmaker with no awards yet · "Films" renamed **Projects** · Services reduced to
 *what I offer* · new **Timeline** section (how a project is made, linking to a detail page) ·
-Testimonials restyled and renamed · Contact unchanged · later: a photo gallery page. Languages: **EN/FR now, AR later**.
+Testimonials restyled and renamed · Contact unchanged · later: a photo gallery page.
 
 ---
 
@@ -56,7 +59,7 @@ Testimonials restyled and renamed · Contact unchanged · later: a photo gallery
 ```bash
 npm ci
 cp .env.example .env.local   # everything is optional for local development
-npm run dev                  # http://localhost:3000   (Studio at /studio)
+npm run dev                  # http://localhost:3000 → /en or /fr   (Studio at /studio)
 ```
 
 With **no environment variables** the site runs fully on placeholder content and an in-process Postgres
@@ -84,7 +87,7 @@ Copy `.env.example`. All are optional locally; set them in the host's dashboard 
 
 | Variable                                       | Purpose                                                              |
 | ---------------------------------------------- | -------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`                         | Canonical / Open Graph / sitemap base URL (your real domain)         |
+| `NEXT_PUBLIC_SITE_URL`                         | Canonical / hreflang / Open Graph / sitemap base URL (your real domain). **Fixed at build time** — set it before building/deploying |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `…_DATASET`   | Turns the CMS on; unset = placeholder content from code             |
 | `NEXT_PUBLIC_BUNNY_CDN_HOST`                   | Bunny library hostname; unset = `bunny:` videos show only the poster |
 | `DATABASE_URL`                                 | PostgreSQL connection string (any provider; Neon: use the *pooled* one). Required in production; unset in dev = in-process Postgres |
@@ -102,7 +105,9 @@ without touching the rest.
 ```
 src/
   app/                    routes only — thin adapters that compose features
-    layout.tsx page.tsx work/[slug]/ studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
+    page.tsx              "/" → redirects to the visitor's language
+    [locale]/             layout.tsx (html lang/dir) page.tsx work/[slug]/ not-found.tsx — one copy per language
+    studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
   features/
     hero/ about/ awards/ services/ testimonials/   home-page sections
     films/                project grid + hover preview, film detail page
@@ -119,8 +124,11 @@ src/
     effects/              custom cursor, magnetic, scroll progress
     ui/                   shadcn primitives + section heading
     hooks/ lib/           scroll effects, toast, `cn`
-  lib/                    data layer: site.config, data (fallback content), queries (Sanity), db (Postgres client)
-sanity/schemas/           project, service, testimonial, siteSettings (singleton)
+  i18n/                   languages: config (EN/FR, RTL list), routing, request, negotiate, seo (hreflang), cookie
+  messages/               en.json, fr.json — every piece of interface text (buttons, labels, errors…)
+  lib/                    data layer: site.config + data (English fallback content), content/fr.ts (French
+                          overrides), queries (Sanity, per language), sanity-normalize, localize, merge, db
+sanity/schemas/           project, service, testimonial, siteSettings (singleton), locale (per-language text)
 docs/                     ROADMAP, DEPLOYMENT, PERFORMANCE
 public/images/            hero, about and film images
 ```
@@ -130,6 +138,9 @@ Rules (also enforced by tests where possible):
 - Video/iframe playback goes through `shared/media/` only.
 - SQL lives only in a feature's `store.ts`; the database client comes from `src/lib/db.ts`.
 - **No hosting-vendor code** (`@vercel/*`, `VERCEL_*`, `NETLIFY_*`) anywhere in the app — `src/portability.test.ts` fails if it appears.
+- **No visible text in components**: interface text goes in `src/messages/en.json` *and* `fr.json` (a test fails if
+  their keys differ); content text goes in the CMS or the content files. Use `Link`/`useRouter` from `@/i18n/routing`
+  (they keep the language in the URL), and logical CSS (`ms-`, `pe-`, `start-`, `text-start`…) instead of left/right.
 
 ### Content with graceful fallback
 
@@ -137,6 +148,24 @@ Rules (also enforced by tests where possible):
 `NEXT_PUBLIC_SANITY_PROJECT_ID` is set, and falls back to `site.config.ts` / `data.ts` on a missing
 config, an error or an empty result. Site settings are merged field-by-field over the static config.
 So the site always renders, with or without the CMS.
+
+### Languages (i18n)
+
+- **URLs** carry the language: `/en/...`, `/fr/...`. `/` redirects using the saved choice (cookie `NEXT_LOCALE`), then
+  the browser's `Accept-Language`, then English. There is **no middleware**, so it behaves the same on every host.
+- **Interface text** lives in `src/messages/<lang>.json` (next-intl). A missing French string shows the English one.
+- **Content**: English is the base (`site.config.ts`, `data.ts`); French is a set of overrides in
+  `src/lib/content/fr.ts` (anything not overridden stays English). In the CMS every translatable field has one box
+  per language (`{ en, fr }`); an empty language falls back to English.
+- **Film categories** are stable keys (`cultural-heritage`…) translated through `messages` (`categories.*`), so
+  filtering works in every language. Slugs and credit *names* are the same in all languages.
+- **SEO**: each page has a canonical URL and `hreflang` links (en, fr, `x-default`) and appears in the sitemap in every language.
+- **Contact**: validation errors come back as codes shown in the visitor's language, and each message stores the
+  language it was written in, so you know which language to reply in.
+- **Add a language** (e.g. Arabic): add the code to `src/i18n/config.ts` (it is already listed as right-to-left), create
+  `src/messages/<code>.json`, add `src/lib/content/<code>.ts` and register it in `src/lib/content/index.ts`. The CMS
+  boxes, hreflang, sitemap, `<html lang dir>` and mirrored layout follow automatically (see `docs/ROADMAP.md` for what
+  Arabic still needs: translations, a font, a review of the remaining directional animations).
 
 ### Videos
 
@@ -148,17 +177,19 @@ Reduced-motion / Data Saver / 2G visitors get the poster instead. Details, budge
 
 ### Data model
 
-`DocumentaryProject` (`src/lib/data.ts`): `id, slug, title, subtitle, category, image, year, duration, location,
+`DocumentaryProject` (`src/lib/data.ts`): `id, slug, title, subtitle, category (key), image, year, duration, location,
 shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], tags[], video?, preview?, featured?`.
-The Sanity `project` type mirrors it, plus `order`. Contact messages: table `contact_messages`
-(`id uuid, name, email, subject, message, is_read boolean, created_at timestamptz`), created automatically on first use.
+The Sanity `project` type mirrors it, plus `order`; its text fields are per-language. Contact messages: table
+`contact_messages` (`id uuid, name, email, subject, message, is_read boolean, created_at timestamptz, locale text`),
+created (and upgraded) automatically on first use.
 To read messages: SQL editor of your database provider (`select * from contact_messages order by created_at desc`)
 or `GET /api/contact` with `CONTACT_ADMIN_TOKEN`.
 
 ## Editing content
 
 The filmmaker edits everything at **`/studio`** (Sanity) — see [`CONTENT.md`](./CONTENT.md) (non-developer guide).
-Developers can also edit the fallback content directly in `src/lib/site.config.ts` and `src/lib/data.ts`.
+Developers can also edit the fallback content directly in `src/lib/site.config.ts` / `src/lib/data.ts` (English)
+and `src/lib/content/fr.ts` (French), and the interface text in `src/messages/*.json`.
 
 ## Deploying
 

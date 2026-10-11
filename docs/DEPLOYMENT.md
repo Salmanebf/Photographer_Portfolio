@@ -58,6 +58,15 @@ Use the `Dockerfile` (multi-stage, standalone output, Node 22 Alpine, runs as no
 `NEXT_PUBLIC_*` values; runtime secrets come from `--env-file`. A host that can run `npm start` doesn't need Docker.
 Self-hosting means you own updates, backups and uptime.
 
+## Languages and hosting
+
+- URLs are `/en/...` and `/fr/...`; `/` redirects visitors to a language. This is a normal page (not middleware), so it works
+  identically on Vercel, Netlify and Docker/VPS. The redirect is sent with `Cache-Control: no-store` — keep it that way if
+  you put a CDN or proxy in front, otherwise one visitor's language could be served to another.
+- **`NEXT_PUBLIC_SITE_URL` is fixed at build time** (canonical links, hreflang, sitemap). Set it in the host's environment
+  *before* the deploy that goes live, and redeploy when the domain changes.
+- Switching language needs no server setting; the choice is a cookie (`NEXT_LOCALE`) set in the browser.
+
 ## Known limitations (all hosts)
 
 - **Rate limiter is in-memory per server instance.** On serverless hosts each instance has its own counters,

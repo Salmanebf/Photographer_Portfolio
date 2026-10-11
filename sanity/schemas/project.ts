@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { requireDefaultLanguage } from './locale'
 
 export const project = defineType({
   name: 'project',
@@ -8,32 +9,37 @@ export const project = defineType({
     defineField({
       name: 'title',
       title: 'Title',
-      type: 'string',
-      validation: (Rule) => Rule.required(),
+      type: 'localeString',
+      validation: requireDefaultLanguage,
     }),
     defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      options: { source: 'title', maxLength: 96 },
+      options: {
+        // slugs are shared by all languages: built from the English title
+        source: (doc) => (doc as { title?: { en?: string } }).title?.en ?? '',
+        maxLength: 96,
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'subtitle',
       title: 'Subtitle / Tagline',
-      type: 'string',
+      type: 'localeString',
     }),
     defineField({
       name: 'category',
       title: 'Category',
       type: 'string',
+      description: 'The visible name is translated automatically (EN/FR).',
       options: {
         list: [
-          'Cultural Heritage',
-          'Cultural Preservation',
-          'Environmental',
-          'Social Impact',
-          'Other',
+          { title: 'Cultural Heritage', value: 'cultural-heritage' },
+          { title: 'Cultural Preservation', value: 'cultural-preservation' },
+          { title: 'Environmental', value: 'environmental' },
+          { title: 'Social Impact', value: 'social-impact' },
+          { title: 'Other', value: 'other' },
         ],
       },
       validation: (Rule) => Rule.required(),
@@ -78,19 +84,17 @@ export const project = defineType({
       description: 'e.g. "78 min"',
       type: 'string',
     }),
-    defineField({ name: 'location', title: 'Location', type: 'string' }),
+    defineField({ name: 'location', title: 'Location', type: 'localeString' }),
     defineField({
       name: 'shortDescription',
       title: 'Short Description',
-      type: 'text',
-      rows: 3,
+      type: 'localeText',
       description: 'One- or two-line summary',
     }),
     defineField({
       name: 'fullDescription',
       title: 'Full Description',
-      type: 'text',
-      rows: 8,
+      type: 'localeText',
     }),
     defineField({
       name: 'awards',
@@ -106,11 +110,11 @@ export const project = defineType({
         {
           type: 'object',
           fields: [
-            { name: 'role', type: 'string', validation: (R) => R.required() },
+            { name: 'role', type: 'localeString', validation: requireDefaultLanguage },
             { name: 'name', type: 'string', validation: (R) => R.required() },
           ],
           preview: {
-            select: { role: 'role', name: 'name' },
+            select: { role: 'role.en', name: 'name' },
             prepare: ({ role, name }) => ({ title: `${role}: ${name}` }),
           },
         },
@@ -156,6 +160,6 @@ export const project = defineType({
     },
   ],
   preview: {
-    select: { title: 'title', media: 'image', subtitle: 'category' },
+    select: { title: 'title.en', media: 'image', subtitle: 'category' },
   },
 })

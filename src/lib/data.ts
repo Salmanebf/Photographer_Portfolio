@@ -3,6 +3,7 @@ export interface DocumentaryProject {
   slug: string
   title: string
   subtitle: string
+  /** Stable key (e.g. `cultural-heritage`); the visible label comes from messages `categories.<key>` */
   category: string
   image: string
   year: string
@@ -28,7 +29,7 @@ export const projects: DocumentaryProject[] = [
     slug: 'the-last-craftsman',
     title: 'The Last Craftsman',
     subtitle: 'A story of tradition, patience, and the hands that shape beauty',
-    category: 'Cultural Heritage',
+    category: 'cultural-heritage',
     image: '/images/doc-craftsman.png',
     year: '2024',
     duration: '78 min',
@@ -51,7 +52,7 @@ export const projects: DocumentaryProject[] = [
     slug: 'vanishing-voices',
     title: 'Vanishing Voices',
     subtitle: 'When a language dies, a universe of thought goes with it',
-    category: 'Cultural Preservation',
+    category: 'cultural-preservation',
     image: '/images/doc-voices.png',
     year: '2024',
     duration: '92 min',
@@ -74,7 +75,7 @@ export const projects: DocumentaryProject[] = [
     slug: 'beneath-the-ice',
     title: 'Beneath the Ice',
     subtitle: 'The Arctic is speaking. Are we listening?',
-    category: 'Environmental',
+    category: 'environmental',
     image: '/images/doc-ice.png',
     year: '2023',
     duration: '105 min',
@@ -97,7 +98,7 @@ export const projects: DocumentaryProject[] = [
     slug: 'urban-roots',
     title: 'Urban Roots',
     subtitle: 'From concrete jungles, gardens of hope emerge',
-    category: 'Social Impact',
+    category: 'social-impact',
     image: '/images/doc-urban.png',
     year: '2023',
     duration: '85 min',
@@ -120,7 +121,7 @@ export const projects: DocumentaryProject[] = [
     slug: 'silent-rivers',
     title: 'Silent Rivers',
     subtitle: 'What happens when the rivers stop speaking',
-    category: 'Environmental',
+    category: 'environmental',
     image: '/images/doc-rivers.png',
     year: '2022',
     duration: '96 min',
@@ -143,7 +144,7 @@ export const projects: DocumentaryProject[] = [
     slug: 'the-ink-keepers',
     title: 'The Ink Keepers',
     subtitle: 'Every mark tells a story. Every story is a rebellion.',
-    category: 'Cultural Heritage',
+    category: 'cultural-heritage',
     image: '/images/doc-ink.png',
     year: '2022',
     duration: '88 min',

@@ -2,6 +2,25 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-11 — Phase 3: English / French (Arabic prepared)
+
+- **URLs and routing:** pages live under `/en` and `/fr` (`app/[locale]/…`); `/` redirects by saved choice → browser
+  language → English. No middleware (host-neutral); the redirect is `no-store`.
+- **Interface text** moved to `src/messages/{en,fr}.json` (next-intl); a test enforces identical keys/placeholders.
+- **Content:** English base + French overrides (`src/lib/content/fr.ts`) for films, services, testimonials, site copy, SEO.
+  Film category is now a stable key (`cultural-heritage`, …) with translated labels. Data getters take the language.
+- **Sanity:** translatable fields became per-language (`localeString` / `localeText`, English fallback, old plain strings
+  still read); category is a dropdown of keys; search-engine title/description added to Site Settings.
+- **SEO:** canonical + hreflang (en, fr, x-default) per page; sitemap lists every page in every language.
+- **Contact:** validation errors are codes shown in the visitor's language; `locale` is stored with each message
+  (column added to existing tables automatically) and shown in the notification email; table creation retries safely under concurrency.
+- **Switcher** (header + mobile menu) keeps the page and anchor and remembers the choice in a cookie.
+- **Arabic prepared:** `dir="rtl"` from the language list, logical CSS across the components, RTL slide animations,
+  mirrored arrows; checked with a temporary fake `ar` locale (not enabled).
+- **Fixes found by testing:** header overflowed at tablet widths (now full nav ≥1024 px, Collaborate ≥1280 px); stray
+  horizontal scrollbar from the off-screen slide-in contact column (`overflow-x: clip`).
+- Tests: 95 (with a database; 91 without). New `docs/TESTING.md` entry U6.
+
 ## 2026-10-11 — Database changed to PostgreSQL (Neon), provider set by one env var
 
 - Turso/libSQL replaced by standard **PostgreSQL** (`pg` driver) configured only by `DATABASE_URL`, so any provider

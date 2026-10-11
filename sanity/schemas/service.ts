@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { requireDefaultLanguage } from './locale'
 
 export const service = defineType({
   name: 'service',
@@ -8,15 +9,14 @@ export const service = defineType({
     defineField({
       name: 'title',
       title: 'Title',
-      type: 'string',
-      validation: (Rule) => Rule.required(),
+      type: 'localeString',
+      validation: requireDefaultLanguage,
     }),
     defineField({
       name: 'description',
       title: 'Description',
-      type: 'text',
-      rows: 3,
-      validation: (Rule) => Rule.required(),
+      type: 'localeText',
+      validation: requireDefaultLanguage,
     }),
     defineField({
       name: 'order',
@@ -32,5 +32,5 @@ export const service = defineType({
       by: [{ field: 'order', direction: 'asc' }],
     },
   ],
-  preview: { select: { title: 'title', subtitle: 'description' } },
+  preview: { select: { title: 'title.en', subtitle: 'description.en' } },
 })

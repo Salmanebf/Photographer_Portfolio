@@ -1,40 +1,16 @@
 'use client'
 
 import { useScrollReveal } from '@/shared/hooks/use-scroll-effects'
+import { useTranslations } from 'next-intl'
 import SectionHeading from '@/shared/ui/section-heading'
-
-const process = [
-  {
-    step: '01',
-    title: 'Discovery',
-    description:
-      'Deep research and immersion, building trust with communities and identifying the emotional core.',
-  },
-  {
-    step: '02',
-    title: 'Production',
-    description:
-      'Extended field shoots with cinematic cameras, capturing authentic moments and intimate interviews.',
-  },
-  {
-    step: '03',
-    title: 'Crafting',
-    description:
-      'Meticulous editing, sound design, and color grading that transforms raw footage into a compelling narrative.',
-  },
-  {
-    step: '04',
-    title: 'Impact',
-    description:
-      'Festival strategy, distribution, and impact campaigns ensuring your documentary reaches and moves audiences.',
-  },
-]
 
 interface ServicesProps {
   services: { title: string; description: string }[]
 }
 
 export default function Services({ services }: ServicesProps) {
+  const t = useTranslations('services')
+  const process = t.raw('steps') as { title: string; description: string }[]
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal(0.1)
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal(0.1)
 
@@ -42,9 +18,9 @@ export default function Services({ services }: ServicesProps) {
     <section id="services" className="py-24 sm:py-36 relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <SectionHeading
-          label="Services"
-          title="What I Offer"
-          description="End-to-end documentary filmmaking, from initial concept to global distribution and impact."
+          label={t('label')}
+          title={t('title')}
+          description={t('description')}
         />
 
         <div
@@ -75,9 +51,9 @@ export default function Services({ services }: ServicesProps) {
         </div>
 
         <SectionHeading
-          label="Process"
-          title="How I Work"
-          description="Every documentary begins with a question and unfolds through a deeply intentional creative process."
+          label={t('processLabel')}
+          title={t('processTitle')}
+          description={t('processDescription')}
         />
 
         <div
@@ -88,13 +64,13 @@ export default function Services({ services }: ServicesProps) {
         >
           {process.map((step, i) => (
             <div
-              key={step.step}
+              key={step.title}
               className={`group relative p-6 sm:p-8 hover:bg-muted/10 transition-colors duration-500 ${
-                i !== 0 ? 'lg:border-l border-border/40' : ''
+                i !== 0 ? 'lg:border-s border-border/40' : ''
               } ${i !== process.length - 1 ? 'border-b sm:border-b-0 border-border/40' : ''}`}
             >
               <div className="text-5xl font-bold text-gold/10 group-hover:text-gold/30 transition-colors duration-500 mb-6 leading-none">
-                {step.step}
+                {String(i + 1).padStart(2, '0')}
               </div>
               <div className="w-6 h-px bg-gold mb-5 group-hover:w-12 transition-all duration-500" />
               <h3 className="font-semibold text-foreground mb-2 group-hover:text-gold transition-colors duration-400">

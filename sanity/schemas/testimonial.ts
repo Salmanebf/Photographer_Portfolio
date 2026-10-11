@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { requireDefaultLanguage } from './locale'
 
 export const testimonial = defineType({
   name: 'testimonial',
@@ -14,14 +15,13 @@ export const testimonial = defineType({
     defineField({
       name: 'role',
       title: 'Role / Affiliation',
-      type: 'string',
+      type: 'localeString',
     }),
     defineField({
       name: 'content',
       title: 'Testimonial',
-      type: 'text',
-      rows: 5,
-      validation: (Rule) => Rule.required(),
+      type: 'localeText',
+      validation: requireDefaultLanguage,
     }),
     defineField({
       name: 'project',
@@ -44,6 +44,6 @@ export const testimonial = defineType({
     },
   ],
   preview: {
-    select: { title: 'name', subtitle: 'content' },
+    select: { title: 'name', subtitle: 'content.en' },
   },
 })
