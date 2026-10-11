@@ -14,6 +14,7 @@ Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./doc
 - CI now runs on every branch push (it previously ran only for PRs and `main`, so it had never executed).
 - New `docs/TESTING.md` (what to test and how, plus everything not yet verified) and a rule in `CLAUDE.md` to keep it current.
 - Removed `@libsql/client`; env vars `TURSO_*` removed, `DATABASE_URL` added.
+- First GitHub CI run (commit `32c76f5`) passed all steps, including the real-Postgres tests.
 
 ## 2026-10-11 — Hosting stack finalised, portability (Phase 6 database work pulled forward)
 

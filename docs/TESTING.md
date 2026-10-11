@@ -37,7 +37,6 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | 🔴 | **Real Sanity project**: sign in at `/studio`, edit films/settings, new `bunny:` fields, content appears on site, CORS | No Sanity project exists; only the schema was validated (0 errors) and the no-CMS fallback tested | U5 below |
 | 🔴 | **Real Bunny Stream**: URL shapes, MP4 fallback file names, playback, hotlink-protection setting | No Bunny account; tested with a fake local CDN that mimics the documented URLs | U2 · step 5 |
 | 🔴 | **Deploy on Vercel** (build, env vars, ISR, `pg` on serverless, preview URL) | Nothing is deployed; needs your account | U3 · step 4 |
-| 🔴 | **GitHub CI run** (does the workflow pass on GitHub, with the Postgres service?) | See CI line in U4 — status recorded there | U4 · step 6 |
 | 🟠 | Safari / iPhone: native HLS, autoplay, low-power mode | Only headless Chromium available | U2 · step 7 |
 | 🟠 | Real phone: scroll smoothness with many videos, battery, Data Saver mode | No device | U2 · step 6–7 |
 | 🟠 | Email notification (Resend) | No API key | U4 · step 7 |
@@ -102,11 +101,11 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 3. **Switch test.** In Neon create a second database (or branch), put its URL in `.env.local`, restart, submit again → the new row appears only in the second one. (This proves no code change is needed to switch provider.)
 4. **Production guard.** Remove `DATABASE_URL`, run `npm run build && npm start`, submit the form → error message in the page; the terminal says `DATABASE_URL is not set`; the rest of the site works.
 5. **Automated, real DB.** With a *throwaway* database URL: `TEST_DATABASE_URL="postgres://…" npm test` (⚠️ it drops/recreates `contact_messages`) → 49 passed, 0 skipped.
-6. **CI.** GitHub → Actions → the latest run on this branch is green (see status below).
+6. **CI.** GitHub → Actions → the latest run on this branch is green (it was for run #1).
 7. **Email (optional).** Set `RESEND_API_KEY` + `CONTACT_NOTIFICATION_EMAIL`, submit → email arrives (Resend's default sender only delivers to your own Resend account email).
 
 **⚠️ Not tested by the developer:** a real Neon database (SSL, pooler, latency, connection limits) · Vercel's serverless runtime with `pg` · email sending · load/many concurrent users · Windows/macOS for the local in-process database.
-**CI status:** pending — recorded below once the push is checked.
+**✅ CI on GitHub (verified 2026-10-11, run #1, commit `32c76f5`):** all steps green — install, lint, typecheck, tests, production build — with a real Postgres 16 service container. The database server's own log in that run shows the expected "duplicate key" errors from the simultaneous table-creation test, which the app handled (that test passed), proving the real-Postgres tests ran there and weren't skipped. Only a harmless GitHub notice appears (Node 20 actions are forced to Node 24).
 
 ---
 
