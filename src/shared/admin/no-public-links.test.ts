@@ -3,14 +3,13 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 /**
- * The owner pages (`/studio`, `/admin/...`) must never be linked from the public site.
+ * The owner pages (`/admin/...`, including the Studio at `/admin/studio`) must never be linked from the public site.
  * Only the owner area itself (and the files that implement it) may mention them.
  */
 const root = join(process.cwd(), 'src')
 const MENTION = /["'`]\/(studio|admin)\b/
 const ALLOWED = [
   join('app', 'admin'),
-  join('app', 'studio'),
   join('shared', 'admin'),
 ]
 
@@ -23,7 +22,7 @@ function files(dir: string): string[] {
 }
 
 describe('owner pages are not linked from the public site', () => {
-  it('no public component, page, message or content file points to /studio or /admin', () => {
+  it('no public component, page, message or content file points to the owner pages', () => {
     const offenders = files(root)
       .filter((f) => !ALLOWED.some((a) => f.includes(join(root, a))))
       .filter((f) => MENTION.test(readFileSync(f, 'utf8')))

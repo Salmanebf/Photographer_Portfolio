@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-12 (owner area: inbox + protected Studio) · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-12 (Studio at /admin/studio) · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,11 +20,11 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (175 tests; 5 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (177 tests; 5 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
 
-> Since U10, `/studio` asks for the owner password first (`ADMIN_PASSWORD`); in local development with the variable unset it stays open. Older steps below that say "open `/studio`" mean: sign in first.
+> Since U10, `/admin/studio` asks for the owner password first (`ADMIN_PASSWORD`); in local development with the variable unset it stays open. Older steps below that say "open `/admin/studio`" mean: sign in first.
 
 Then on the page (it opens in English or French depending on your browser): scroll through every section, switch
 language with **EN | FR** in the header, open a film, submit the contact form (valid message → success; 3-letter
@@ -38,7 +38,7 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | --- | ---- | -------------------- | ------------- |
 | 🔴 | **Real Neon database** (TLS with `verify-full`, pooled URL, cold-start latency) — and following `SERVICES-SETUP.md` section 1 | No Neon account in the dev environment; tested against a real local Postgres 16 instead | U4 · step 2, U8 · step 1 |
 | 🔴 | **The account setup guide itself** (every dashboard step for Neon, Sanity, Bunny, Vercel; labels may differ) | Written from provider docs; no accounts exist here | U8 |
-| 🔴 | **Real Sanity project**: sign in at `/studio`; the Studio's look (theme, logo, sidebar, tabs, per-language boxes, validation, Photo Series editor); content appears on the site in each language; CORS | No Sanity project exists. The CMS code path was tested against a **fake** Sanity API; the schema validates; the Studio only boots far enough to load its config | U5, U6 · step 8, U7 · steps 2–6 |
+| 🔴 | **Real Sanity project**: sign in at `/admin/studio`; the Studio's look (theme, logo, sidebar, tabs, per-language boxes, validation, Photo Series editor); content appears on the site in each language; CORS | No Sanity project exists. The CMS code path was tested against a **fake** Sanity API; the schema validates; the Studio only boots far enough to load its config | U5, U6 · step 8, U7 · steps 2–6 |
 | 🔴 | **Draft preview with a real token** (Viewer token, unpublished edits visible only to the editor, `noindex`) on a deployed site | Needs your Sanity project and a deployment; tested against the fake API only | U7 · step 7 |
 | 🟠 | **Publish → visible delay** (should be ≤ 60 s) and deleting content → 404 | Needs real Sanity + a deployment | U7 · step 8 |
 | 🟠 | **Look** of the new states: 5+ "how I work" steps, an awards band with 1–2 items, an empty band | Checked by class names/structure, not by eye | U7 |
@@ -55,6 +55,7 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | 🟡 | Visual regression after the Phase 1 restructure (looks identical?) | No screenshot comparison done; pages render and respond correctly | U1 |
 | 🟡 | Keyboard & screen-reader use of the video play button | Not run | U2 |
 | 🟡 | Windows/macOS local dev (in-process Postgres) | Tested on Linux only | U4 · step 1 |
+| 🔴 | **The real Studio inside the new `/admin/studio` box** (menu above it, popups/dialogs, phone), and returning to the same document after sign-in | No Sanity project; only the box geometry was checked | U11 |
 | 🔴 | **Owner area on the real HTTPS site**: sign-in with `ADMIN_PASSWORD`, `Secure` cookie, Preview URLs, locked when the variable is missing; the real Studio after sign-in | Nothing deployed; tested on a local built server | U10 |
 | 🟠 | **How the new hero looks** (sizes, spacing, speed), 3D flip + wide headline font in Safari/iPhone/Firefox, real Bunny clips on the cards | Judged from headless-Chromium screenshots only | U9 · steps 1–5 |
 | 🟠 | **Lighthouse LCP ≤ 2.5 s** (lab: 3.8 s; real browser 0.2 s; the lab gives ~3.5 s even on a plain page) | Cause is site-wide in the simulation; not yet investigated | U9 |
@@ -67,31 +68,61 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
 
 ---
 
+## U11 · 2026-10-12 — Owner area: Studio moved to `/admin/studio`, `/admin` entry, "back to where you were", owner menu inside the Studio
+
+**What changed**
+- **The Studio now lives at `/admin/studio`** (was `/studio`). The old `/studio` address no longer exists (404). Sanity's internal base path was changed to match.
+- **`/admin` redirects to `/admin/login`.** If you are already signed in, the sign-in page forwards you instead: to the **last owner page you were on** (including a spot inside the Studio), or to `/admin/messages` if there is none. Signing in again after signing out works the same way.
+- **The owner menu** (Messages · Edit content · Sign out) is now also shown **above the Studio**; the Studio fills the screen below it.
+- The last page is remembered in a small cookie containing only a path; the server re-checks it, so a forged value cannot send you anywhere else.
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck, build; tests: 177 pass (+5 need a database) — new: which paths count as owner pages, "go back to last page" rules, forged values ignored | pass |
+| Built server: `/admin` → 307 `/admin/login`; `/admin/messages` and `/admin/studio` → sign-in when signed out; `/studio` and `/studio/x` → 404 | pass |
+| Real browser: first sign-in → `/admin/messages`; menu link opens the Studio; the **menu appears above the Studio**, the Studio box starts right under it and ends at the bottom of the screen with no extra scrollbar; the last page is remembered; sign out → sign in again → back in the Studio; `/admin` and `/admin/login` while signed in forward to the last page; after visiting Messages they forward there; a forged "last page" cookie is ignored | pass |
+
+**🧪 You test**
+1. Open `/admin` (signed out) → you land on `/admin/login`. Sign in → you arrive on the inbox (first time).
+2. Click **Edit content** → the Studio opens under the same menu. Use the Studio a bit (open a document), then click **Sign out** (menu), sign in again from `/admin` → you come back to the Studio (ideally the same document).
+3. While signed in, type `/admin` or `/admin/login` → you are sent to the last page you used.
+4. Open **Messages**, then type `/admin` → you land on Messages.
+5. Type `/studio` → "not found". Update any bookmark to `/admin/studio`.
+6. Sanity: if you already set CORS origins/redirects pointing at `/studio`, nothing needs to change (CORS is per site address, not path). Check the Studio loads and saves.
+
+**⚠️ Not tested by the developer**
+- **The real Studio** inside the new box: only the box position/size and the spinner were seen (no Sanity project here). Check popups, dialogs and the document panel layout in your browser, on a phone and on a small laptop.
+- Returning to the **exact document** inside the Studio after a new sign-in (the cookie stores the path; whether the Studio's own routing restores the document needs the real Studio).
+- Real HTTPS site behaviour (see U10).
+
+---
+
 ## U10 · 2026-10-12 — Owner area: message inbox (`/admin/messages`) + password-protected Studio
 
 **What changed**
 - **New private page `/admin/messages`**: your contact-form messages, newest first — name, email (click to reply), subject, the message, the **language to reply in**, extra answers (future booking form), date. Buttons: **mark as read / unread**, **delete** (open, then confirm — no accidental deletes), **reply by email**. Unread messages are highlighted and counted. It follows the language you last chose on the site (English or French).
-- **One password protects the owner area**: `/studio` and `/admin/messages` now require sign-in with `ADMIN_PASSWORD` (a variable you set on the host; at least 12 characters). The Studio still asks for its Sanity login afterwards. Sign-in lasts 8 hours; "Sign out" is in the owner header. Wrong passwords are limited (10 tries / 10 minutes).
+- **One password protects the owner area**: `/admin/studio` and `/admin/messages` now require sign-in with `ADMIN_PASSWORD` (a variable you set on the host; at least 12 characters). The Studio still asks for its Sanity login afterwards. Sign-in lasts 8 hours; "Sign out" is in the owner header. Wrong passwords are limited (10 tries / 10 minutes).
 - **Not linked anywhere public**: no menu/footer/sitemap/robots entry. The pages are `noindex`. A test fails if a public file ever links to them.
-- **Locked by default in production**: if `ADMIN_PASSWORD` is missing or shorter than 12 characters, `/studio`, `/admin/login` and `/admin/messages` return "not found". In local development with no password they stay open.
+- **Locked by default in production**: if `ADMIN_PASSWORD` is missing or shorter than 12 characters, `/admin/studio`, `/admin/login` and `/admin/messages` return "not found". In local development with no password they stay open.
 - No middleware / no host feature is used (still portable to Netlify/Docker). `GET /api/contact` with `CONTACT_ADMIN_TOKEN` still exists for scripts.
 
 **✅ Verified by the developer**
 | Check | Result |
 | ----- | ------ |
 | Lint, typecheck, build; tests: **180 pass with a real Postgres** (175 + 5 skipped without). New: password rules, token signing/expiry/tampering/password change, safe "next" address, inbox DB actions (read/unread/delete/bad id), login attempt limit (also when the DB is down), "no public file links to the owner pages" | pass |
-| Built server, **no `ADMIN_PASSWORD`** (production mode): `/admin/messages`, `/admin/login`, `/studio` → 404 | pass |
-| Built server **with** password, not signed in: `/admin/messages` and `/studio` (and `/studio/structure/…`) → redirect to sign-in; a forged cookie is rejected; login page is `noindex` and not cached | pass |
-| Public pages (`/en`, `/fr`, timeline, a film page, sitemap) contain no `/studio` or `/admin` text | pass |
-| Real browser (Chromium), real Postgres: wrong password → error; right password → inbox; cookie is HttpOnly + SameSite=Strict; 3 messages listed, unread count, French message shows "Reply in French", extra answers shown; a message containing `<script>` is displayed as text and does not run; mark read/unread updates the count; delete needs the confirm step and removes only that message; `/studio` opens (200) when signed in; after sign-out both pages are locked again; an outside `next=https://evil…` address is ignored; 11 wrong passwords → even the right one is blocked for a while; no JS errors | pass |
+| Built server, **no `ADMIN_PASSWORD`** (production mode): `/admin/messages`, `/admin/login`, `/admin/studio` → 404 | pass |
+| Built server **with** password, not signed in: `/admin/messages` and `/admin/studio` (and `/admin/studio/structure/…`) → redirect to sign-in; a forged cookie is rejected; login page is `noindex` and not cached | pass |
+| Public pages (`/en`, `/fr`, timeline, a film page, sitemap) contain no `/admin/studio` or `/admin` text | pass |
+| Real browser (Chromium), real Postgres: wrong password → error; right password → inbox; cookie is HttpOnly + SameSite=Strict; 3 messages listed, unread count, French message shows "Reply in French", extra answers shown; a message containing `<script>` is displayed as text and does not run; mark read/unread updates the count; delete needs the confirm step and removes only that message; `/admin/studio` opens (200) when signed in; after sign-out both pages are locked again; an outside `next=https://evil…` address is ignored; 11 wrong passwords → even the right one is blocked for a while; no JS errors | pass |
 
 **🧪 You test**
 1. On Vercel add `ADMIN_PASSWORD` (long, random, 12+ characters) to Production **and** Preview, redeploy.
 2. Open `https://yoursite/admin/messages` → sign-in page. Wrong password → "Wrong password". Right one → your messages. Send a test message from the public contact form → reload the inbox → it appears as **New** with the right language.
 3. Click **Mark as read** → the counter drops; **Mark as unread** → it comes back. **Delete** → open → confirm → the message disappears (also gone from the database).
-4. Click **Edit content** (header) → the Studio opens (then Sanity's own login). **Sign out** → `/admin/messages` and `/studio` ask for the password again.
-5. Open the public site in English and French, view the menu/footer/page source: no link to `/studio` or `/admin` anywhere. Open `https://yoursite/robots.txt` and `/sitemap.xml`: no mention either.
-6. Remove `ADMIN_PASSWORD` on a **test** deployment (never your real one) → `/studio` and `/admin/messages` show "not found" (that is the safe default).
+4. Click **Edit content** (header) → the Studio opens (then Sanity's own login). **Sign out** → `/admin/messages` and `/admin/studio` ask for the password again.
+5. Open the public site in English and French, view the menu/footer/page source: no link to `/admin/studio` or `/admin` anywhere. Open `https://yoursite/robots.txt` and `/sitemap.xml`: no mention either.
+6. Remove `ADMIN_PASSWORD` on a **test** deployment (never your real one) → `/admin/studio` and `/admin/messages` show "not found" (that is the safe default).
 7. On your phone: sign in, read a message, mark it read.
 
 **⚠️ Not tested by the developer**
@@ -225,7 +256,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
    `NEXT_PUBLIC_SANITY_PROJECT_ID=mock SANITY_API_HOST=http://127.0.0.1:3333 SANITY_API_READ_TOKEN=mock-read-token SANITY_PREVIEW_SECRET=letmein npm run dev`.
    Open `/en` and `/fr`: everything from the CMS is labelled "(CMS)" or "Mock …" (3 steps, 3 awards, teal brand colour, "Mock Film One/Two"; Film Two has no French so it stays English). `/en/work/the-last-craftsman` is a 404 (placeholders are not used when a CMS has content).
    Then open `http://localhost:3000/api/draft?secret=letmein&path=/en` → you see **DRAFT TITLE of Film One** and **UNPUBLISHED Mock Film** and the "Preview mode" bar; click **Exit preview** → they disappear.
-2. **Real Sanity (needs your project — see U5):** open `/studio`. Check the sidebar order and icons, the gold theme, the **AR / ALEX RIVERA** logo, the tab title "Alex Rivera — Studio", and that **Site Settings** has the tabs *Hero · About · Awards & Press · How I Work · Contact · Footer · Search & Sharing*.
+2. **Real Sanity (needs your project — see U5):** open `/admin/studio`. Check the sidebar order and icons, the gold theme, the **AR / ALEX RIVERA** logo, the tab title "Alex Rivera — Studio", and that **Site Settings** has the tabs *Hero · About · Awards & Press · How I Work · Contact · Footer · Search & Sharing*.
 3. **Awards & Press:** add two lines (English + French), publish, reload `/en` within a minute → the band shows them. Remove all lines, publish → the band disappears.
 4. **Timeline steps** (called *How I Work* when this was written; since U9 they appear in the Timeline section): add/remove steps → the section follows; delete all steps → the placeholder steps return (so the section is never broken).
 5. **Search & Sharing:** set keywords and a sharing image, publish; *View source* on `/en`: `meta name="keywords"` and `og:image` show them. Clear the sharing image → `og:image` becomes the hero image.
@@ -263,7 +294,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
 | Tests: **95 pass** with a real Postgres (91 without; 4 need a database) — new: language negotiation, hreflang/sitemap, merge/localize helpers, **English/French message files have identical keys and placeholders**, **every film/service/testimonial has a French translation with unchanged names**, CMS normalisers (language + English fallback + old plain-string content), contact error codes, `locale` column incl. **upgrading an old table under 10 simultaneous requests** | pass |
 | Production build: `/en`, `/fr` and 12 film pages (6 films × 2 languages) pre-rendered | pass |
 | `/` redirect: no header → /en; `fr-FR` → /fr; German only → /en; cookie beats browser; invalid cookie ignored | 6/6 |
-| Status codes: /en /fr film pages 200; unknown film, `/xx`, `/fr/inconnu`, un-prefixed `/work/…` → 404; `/studio`, sitemap, robots 200 | pass |
+| Status codes: /en /fr film pages 200; unknown film, `/xx`, `/fr/inconnu`, un-prefixed `/work/…` → 404; `/admin/studio`, sitemap, robots 200 | pass |
 | Browser, each language: `<html lang dir>`, page title, hero text, section headings, nav labels, skip link, canonical, hreflang ×3, `og:locale`, meta description, no JS errors | pass (EN and FR) |
 | Film page: translated title, "3 Awards / 3 récompenses" (plural), Synopsis/Générique, category, credits; hreflang points at *this* film in both languages; "All films" link stays in the language | pass |
 | Switcher: film page EN→FR keeps the same film, content turns French, cookie saved, next visit to `/` honours it, FR→EN, current language marked, `#contact` anchor kept | pass |
@@ -289,7 +320,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
 5. **Contact form in French.** Submit with a 5-letter message → French error "Le message doit contenir au moins 10 caractères". Submit properly → "Message envoyé". In your database run `select name, subject, locale from contact_messages order by created_at desc limit 5;` → `locale = fr`. (If Resend is set up, the email contains "Language: fr (reply in this language)".)
 6. **SEO tags.** On `/fr` use *View page source* and search for `hreflang`: three `link rel="alternate"` lines (en, fr, x-default) and `rel="canonical"` pointing at your domain's `/fr`. Open `/sitemap.xml`: every page appears under `/en` and `/fr` with alternates. (Set `NEXT_PUBLIC_SITE_URL` to your real domain *before* building, otherwise these show the placeholder domain.)
 7. **Screen sizes.** Resize the browser to ≈1280, 1024, 768 and 390 px wide on both `/en` and `/fr`: no horizontal scrollbar at any point (also at the very top of the page), the header never overflows, the hamburger menu appears below 1024 px.
-8. **Sanity (needs your project — see U5).** Open a film in `/studio`: each text field shows *English (default)* and *Français*. Fill only English → the French page shows the English text. Add French → it appears on `/fr`. The slug comes from the English title. Category is a dropdown.
+8. **Sanity (needs your project — see U5).** Open a film in `/admin/studio`: each text field shows *English (default)* and *Français*. Fill only English → the French page shows the English text. Add French → it appears on `/fr`. The slug comes from the English title. Category is a dropdown.
 9. **Arabic layout preview (optional, 5 minutes).** In `src/i18n/config.ts` add `'ar'` to `locales`, `ar: 'العربية'` to `localeNames` and `ar: 'ar_AR'` to `ogLocales`; create `src/messages/ar.json` containing `{}`; run `npm run dev` and open `/ar`. The layout is mirrored and English text is used where Arabic doesn't exist. **Undo these edits afterwards** (Arabic text, a font and a review come later).
 10. **Automated.** `npm test` → all pass (see §0.1 for the current numbers; Phase 3 had 91 passed + 4 skipped, 95 with a database).
 
@@ -314,7 +345,7 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 
 **🧪 You test (needs a Sanity project):**
 1. Create a project at sanity.io; in *manage → API → CORS origins* add `http://localhost:3000` with **credentials**.
-2. In `.env.local` set `NEXT_PUBLIC_SANITY_PROJECT_ID` (and dataset `production`), restart `npm run dev`, open `/studio`, sign in.
+2. In `.env.local` set `NEXT_PUBLIC_SANITY_PROJECT_ID` (and dataset `production`), restart `npm run dev`, open `/admin/studio`, sign in.
 3. Create a *Documentary Project*; in **Trailer / Video** type `hello` → expect the red error "Use bunny:VIDEO-ID (no < > brackets, no spaces) or a full https:// URL"; type `bunny:` + a real ID (no `< >`) → accepted. The **Hero Background Video** field now has the same check (try `bunny:<abc12345>` → red error). Not run in a real Studio.
 4. Publish; reload `/en` and `/en/work/<slug>` → your film appears. Leave a *Site Settings* field empty → the placeholder value is used.
 5. ⚠️ Not verified by the developer: all of the above (no Sanity project available).
@@ -366,13 +397,13 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 - `Dockerfile` + `.dockerignore`; `docs/DEPLOYMENT.md` (setup + switch-host checklist); `src/portability.test.ts` fails if Vercel/Netlify-specific code is added.
 - README rewritten; new `docs/ROADMAP.md`, `CHANGELOG.md`, `CLAUDE.md`, PR template; `CONTENT.md`/`.env.example` refreshed.
 
-**✅ Verified by the developer:** default `next build` produces no standalone folder and `next start` serves home/film/`/studio` (all 200) · `BUILD_STANDALONE=1` build + `node server.js` serves the same · portability test passes · no hosting-vendor references anywhere in code/config (searched) · stale-term sweep of all docs.
+**✅ Verified by the developer:** default `next build` produces no standalone folder and `next start` serves home/film/`/admin/studio` (all 200) · `BUILD_STANDALONE=1` build + `node server.js` serves the same · portability test passes · no hosting-vendor references anywhere in code/config (searched) · stale-term sweep of all docs.
 
 **🧪 You test**
-1. `npm run build && npm start` → open http://localhost:3000 (all sections, a film page, `/studio` loads).
+1. `npm run build && npm start` → open http://localhost:3000 (all sections, a film page, `/admin/studio` loads).
 2. Standalone: `BUILD_STANDALONE=1 npm run build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && DATABASE_URL="…" node .next/standalone/server.js`.
 3. Docker (needs Docker): `docker build -t portfolio .` then `docker run -p 3000:3000 --env-file .env.local portfolio` → site on :3000.
-4. **Vercel:** import the repo → add env vars (README table) → deploy → open the preview URL → smoke list: home, a film page, `/studio` sign-in, contact form, a video.
+4. **Vercel:** import the repo → add env vars (README table) → deploy → open the preview URL → smoke list: home, a film page, `/admin/studio` sign-in, contact form, a video.
 5. **Netlify (switch test):** follow the checklist in `docs/DEPLOYMENT.md` → same smoke list. Expect no code changes.
 6. Read the README: does it describe the project accurately and make sense to a newcomer?
 

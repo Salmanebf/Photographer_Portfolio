@@ -5,6 +5,7 @@ import '../globals.css'
 import { adminState } from '@/shared/admin/session'
 import { isSignedIn } from '@/shared/admin/guard'
 import { adminText } from '@/shared/admin/text'
+import RememberPage from '@/shared/admin/remember-page'
 import { signOut } from './actions'
 
 /** Owner-only pages: never indexed, never linked from the public site. */
@@ -20,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <header className="border-b border-border/40">
+        <header className="border-b border-border/40 h-16">
           <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
             <span className="text-[10px] uppercase tracking-[0.4em] text-gold">{t.title}</span>
             {signedIn && (
@@ -28,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <Link href="/admin/messages" className="hover:text-gold transition-colors">
                   {t.messagesNav}
                 </Link>
-                <Link href="/studio" className="hover:text-gold transition-colors">
+                <Link href="/admin/studio" className="hover:text-gold transition-colors">
                   {t.studioNav}
                 </Link>
                 {adminState() === 'ok' && (
@@ -42,7 +43,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             )}
           </div>
         </header>
-        <main className="max-w-5xl mx-auto px-6 py-12">{children}</main>
+        {children}
+        <RememberPage />
       </body>
     </html>
   )

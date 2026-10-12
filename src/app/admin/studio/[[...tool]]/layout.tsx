@@ -1,7 +1,3 @@
-/* Studio uses its own viewport — minimal layout */
-import { geistSans, geistMono } from '../../fonts'
-import '../../globals.css'
-
 import type { Metadata } from 'next'
 import { metadata as studioMetadata } from 'next-sanity/studio'
 import { requireAdmin } from '@/shared/admin/guard'
@@ -12,6 +8,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 }
 
+/** The Studio uses its own viewport settings (kept from the standard Sanity setup). */
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -21,14 +18,6 @@ export const viewport = {
 
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
   // Signed-in owner only (a password, see docs/DEPLOYMENT.md). Sanity then asks for its own login on top.
-  await requireAdmin('/studio')
-  return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
-      >
-        {children}
-      </body>
-    </html>
-  )
+  await requireAdmin('/admin/studio')
+  return children
 }

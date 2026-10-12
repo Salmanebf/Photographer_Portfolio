@@ -9,12 +9,13 @@ import {
   adminState,
   createSessionToken,
   passwordMatches,
-  safeNext,
+  resolveNext,
 } from '@/shared/admin/session'
+import { lastOwnerPage } from '@/shared/admin/guard'
 
 export async function signIn(formData: FormData) {
   if (adminState() !== 'ok') redirect('/admin/login')
-  const next = safeNext(formData.get('next'))
+  const next = resolveNext(formData.get('next'), await lastOwnerPage())
   const back = (error: string) => redirect(`/admin/login?error=${error}&next=${encodeURIComponent(next)}`)
 
   const attempts = await checkLoginAttempts(getClientIp(await headers()))

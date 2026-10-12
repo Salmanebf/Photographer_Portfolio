@@ -27,7 +27,7 @@ No `vercel.json` / `netlify.toml` is required; the app has none.
 ## First-time setup (Vercel)
 
 1. **Sanity** — create a project at sanity.io, copy the Project ID. In *manage → API → CORS origins* add
-   your site URL (and `http://localhost:3000`) with **credentials allowed** so `/studio` can sign in.
+   your site URL (and `http://localhost:3000`) with **credentials allowed** so `/admin/studio` can sign in.
    Optional, for the draft preview: in *API → Tokens* create a token with **Viewer** rights → `SANITY_API_READ_TOKEN`,
    and choose a long random `SANITY_PREVIEW_SECRET` (see the README → *Draft preview*).
 2. **Database (Neon)** — create a project at neon.tech, open *Connection details* and copy the **pooled**
@@ -40,7 +40,7 @@ No `vercel.json` / `netlify.toml` is required; the app has none.
    the README table (Production + Preview). Deploy.
 5. Attach the custom domain at launch and set `NEXT_PUBLIC_SITE_URL` to it.
 6. Optional: `RESEND_API_KEY` + `CONTACT_NOTIFICATION_EMAIL` (+ `CONTACT_FROM_EMAIL` once your domain is verified) for email, `CONTACT_ADMIN_TOKEN` for scripts.
-7. **Required for the owner area:** set `ADMIN_PASSWORD` (at least 12 characters, long and random) — it unlocks `/studio` and `/admin/messages`.
+7. **Required for the owner area:** set `ADMIN_PASSWORD` (at least 12 characters, long and random) — it unlocks `/admin/studio` and `/admin/messages`.
    Without it both return 404 in production. The sign-in cookie is `Secure`, so the site must be served over HTTPS (every host does this; a plain-HTTP Docker test will not keep you signed in).
 
 ## Switching to Netlify (or another host) — checklist
@@ -53,7 +53,7 @@ Expected effort: **about an hour, no code changes.**
 2. Copy **all env vars** over (same names). Do *not* set `BUILD_STANDALONE`.
 3. In Sanity, add the new site URL to **CORS origins** (credentials on).
 4. Point the domain/DNS at the new host; update `NEXT_PUBLIC_SITE_URL` if the URL changed.
-5. Smoke test: home, a film page, `/studio` sign-in, submit the contact form, play a video.
+5. Smoke test: home, a film page, `/admin/studio` sign-in, submit the contact form, play a video.
 6. Things that may differ slightly per host (config, not code): image-optimisation billing/limits, serverless
    timeouts and regions, ISR cache behaviour. Re-run Lighthouse ([`PERFORMANCE.md`](./PERFORMANCE.md)).
 7. Remove the project from Vercel.
@@ -83,7 +83,7 @@ Self-hosting means you own updates, backups and uptime.
   `NEXT_PUBLIC_*` variable.
 - All these variables have the same names on every host (Vercel, Netlify, Docker).
 
-## Owner area (`/studio`, `/admin/messages`)
+## Owner area (`/admin/studio`, `/admin/messages`)
 
 Protected by one password (`ADMIN_PASSWORD`) → signed HttpOnly cookie (8 h). Implemented in the app (`src/shared/admin`), **not** with host features or middleware,
 so it behaves the same on Vercel, Netlify and Docker. Change the password = everyone is signed out. Never link these pages from the public site (a test enforces it).

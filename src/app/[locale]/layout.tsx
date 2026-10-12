@@ -80,7 +80,7 @@ export default async function LocaleLayout({
     ? settings.brand.color
     : DEFAULT_BRAND
 
-  // Brand color override — non-devs change this in /studio or site.config.ts
+  // Brand color override — non-devs change this in the Studio or site.config.ts
   const themeStyle = `
     :root, .dark { --gold: ${brandColor}; }
     ::selection { background: ${brandColor}55; color: #f0ebe2; }

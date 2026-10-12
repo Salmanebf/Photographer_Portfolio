@@ -2,7 +2,7 @@
  * SITE CONFIG — easy edits for non-developers
  *
  * Change the brand color, name, contact info, and copy here. Anything edited
- * in the Sanity Studio (/studio) takes priority over this file at runtime.
+ * in the Sanity Studio (/admin/studio) takes priority over this file at runtime.
  *
  * Logo & images: drop new files into /public/images/ and update the paths below.
  * Brand color: any hex value works — it propagates to all "gold" accents site-wide.

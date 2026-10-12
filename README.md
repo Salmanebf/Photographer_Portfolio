@@ -21,7 +21,7 @@ Dark editorial design, one page per film, lots of short looping video, a CMS the
 | Code & hosting     | **Vercel** (Next.js 16)         | Zero-config Next.js, preview URL per branch           | **Yes** — see [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) |
 | Video streaming    | **Bunny Stream**                | Adaptive HLS, pay per GB, cheapest quality/price      | Swap by editing `src/shared/media/`        |
 | Database           | **Neon** (serverless **PostgreSQL**) | Contact messages; standard Postgres, so the provider is just a connection string | **Yes — any Postgres: change only `DATABASE_URL`** |
-| Content (CMS)      | **Sanity** (embedded at `/studio`) | The filmmaker's admin dashboard: films, photo series, text, images — with a draft preview | Content lives in Sanity, independent of hosting |
+| Content (CMS)      | **Sanity** (embedded at `/admin/studio`) | The filmmaker's admin dashboard: films, photo series, text, images — with a draft preview | Content lives in Sanity, independent of hosting |
 | Contact email      | **Resend** (optional)           | Email notification on a new message                   | One handler: `features/contact/handlers/email.ts` |
 
 Front end: **Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · Framer Motion** · translations with **next-intl**.
@@ -32,7 +32,8 @@ Browser ─► Vercel (Next.js)
              ├─ /                  redirects to /en or /fr (saved choice → browser language → English)
              ├─ /en  /fr           home page in each language (sections, revalidate 60 s)
              ├─ /en|fr/work/[slug] one page per film per language (SSG + ISR)
-             ├─ /studio            Sanity Studio — the admin dashboard   ┐ owner only: sign-in with ADMIN_PASSWORD,
+             ├─ /admin             → /admin/login (signed in: back to the last owner page, else the inbox)
+             ├─ /admin/studio      Sanity Studio — the admin dashboard   ┐ owner only: sign-in with ADMIN_PASSWORD,
              ├─ /admin/messages    inbox of contact-form messages        ┘ not linked anywhere on the public site
              ├─ /api/contact       POST: validate → rate-limit → handlers (PostgreSQL, email)
              │                     GET : admin list, gated by CONTACT_ADMIN_TOKEN
@@ -61,7 +62,7 @@ Later: a photo gallery page.
 ```bash
 npm ci
 cp .env.example .env.local   # everything is optional for local development
-npm run dev                  # http://localhost:3000 → /en or /fr   (Studio at /studio)
+npm run dev                  # http://localhost:3000 → /en or /fr   (Studio at /admin/studio)
 ```
 
 With **no environment variables** the site runs fully on placeholder content and an in-process Postgres
@@ -96,7 +97,7 @@ Copy `.env.example`. All are optional locally; set them in the host's dashboard 
 | `DATABASE_URL`                                 | PostgreSQL connection string (any provider; Neon: use the *pooled* one). Required in production; unset in dev = in-process Postgres |
 | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL` | Email on each new contact message                                    |
 | `CONTACT_FROM_EMAIL`                           | Sender of that email, e.g. `Alex Rivera <hello@alexrivera.film>` (a domain verified with Resend). Unset = Resend's shared test sender, which only delivers to your own Resend account |
-| `ADMIN_PASSWORD`                               | **Owner password** (min. 12 characters) for `/studio` and `/admin/messages`. Unset in production = both pages return 404 (locked) |
+| `ADMIN_PASSWORD`                               | **Owner password** (min. 12 characters) for `/admin/studio` and `/admin/messages`. Unset in production = both pages return 404 (locked) |
 | `ADMIN_SESSION_SECRET`                         | Optional; signs the sign-in cookie (default: derived from the password). Changing it signs everyone out |
 | `CONTACT_ADMIN_TOKEN`                          | Enables `GET /api/contact` (Bearer token) for scripts; unset = 404   |
 | `SANITY_API_READ_TOKEN`                        | Sanity token with **Viewer** rights; used **only** in preview mode to read unpublished changes (server-side, never sent to visitors) |
@@ -116,7 +117,8 @@ src/
   app/                    routes only — thin adapters that compose features
     page.tsx              "/" → redirects to the visitor's language
     [locale]/             layout.tsx (html lang/dir) page.tsx work/[slug]/ timeline/ not-found.tsx — one copy per language
-    studio/[[...tool]]/ admin/{login,messages}/ api/contact/ sitemap.ts robots.ts   (studio + admin: owner only, see below)
+    admin/                owner area (shared header with nav): login, messages, studio/[[...tool]] — see "Owner area" below
+    api/contact/ sitemap.ts robots.ts
   features/                each feature owns its UI, types, placeholder content, CMS query and normaliser
     hero/                  orbit hero: `orbit-hero.tsx` (markup), `orbit-engine.ts` (the card-ring motion), `orbit-hero.css`
     about/ awards/         home-page sections (their text comes from site settings)
@@ -243,15 +245,16 @@ To read messages: the owner inbox at **`/admin/messages`** (sign in with `ADMIN_
 the SQL editor of your database provider (`select * from contact_messages order by created_at desc`),
 or `GET /api/contact` with `CONTACT_ADMIN_TOKEN`.
 
-**Owner area (`/studio`, `/admin/*`).** One password (`ADMIN_PASSWORD`) → a signed, HttpOnly, SameSite=Strict cookie valid 8 hours.
+**Owner area (`/admin/studio`, `/admin/*`).** One password (`ADMIN_PASSWORD`) → a signed, HttpOnly, SameSite=Strict cookie valid 8 hours.
 No user database and **no middleware** (host-neutral): each owner page checks the cookie on the server (`shared/admin/guard.ts`).
 With no (or a too-short) password in production these pages do not exist (404); in development with no password they are open.
+`/admin` redirects to `/admin/login`; once signed in you land on the last owner page you were on (remembered in a small path-only cookie, re-validated on the server), else on `/admin/messages`. The old address `/studio` no longer exists (404).
 Sign-in attempts are rate-limited (10 per 10 min per visitor, counted in the database). The pages are `noindex`, are not in the sitemap,
 and a test fails if any public file links to them. The Studio still asks for its own Sanity login on top.
 
 ## Editing content
 
-The filmmaker edits everything at **`/studio`** (Sanity) — see [`CONTENT.md`](./CONTENT.md) (non-developer guide).
+The filmmaker edits everything at **`/admin/studio`** (Sanity) — see [`CONTENT.md`](./CONTENT.md) (non-developer guide).
 Developers can also edit the placeholder content directly: site copy in `src/lib/site.config.ts` (English) and
 `src/lib/content/fr.ts` (French); films, services, testimonials and photo series in each feature's `content/en.ts` and
 `content/fr.ts`; interface text in `src/messages/*.json`.

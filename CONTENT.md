@@ -51,7 +51,7 @@ placeholder content until real content replaces it.
 ## Path B — Sanity Studio (recommended for non-devs)
 
 Sanity is a free CMS that gives the filmmaker a friendly editor at
-`yoursite.com/studio` — no code, no deploys, edits go live immediately.
+`yoursite.com/admin/studio` — no code, no deploys, edits go live immediately.
 
 > **Opening the Studio:** the address is private (it is not linked from the site). It first asks for the **owner password**
 > (the `ADMIN_PASSWORD` set on the host), then Sanity asks for its own sign-in.
@@ -62,14 +62,14 @@ Sanity is a free CMS that gives the filmmaker a friendly editor at
 2. Create a project — copy the **Project ID** it gives you.
 3. In the Sanity dashboard (*manage → API → CORS origins*) add your site's URL
    (and `http://localhost:3000` while developing) with **credentials allowed**.
-   Without this, the Studio at `/studio` cannot sign in.
+   Without this, the Studio at `/admin/studio` cannot sign in.
 4. Set the two variables — in `.env.local` locally, or in your hosting
    dashboard in production (see `.env.example`):
    ```
    NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id_here
    NEXT_PUBLIC_SANITY_DATASET=production
    ```
-   Then restart/redeploy and visit `/studio`.
+   Then restart/redeploy and visit `/admin/studio`.
 5. Sign in with the Sanity account you created in step 1.
 6. Click **Site Settings** to fill in brand color, logo, hero copy, etc.
 
@@ -147,7 +147,7 @@ Always keep a cover image — it is what shows first, and what visitors with
 
 ### Deploying the studio
 
-The studio is bundled with the site at `/studio`. No separate hosting needed.
+The studio is bundled with the site at `/admin/studio`. No separate hosting needed.
 Content lives in Sanity, so **changing the website's host does not affect it**
 (only add the new site URL to Sanity's CORS origins).
 

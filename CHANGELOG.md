@@ -2,11 +2,17 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-12 — Owner area: Studio at /admin/studio, /admin entry, return to last page
+
+- Studio moved from `/studio` to **`/admin/studio`** (old address = 404); owner menu (Messages · Edit content · Sign out) now also above the Studio.
+- `/admin` → `/admin/login`; signed in → the last owner page you were on (path-only cookie, validated on the server), else `/admin/messages`.
+- Tests: 177 (+5 with a database). `docs/TESTING.md` entry U11.
+
 ## 2026-10-12 — Owner area: message inbox and protected Studio
 
 - **New `/admin/messages`**: read, mark read/unread, delete and reply to contact-form messages (follows the site language). Sign-in page `/admin/login`.
-- **`/studio` and `/admin/messages` require `ADMIN_PASSWORD`** (≥ 12 characters; signed HttpOnly cookie, 8 h; login attempts rate-limited). Missing/short password in production = both return 404. No middleware.
-- Not linked or listed anywhere public (`robots.txt` no longer mentions `/studio`); `noindex`. New test guards against public links.
+- **`/admin/studio` and `/admin/messages` require `ADMIN_PASSWORD`** (≥ 12 characters; signed HttpOnly cookie, 8 h; login attempts rate-limited). Missing/short password in production = both return 404. No middleware.
+- Not linked or listed anywhere public (`robots.txt` no longer mentions `/admin/studio`); `noindex`. New test guards against public links.
 - New env vars `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`. Tests: 180 with a database (175 + 5 skipped without). `docs/TESTING.md` entry U10.
 
 ## 2026-10-12 — Phase 5 foundation (orbit hero, Timeline) + Phase 6 (contact rework)

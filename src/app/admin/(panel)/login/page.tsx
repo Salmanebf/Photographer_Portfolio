@@ -1,8 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
-import { adminState, safeNext } from '@/shared/admin/session'
-import { isSignedIn } from '@/shared/admin/guard'
+import { adminState, resolveNext } from '@/shared/admin/session'
+import { isSignedIn, lastOwnerPage } from '@/shared/admin/guard'
 import { adminText } from '@/shared/admin/text'
-import { signIn } from '../actions'
+import { signIn } from '../../actions'
 
 export default async function LoginPage({
   searchParams,
@@ -11,7 +11,7 @@ export default async function LoginPage({
 }) {
   if (adminState() === 'closed') notFound()
   const { next, error } = await searchParams
-  const target = safeNext(next)
+  const target = resolveNext(next, await lastOwnerPage())
   // Already signed in (or open in development): nothing to ask
   if (await isSignedIn()) redirect(target)
   const { t } = await adminText()

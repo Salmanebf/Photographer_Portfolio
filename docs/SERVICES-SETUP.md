@@ -22,7 +22,7 @@ values into one file. Allow about **45 minutes** the first time. Do them in this
 | Service | What it does here | Variables |
 | ------- | ----------------- | --------- |
 | **Neon** | Stores the messages sent through the contact form | `DATABASE_URL` |
-| **Sanity** | The admin dashboard (`/studio`): films, texts, photos, languages | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` · optional preview: `SANITY_API_READ_TOKEN`, `SANITY_PREVIEW_SECRET` |
+| **Sanity** | The admin dashboard (`/admin/studio`): films, texts, photos, languages | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` · optional preview: `SANITY_API_READ_TOKEN`, `SANITY_PREVIEW_SECRET` |
 | **Bunny Stream** | Streams the videos | `NEXT_PUBLIC_BUNNY_CDN_HOST` |
 | **Vercel** | Hosts the website | (you enter the variables above there too) |
 | *Resend (optional)* | Emails you when someone writes | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL` |
@@ -75,7 +75,7 @@ second or two. **Rotate the password:** Neon → your project → *Roles* → re
    NEXT_PUBLIC_SANITY_PROJECT_ID="abc123xy"
    NEXT_PUBLIC_SANITY_DATASET="production"
    ```
-5. **Check it works:** restart `npm run dev` and open `http://localhost:3000/studio`. Sign in with the Sanity account. You should see the
+5. **Check it works:** restart `npm run dev` and open `http://localhost:3000/admin/studio`. Sign in with the Sanity account. You should see the
    dark Studio with a gold accent, the **AR / ALEX RIVERA** logo, and in the sidebar *Site Settings · Documentary Projects · Photo Series ·
    Services · Testimonials*.
 6. **Add your first content.** Open **Site Settings**, fill in at least *Site Title*, press **Publish**. Then reload the site (it refreshes within
@@ -84,7 +84,7 @@ second or two. **Rotate the password:** Neon → your project → *Roles* → re
    **Important to understand:** the site shows the **placeholder** films/services/testimonials *until* you publish at least one of that type in the
    Studio. From then on it shows **only your own** items of that type. So publish your real films together, not one at a time on the live site.
 7. **Invite the filmmaker:** Sanity management → **Members** (or *Invite*) → invite their email with an editor-level role (the roles available depend on
-   your plan). They then sign in at `/studio` with their own account. No one needs your password.
+   your plan). They then sign in at `/admin/studio` with their own account. No one needs your password.
 8. **Optional — preview unpublished changes:** Sanity management → API → **Tokens** → add a token with **Viewer** permission → put it in
    `SANITY_API_READ_TOKEN`; choose a long random text for `SANITY_PREVIEW_SECRET`. Then open
    `http://localhost:3000/api/draft?secret=<your secret>&path=/en` (details: README → *Draft preview*). Both values are secrets.
@@ -175,7 +175,7 @@ CONTACT_ADMIN_TOKEN=""
 ADMIN_PASSWORD="a-long-random-password-of-12-or-more-characters"
 ```
 
-`ADMIN_PASSWORD` unlocks `yoursite.com/studio` and `yoursite.com/admin/messages` (your messages). Without it those two pages show "not found" in production.
+`ADMIN_PASSWORD` unlocks `yoursite.com/admin/studio` and `yoursite.com/admin/messages` (your messages). Without it those two pages show "not found" in production.
 
 ### The 10-minute "is everything connected?" check
 
@@ -183,7 +183,7 @@ ADMIN_PASSWORD="a-long-random-password-of-12-or-more-characters"
 | - | ------- | -------------- |
 | 1 | `npm run dev`, open `http://localhost:3000` | The site opens (in English or French), no red errors in the terminal |
 | 2 | Send a message in **Contact** | Success message; the row appears in Neon's SQL Editor with your language |
-| 3 | Open `/studio`: owner password first, then your Sanity sign-in | The Studio with the gold theme and the sidebar |
+| 3 | Open `/admin/studio`: owner password first, then your Sanity sign-in | The Studio with the gold theme and the sidebar |
 | 4 | Publish *Site Settings* with a new *Site Title* | The new name on the site after ≤ 1 minute |
 | 5 | Publish one film with `bunny:<id>` as its video | Its page shows a play button; pressing it plays |
 | 6 | Add the French text of that film in the *Français* box | The same film in French at `/fr` |

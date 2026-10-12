@@ -44,7 +44,7 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | Date       | Decision | Why |
 | ---------- | -------- | --- |
 | 2026-10-10 | Persona stays **filmmaker**; photography is a secondary section | Client brief |
-| 2026-10-10 | Keep **Sanity** (embedded `/studio`) instead of a custom admin | Already included, branded, localizable; a custom admin = weeks of work and security risk |
+| 2026-10-10 | Keep **Sanity** (embedded `/admin/studio`) instead of a custom admin | Already included, branded, localizable; a custom admin = weeks of work and security risk |
 | 2026-10-10 | Features own their code; contact logic = pluggable handlers | Client wants to swap the form for a booking form later |
 | 2026-10-10 | Video via **Bunny Stream** | Pay per GB, free standard encoding, cheaper than Cloudflare Stream / Mux for this volume. *Check delivery pricing if most clients are in Middle East / Africa.* |
 | 2026-10-11 | **Vercel** for code, **Bunny** for video, **Sanity** for content | Client's final choice |
@@ -69,7 +69,8 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-12 | Hero stats removed; new per-language `heroHeadline` field | The stats were fake numbers (34 awards…) that contradict the brief; the headline is the design's centrepiece |
 | 2026-10-12 | "How I work" steps now feed the **Timeline** (section + `/timeline`), Services shows only the offer | Client's section list; the step model is reused |
 | 2026-10-12 | Contact rate limit in the database; spam checks without CAPTCHA (honeypot, sent-too-fast, >3 links); `kind` + `details jsonb` on messages | Holds across serverless instances; CAPTCHAs hurt real clients; a booking form must not need a migration |
-| 2026-10-12 | Owner area: `/admin/messages` inbox + password gate (`ADMIN_PASSWORD`, signed 8 h cookie) on it and `/studio`; checked in each page on the server, **no middleware**; locked (404) in production when unset; never linked from public files (test-enforced) | Client wants a private inbox and a protected Studio; middleware/proxy would break host-neutrality; a single owner needs no user database |
+| 2026-10-12 | Owner area: `/admin/messages` inbox + password gate (`ADMIN_PASSWORD`, signed 8 h cookie) on it and `/admin/studio`; checked in each page on the server, **no middleware**; locked (404) in production when unset; never linked from public files (test-enforced) | Client wants a private inbox and a protected Studio; middleware/proxy would break host-neutrality; a single owner needs no user database |
+| 2026-10-12 | Studio moved to `/admin/studio` under the owner header; `/admin` → login → last owner page (path-only cookie, re-validated) else inbox; `/studio` is 404 | Everything private lives under one prefix; client asked for the shared menu and "return to where I was" |
 | 2026-10-12 | Treat `sslmode=require` as `verify-full` explicitly; log which database is in use (host only) | A pasted Neon URL must work unchanged without a scary driver warning and without the security level depending on a driver version; a silently ignored `DATABASE_URL` in dev was undetectable |
 
 ## Open items / risks

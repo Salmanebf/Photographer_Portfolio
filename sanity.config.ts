@@ -1,7 +1,7 @@
 /**
  * Sanity Studio configuration
  *
- * Studio is mounted at /studio. Set NEXT_PUBLIC_SANITY_PROJECT_ID and
+ * Studio is mounted at /admin/studio. Set NEXT_PUBLIC_SANITY_PROJECT_ID and
  * NEXT_PUBLIC_SANITY_DATASET in .env.local to enable.
  *
  * The site renders fine without Sanity — falls back to the static content in
@@ -50,7 +50,7 @@ export default defineConfig({
   title: `${siteConfig.brand.name} — Studio`,
   theme,
   studio: { components: { logo: BrandLogo } },
-  basePath: '/studio',
+  basePath: '/admin/studio',
   projectId,
   dataset,
   plugins: [

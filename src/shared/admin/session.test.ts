@@ -3,8 +3,9 @@ import {
   SESSION_SECONDS,
   adminState,
   createSessionToken,
+  isOwnerPath,
   passwordMatches,
-  safeNext,
+  resolveNext,
   verifySessionToken,
 } from './session'
 
@@ -69,15 +70,25 @@ describe('passwordMatches', () => {
   })
 })
 
-describe('safeNext (where sign-in may lead)', () => {
-  it('allows the owner pages', () => {
-    expect(safeNext('/studio')).toBe('/studio')
-    expect(safeNext('/studio/structure/project')).toBe('/studio/structure/project')
-    expect(safeNext('/admin/messages')).toBe('/admin/messages')
-  })
-  it('falls back to the inbox for anything else, including other sites', () => {
-    for (const bad of ['https://evil.example', '//evil.example', '/\\evil', '/en', '/studio//evil.example', '/studioX', undefined, 5, '']) {
-      expect(safeNext(bad)).toBe('/admin/messages')
+describe('isOwnerPath / resolveNext (where sign-in may lead)', () => {
+  it('accepts only owner pages', () => {
+    for (const ok of ['/admin/messages', '/admin/studio', '/admin/studio/structure/project']) expect(isOwnerPath(ok)).toBe(true)
+    for (const bad of ['/studio', '/admin', '/admin/login', 'https://evil.example', '//evil.example', '/\\evil', '/en', '/admin/studio//evil.example', '/admin/studioX', '/admin/studio/../x', '/admin/studio?x=1', undefined, 5, '']) {
+      expect(isOwnerPath(bad)).toBe(false)
     }
+  })
+  it('goes where the page asked, else back to the last owner page, else the inbox', () => {
+    expect(resolveNext('/admin/messages', '/admin/studio')).toBe('/admin/messages')
+    expect(resolveNext(undefined, '/admin/studio/structure/project')).toBe('/admin/studio/structure/project')
+    expect(resolveNext(undefined, undefined)).toBe('/admin/messages')
+    expect(resolveNext('https://evil.example', null)).toBe('/admin/messages')
+  })
+  it('returns deep into the Studio when it was the Studio that asked for sign-in', () => {
+    expect(resolveNext('/admin/studio', '/admin/studio/structure/project;abc')).toBe('/admin/studio/structure/project;abc')
+    expect(resolveNext('/admin/studio', '/admin/messages')).toBe('/admin/studio')
+  })
+  it('ignores a forged "last page" that is not an owner page', () => {
+    expect(resolveNext(undefined, 'https://evil.example')).toBe('/admin/messages')
+    expect(resolveNext('/admin/studio', '/admin/studio/../../evil')).toBe('/admin/studio')
   })
 })
