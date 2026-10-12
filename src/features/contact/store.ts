@@ -153,6 +153,28 @@ export function createContactStore(getClient: () => Promise<SqlClient> = getDb) 
       }
     },
 
+    /** Marks a message read or unread (the owner's inbox). */
+    async setRead(id: string, read: boolean): Promise<void> {
+      const client = await getClient()
+      await ensureTable(client)
+      await client.query(`UPDATE contact_messages SET is_read = $2 WHERE id = $1::uuid`, [id, read])
+    },
+
+    async remove(id: string): Promise<void> {
+      const client = await getClient()
+      await ensureTable(client)
+      await client.query(`DELETE FROM contact_messages WHERE id = $1::uuid`, [id])
+    },
+
+    async countUnread(): Promise<number> {
+      const client = await getClient()
+      await ensureTable(client)
+      const { rows } = await client.query<{ n: string | number }>(
+        `SELECT count(*) AS n FROM contact_messages WHERE NOT is_read`
+      )
+      return Number(rows[0].n)
+    },
+
     async list(limit = 50): Promise<StoredContactMessage[]> {
       const client = await getClient()
       await ensureTable(client)

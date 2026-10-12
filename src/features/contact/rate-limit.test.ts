@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   checkMemoryRateLimit as checkRateLimit,
-  checkRateLimit as checkSharedRateLimit,
+  checkRateLimit as checkSharedRateLimit, checkLoginAttempts,
   getClientIp,
   resetRateLimit,
 } from './rate-limit'
@@ -76,6 +76,33 @@ describe('checkRateLimit (database-backed)', () => {
     for (let i = 0; i < 5; i++)
       expect((await checkSharedRateLimit('7.7.7.7', broken)).allowed).toBe(true)
     expect((await checkSharedRateLimit('7.7.7.7', broken)).allowed).toBe(false)
+    warn.mockRestore()
+  })
+})
+
+describe('checkLoginAttempts', () => {
+  const counting = () => {
+    const hits = new Map<string, number>()
+    return {
+      hits,
+      hitRateLimit: async (key: string) => {
+        hits.set(key, (hits.get(key) ?? 0) + 1)
+        return { count: hits.get(key)!, resetAt: Date.now() + 600_000 }
+      },
+    }
+  }
+  it('allows 10 attempts then blocks, separately from the contact form counters', async () => {
+    const store = counting()
+    for (let i = 0; i < 10; i++) expect((await checkLoginAttempts('1.1.1.1', store)).allowed).toBe(true)
+    expect((await checkLoginAttempts('1.1.1.1', store)).allowed).toBe(false)
+    expect((await checkLoginAttempts('2.2.2.2', store)).allowed).toBe(true)
+    expect([...store.hits.keys()].every((k) => k.startsWith('login:ip:'))).toBe(true)
+  })
+  it('still limits when the database is down', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const broken = { hitRateLimit: async () => Promise.reject(new Error('down')) }
+    for (let i = 0; i < 10; i++) expect((await checkLoginAttempts('8.8.8.8', broken)).allowed).toBe(true)
+    expect((await checkLoginAttempts('8.8.8.8', broken)).allowed).toBe(false)
     warn.mockRestore()
   })
 })

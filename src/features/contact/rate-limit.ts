@@ -83,3 +83,29 @@ export function getClientIp(headers: Pick<Headers, 'get'>): string {
   if (fwd) return fwd.split(',').pop()!.trim()
   return 'unknown'
 }
+
+/** Sign-in attempts to the owner area: 10 per 10 minutes per visitor (stored hashed, like the contact limit). */
+const LOGIN_WINDOW_MS = 10 * 60_000
+const LOGIN_MAX = 10
+
+export async function checkLoginAttempts(
+  ip: string,
+  store: RateStore = contactStore()
+): Promise<RateResult> {
+  try {
+    const r = await store.hitRateLimit('login:' + keyFor(ip), LOGIN_WINDOW_MS)
+    return { allowed: r.count <= LOGIN_MAX, resetAt: r.resetAt }
+  } catch (err) {
+    console.warn('[admin] rate-limit database unavailable, using the in-memory limit:', err)
+    const key = 'login:' + ip
+    const now = Date.now()
+    const b = buckets.get(key)
+    if (!b || now > b.resetAt) {
+      const resetAt = now + LOGIN_WINDOW_MS
+      buckets.set(key, { count: 1, resetAt })
+      return { allowed: true, resetAt }
+    }
+    b.count++
+    return { allowed: b.count <= LOGIN_MAX, resetAt: b.resetAt }
+  }
+}

@@ -128,6 +128,34 @@ describe('contact store (PGlite)', () => {
   })
 })
 
+describe('contact inbox actions (PGlite)', () => {
+  it('marks a message read and unread, counts unread, and deletes by id', async () => {
+    const store = freshStore()
+    const a = await store.insert({ ...input, subject: 'a' })
+    const b = await store.insert({ ...input, subject: 'b' })
+    expect(await store.countUnread()).toBe(2)
+    await store.setRead(a.id, true)
+    expect(await store.countUnread()).toBe(1)
+    expect((await store.list()).find((m) => m.id === a.id)?.read).toBe(true)
+    await store.setRead(a.id, false)
+    expect(await store.countUnread()).toBe(2)
+    await store.remove(b.id)
+    expect((await store.list()).map((m) => m.subject)).toEqual(['a'])
+  })
+
+  it('does nothing for an id that does not exist', async () => {
+    const store = freshStore()
+    await store.insert(input)
+    await store.remove('00000000-0000-0000-0000-000000000000')
+    await store.setRead('00000000-0000-0000-0000-000000000000', true)
+    expect(await store.list()).toHaveLength(1)
+  })
+
+  it('refuses an id that is not a UUID instead of running odd SQL', async () => {
+    await expect(freshStore().remove("x' OR '1'='1")).rejects.toThrow()
+  })
+})
+
 describe('contact rate-limit counters (PGlite)', () => {
   it('count hits per key within a window, independently per key', async () => {
     const store = freshStore()

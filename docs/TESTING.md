@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-12 (Phase 5 foundation + Phase 6) · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-12 (owner area: inbox + protected Studio) · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,9 +20,11 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (157 tests; 5 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (175 tests; 5 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
+
+> Since U10, `/studio` asks for the owner password first (`ADMIN_PASSWORD`); in local development with the variable unset it stays open. Older steps below that say "open `/studio`" mean: sign in first.
 
 Then on the page (it opens in English or French depending on your browser): scroll through every section, switch
 language with **EN | FR** in the header, open a film, submit the contact form (valid message → success; 3-letter
@@ -53,6 +55,7 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | 🟡 | Visual regression after the Phase 1 restructure (looks identical?) | No screenshot comparison done; pages render and respond correctly | U1 |
 | 🟡 | Keyboard & screen-reader use of the video play button | Not run | U2 |
 | 🟡 | Windows/macOS local dev (in-process Postgres) | Tested on Linux only | U4 · step 1 |
+| 🔴 | **Owner area on the real HTTPS site**: sign-in with `ADMIN_PASSWORD`, `Secure` cookie, Preview URLs, locked when the variable is missing; the real Studio after sign-in | Nothing deployed; tested on a local built server | U10 |
 | 🟠 | **How the new hero looks** (sizes, spacing, speed), 3D flip + wide headline font in Safari/iPhone/Firefox, real Bunny clips on the cards | Judged from headless-Chromium screenshots only | U9 · steps 1–5 |
 | 🟠 | **Lighthouse LCP ≤ 2.5 s** (lab: 3.8 s; real browser 0.2 s; the lab gives ~3.5 s even on a plain page) | Cause is site-wide in the simulation; not yet investigated | U9 |
 | 🟡 | Database rate limit on real serverless instances + Neon cold start; email from your own domain (`CONTACT_FROM_EMAIL`) | No Neon / Vercel / Resend accounts | U9 · steps 10–11 |
@@ -61,6 +64,42 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 
 Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; the step-by-step guide to create them and
 plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md)).
+
+---
+
+## U10 · 2026-10-12 — Owner area: message inbox (`/admin/messages`) + password-protected Studio
+
+**What changed**
+- **New private page `/admin/messages`**: your contact-form messages, newest first — name, email (click to reply), subject, the message, the **language to reply in**, extra answers (future booking form), date. Buttons: **mark as read / unread**, **delete** (open, then confirm — no accidental deletes), **reply by email**. Unread messages are highlighted and counted. It follows the language you last chose on the site (English or French).
+- **One password protects the owner area**: `/studio` and `/admin/messages` now require sign-in with `ADMIN_PASSWORD` (a variable you set on the host; at least 12 characters). The Studio still asks for its Sanity login afterwards. Sign-in lasts 8 hours; "Sign out" is in the owner header. Wrong passwords are limited (10 tries / 10 minutes).
+- **Not linked anywhere public**: no menu/footer/sitemap/robots entry. The pages are `noindex`. A test fails if a public file ever links to them.
+- **Locked by default in production**: if `ADMIN_PASSWORD` is missing or shorter than 12 characters, `/studio`, `/admin/login` and `/admin/messages` return "not found". In local development with no password they stay open.
+- No middleware / no host feature is used (still portable to Netlify/Docker). `GET /api/contact` with `CONTACT_ADMIN_TOKEN` still exists for scripts.
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck, build; tests: **180 pass with a real Postgres** (175 + 5 skipped without). New: password rules, token signing/expiry/tampering/password change, safe "next" address, inbox DB actions (read/unread/delete/bad id), login attempt limit (also when the DB is down), "no public file links to the owner pages" | pass |
+| Built server, **no `ADMIN_PASSWORD`** (production mode): `/admin/messages`, `/admin/login`, `/studio` → 404 | pass |
+| Built server **with** password, not signed in: `/admin/messages` and `/studio` (and `/studio/structure/…`) → redirect to sign-in; a forged cookie is rejected; login page is `noindex` and not cached | pass |
+| Public pages (`/en`, `/fr`, timeline, a film page, sitemap) contain no `/studio` or `/admin` text | pass |
+| Real browser (Chromium), real Postgres: wrong password → error; right password → inbox; cookie is HttpOnly + SameSite=Strict; 3 messages listed, unread count, French message shows "Reply in French", extra answers shown; a message containing `<script>` is displayed as text and does not run; mark read/unread updates the count; delete needs the confirm step and removes only that message; `/studio` opens (200) when signed in; after sign-out both pages are locked again; an outside `next=https://evil…` address is ignored; 11 wrong passwords → even the right one is blocked for a while; no JS errors | pass |
+
+**🧪 You test**
+1. On Vercel add `ADMIN_PASSWORD` (long, random, 12+ characters) to Production **and** Preview, redeploy.
+2. Open `https://yoursite/admin/messages` → sign-in page. Wrong password → "Wrong password". Right one → your messages. Send a test message from the public contact form → reload the inbox → it appears as **New** with the right language.
+3. Click **Mark as read** → the counter drops; **Mark as unread** → it comes back. **Delete** → open → confirm → the message disappears (also gone from the database).
+4. Click **Edit content** (header) → the Studio opens (then Sanity's own login). **Sign out** → `/admin/messages` and `/studio` ask for the password again.
+5. Open the public site in English and French, view the menu/footer/page source: no link to `/studio` or `/admin` anywhere. Open `https://yoursite/robots.txt` and `/sitemap.xml`: no mention either.
+6. Remove `ADMIN_PASSWORD` on a **test** deployment (never your real one) → `/studio` and `/admin/messages` show "not found" (that is the safe default).
+7. On your phone: sign in, read a message, mark it read.
+
+**⚠️ Not tested by the developer**
+- **On a real HTTPS deployment** (the cookie is `Secure`): sign-in persistence, Vercel Preview URLs, and the 8-hour expiry (checked only with unit tests and a clock-free token check).
+- **The Studio itself after sign-in** — only that the page opens (HTTP 200) and the redirect/lock behaviour; the real Studio screens still need a Sanity project (see U5/U7).
+- Safari/iPhone, and the inbox with hundreds of messages (shows the latest 200 and says so).
+- **Brute-force limit with many real instances** (counters are in the database; tested with one server).
+- French wording of the owner pages (draft).
 
 ---
 

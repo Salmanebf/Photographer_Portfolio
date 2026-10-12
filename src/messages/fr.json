@@ -150,5 +150,31 @@
   "draft": {
     "banner": "Mode aperçu — vous voyez des modifications non publiées",
     "exit": "Quitter l'aperçu"
+  },
+  "admin": {
+    "title": "Espace propriétaire",
+    "signInTitle": "Connexion",
+    "signInIntro": "Cet espace est réservé au propriétaire du site.",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "wrongPassword": "Mot de passe incorrect.",
+    "tooManyAttempts": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "signOut": "Se déconnecter",
+    "messagesNav": "Messages",
+    "studioNav": "Modifier le contenu",
+    "messagesTitle": "Messages",
+    "messagesIntro": "Messages envoyés via le formulaire de contact, du plus récent au plus ancien.",
+    "unreadCount": "Non lus : {count}",
+    "empty": "Aucun message pour le moment.",
+    "markRead": "Marquer comme lu",
+    "markUnread": "Marquer comme non lu",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer définitivement ce message ?",
+    "reply": "Répondre par e-mail",
+    "newBadge": "Nouveau",
+    "language": "Langue",
+    "replyIn": "Répondre en {language}",
+    "showingLatest": "Affichage des {count} derniers messages.",
+    "extraAnswers": "Réponses supplémentaires"
   }
 }

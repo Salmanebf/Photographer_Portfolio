@@ -2,7 +2,15 @@
 import { geistSans, geistMono } from '../../fonts'
 import '../../globals.css'
 
-export { metadata } from 'next-sanity/studio'
+import type { Metadata } from 'next'
+import { metadata as studioMetadata } from 'next-sanity/studio'
+import { requireAdmin } from '@/shared/admin/guard'
+
+/** The Studio is for the owner only: never indexed (and see the sign-in check below). */
+export const metadata: Metadata = {
+  ...(studioMetadata as Metadata),
+  robots: { index: false, follow: false, nocache: true },
+}
 
 export const viewport = {
   width: 'device-width',
@@ -11,7 +19,9 @@ export const viewport = {
   interactiveWidget: 'resizes-content',
 }
 
-export default function StudioLayout({ children }: { children: React.ReactNode }) {
+export default async function StudioLayout({ children }: { children: React.ReactNode }) {
+  // Signed-in owner only (a password, see docs/DEPLOYMENT.md). Sanity then asks for its own login on top.
+  await requireAdmin('/studio')
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body

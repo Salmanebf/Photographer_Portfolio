@@ -150,5 +150,31 @@
   "draft": {
     "banner": "Preview mode — you are seeing unpublished changes",
     "exit": "Exit preview"
+  },
+  "admin": {
+    "title": "Owner area",
+    "signInTitle": "Sign in",
+    "signInIntro": "This area is for the site owner.",
+    "password": "Password",
+    "signIn": "Sign in",
+    "wrongPassword": "Wrong password.",
+    "tooManyAttempts": "Too many attempts. Try again in a few minutes.",
+    "signOut": "Sign out",
+    "messagesNav": "Messages",
+    "studioNav": "Edit content",
+    "messagesTitle": "Messages",
+    "messagesIntro": "Messages sent through the contact form, newest first.",
+    "unreadCount": "Unread: {count}",
+    "empty": "No messages yet.",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this message for good?",
+    "reply": "Reply by email",
+    "newBadge": "New",
+    "language": "Language",
+    "replyIn": "Reply in {language}",
+    "showingLatest": "Showing the latest {count} messages.",
+    "extraAnswers": "Extra answers"
   }
 }

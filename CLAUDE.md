@@ -37,6 +37,7 @@ The client does not test changes as they land; they test later from `docs/TESTIN
 
 ## Architecture rules
 
+- Owner-only pages (`/studio`, `/admin/*`) check the signed sign-in cookie on the server via `src/shared/admin/guard.ts` (no middleware) and are never linked from public files (`no-public-links.test.ts` enforces it).
 - Code is organised by feature (`src/features/*`) with common code in `src/shared/*`. A feature never imports another feature.
 - All video/iframe playback goes through `src/shared/media/` (lazy loading, playback cap, reduced-motion handling).
 - SQL only in a feature's `store.ts`; the Postgres client comes from `src/lib/db.ts`. The database provider must stay switchable by changing `DATABASE_URL` alone (no provider-specific SDKs).

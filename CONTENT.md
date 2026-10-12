@@ -53,6 +53,9 @@ placeholder content until real content replaces it.
 Sanity is a free CMS that gives the filmmaker a friendly editor at
 `yoursite.com/studio` — no code, no deploys, edits go live immediately.
 
+> **Opening the Studio:** the address is private (it is not linked from the site). It first asks for the **owner password**
+> (the `ADMIN_PASSWORD` set on the host), then Sanity asks for its own sign-in.
+
 ### One-time setup
 
 1. Sign up free at <https://www.sanity.io/>
@@ -162,9 +165,10 @@ To receive an email every time someone submits the contact form:
    ```
 
 Without these, the form still works — submissions are still saved in the database.
-To read them, set `CONTACT_ADMIN_TOKEN` and call
-`GET /api/contact` with the header `Authorization: Bearer <token>` (returns the latest 50).
-Without a token the endpoint is disabled (404).
+**To read them:** open `yoursite.com/admin/messages` (private address, not linked from the site) and sign in with the owner
+password (`ADMIN_PASSWORD`). You see every message, newest first, with the language to reply in; you can mark messages
+read/unread, delete them (two clicks), and reply by email. (For scripts there is also `GET /api/contact` with
+`CONTACT_ADMIN_TOKEN`; without that token it is disabled.)
 
 > Resend's default sender (`onboarding@resend.dev`) only delivers to the email
 > address of your Resend account. To email anyone else, verify your own domain

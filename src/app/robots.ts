@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/studio/'],
+        disallow: ['/api/'], // the owner pages are kept out of search by noindex, not advertised here
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

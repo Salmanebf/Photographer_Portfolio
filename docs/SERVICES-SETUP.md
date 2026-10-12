@@ -170,7 +170,12 @@ NEXT_PUBLIC_BUNNY_CDN_HOST="vz-xxxxxxxx-xxx.b-cdn.net"
 RESEND_API_KEY=""
 CONTACT_NOTIFICATION_EMAIL=""
 CONTACT_ADMIN_TOKEN=""
+
+# --- the owner area (required in production) ----------------------------
+ADMIN_PASSWORD="a-long-random-password-of-12-or-more-characters"
 ```
+
+`ADMIN_PASSWORD` unlocks `yoursite.com/studio` and `yoursite.com/admin/messages` (your messages). Without it those two pages show "not found" in production.
 
 ### The 10-minute "is everything connected?" check
 
@@ -178,7 +183,7 @@ CONTACT_ADMIN_TOKEN=""
 | - | ------- | -------------- |
 | 1 | `npm run dev`, open `http://localhost:3000` | The site opens (in English or French), no red errors in the terminal |
 | 2 | Send a message in **Contact** | Success message; the row appears in Neon's SQL Editor with your language |
-| 3 | Open `/studio`, sign in | The Studio with the gold theme and the sidebar |
+| 3 | Open `/studio`: owner password first, then your Sanity sign-in | The Studio with the gold theme and the sidebar |
 | 4 | Publish *Site Settings* with a new *Site Title* | The new name on the site after ≤ 1 minute |
 | 5 | Publish one film with `bunny:<id>` as its video | Its page shows a play button; pressing it plays |
 | 6 | Add the French text of that film in the *Français* box | The same film in French at `/fr` |

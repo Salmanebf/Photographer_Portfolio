@@ -1,7 +1,7 @@
 # Roadmap & decisions
 
 Keep this file current: update the status column and decision log whenever work lands.
-Last updated: 2026-10-12 (Phase 5 foundation + Phase 6 done).
+Last updated: 2026-10-12 (owner area: message inbox + protected Studio).
 
 ## Goal
 
@@ -69,6 +69,7 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-12 | Hero stats removed; new per-language `heroHeadline` field | The stats were fake numbers (34 awards…) that contradict the brief; the headline is the design's centrepiece |
 | 2026-10-12 | "How I work" steps now feed the **Timeline** (section + `/timeline`), Services shows only the offer | Client's section list; the step model is reused |
 | 2026-10-12 | Contact rate limit in the database; spam checks without CAPTCHA (honeypot, sent-too-fast, >3 links); `kind` + `details jsonb` on messages | Holds across serverless instances; CAPTCHAs hurt real clients; a booking form must not need a migration |
+| 2026-10-12 | Owner area: `/admin/messages` inbox + password gate (`ADMIN_PASSWORD`, signed 8 h cookie) on it and `/studio`; checked in each page on the server, **no middleware**; locked (404) in production when unset; never linked from public files (test-enforced) | Client wants a private inbox and a protected Studio; middleware/proxy would break host-neutrality; a single owner needs no user database |
 | 2026-10-12 | Treat `sslmode=require` as `verify-full` explicitly; log which database is in use (host only) | A pasted Neon URL must work unchanged without a scary driver warning and without the security level depending on a driver version; a silently ignored `DATABASE_URL` in dev was undetectable |
 
 ## Open items / risks

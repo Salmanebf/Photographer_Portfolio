@@ -32,7 +32,8 @@ Browser ─► Vercel (Next.js)
              ├─ /                  redirects to /en or /fr (saved choice → browser language → English)
              ├─ /en  /fr           home page in each language (sections, revalidate 60 s)
              ├─ /en|fr/work/[slug] one page per film per language (SSG + ISR)
-             ├─ /studio            Sanity Studio — the admin dashboard
+             ├─ /studio            Sanity Studio — the admin dashboard   ┐ owner only: sign-in with ADMIN_PASSWORD,
+             ├─ /admin/messages    inbox of contact-form messages        ┘ not linked anywhere on the public site
              ├─ /api/contact       POST: validate → rate-limit → handlers (PostgreSQL, email)
              │                     GET : admin list, gated by CONTACT_ADMIN_TOKEN
              ├─ /sitemap.xml (every page in every language + hreflang), /robots.txt
@@ -95,7 +96,9 @@ Copy `.env.example`. All are optional locally; set them in the host's dashboard 
 | `DATABASE_URL`                                 | PostgreSQL connection string (any provider; Neon: use the *pooled* one). Required in production; unset in dev = in-process Postgres |
 | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL` | Email on each new contact message                                    |
 | `CONTACT_FROM_EMAIL`                           | Sender of that email, e.g. `Alex Rivera <hello@alexrivera.film>` (a domain verified with Resend). Unset = Resend's shared test sender, which only delivers to your own Resend account |
-| `CONTACT_ADMIN_TOKEN`                          | Enables `GET /api/contact` (Bearer token); unset = 404               |
+| `ADMIN_PASSWORD`                               | **Owner password** (min. 12 characters) for `/studio` and `/admin/messages`. Unset in production = both pages return 404 (locked) |
+| `ADMIN_SESSION_SECRET`                         | Optional; signs the sign-in cookie (default: derived from the password). Changing it signs everyone out |
+| `CONTACT_ADMIN_TOKEN`                          | Enables `GET /api/contact` (Bearer token) for scripts; unset = 404   |
 | `SANITY_API_READ_TOKEN`                        | Sanity token with **Viewer** rights; used **only** in preview mode to read unpublished changes (server-side, never sent to visitors) |
 | `SANITY_PREVIEW_SECRET`                        | A long random string that protects the preview link; unset = preview is disabled (404) |
 | `SANITY_API_HOST`                              | Advanced/testing: use another Sanity API address (e.g. the fake one from `npm run cms:mock`); unset = the normal Sanity cloud |
@@ -113,7 +116,7 @@ src/
   app/                    routes only — thin adapters that compose features
     page.tsx              "/" → redirects to the visitor's language
     [locale]/             layout.tsx (html lang/dir) page.tsx work/[slug]/ timeline/ not-found.tsx — one copy per language
-    studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
+    studio/[[...tool]]/ admin/{login,messages}/ api/contact/ sitemap.ts robots.ts   (studio + admin: owner only, see below)
   features/                each feature owns its UI, types, placeholder content, CMS query and normaliser
     hero/                  orbit hero: `orbit-hero.tsx` (markup), `orbit-engine.ts` (the card-ring motion), `orbit-hero.css`
     about/ awards/         home-page sections (their text comes from site settings)
@@ -130,8 +133,10 @@ src/
       handlers/           database.ts, email.ts … ← add/remove what happens on submit
       store.ts            ALL SQL for contact messages (table auto-created on first use)
       ui/contact.tsx      the form section (swap for a booking form)
+      ui/inbox.tsx        the owner's message list (rendered by app/admin/messages)
   shared/
     content/              site settings (types, CMS normaliser, getter) — brand, hero, about, awards band, timeline steps, SEO…
+    admin/                owner sign-in: signed cookie (`session.ts`), page guard (`guard.ts`), owner-area text (`text.ts`)
     media/                VideoLoop, StreamPlayer, playback limiter, viewer prefs  → docs/PERFORMANCE.md
     layout/               navigation, footer, language switcher, draft-preview banner
     effects/              custom cursor, magnetic, scroll progress
@@ -234,8 +239,15 @@ Contact messages: table
 and `contact_rate_limits` (the form's rate-limit counters; visitor addresses are stored only as a one-way hash),
 both created (and upgraded) automatically on first use. `kind` is `inquiry` today; `details` holds extra answers for
 a future booking form, so adding one needs no database change.
-To read messages: SQL editor of your database provider (`select * from contact_messages order by created_at desc`)
+To read messages: the owner inbox at **`/admin/messages`** (sign in with `ADMIN_PASSWORD`; mark read/unread, delete, reply by email),
+the SQL editor of your database provider (`select * from contact_messages order by created_at desc`),
 or `GET /api/contact` with `CONTACT_ADMIN_TOKEN`.
+
+**Owner area (`/studio`, `/admin/*`).** One password (`ADMIN_PASSWORD`) → a signed, HttpOnly, SameSite=Strict cookie valid 8 hours.
+No user database and **no middleware** (host-neutral): each owner page checks the cookie on the server (`shared/admin/guard.ts`).
+With no (or a too-short) password in production these pages do not exist (404); in development with no password they are open.
+Sign-in attempts are rate-limited (10 per 10 min per visitor, counted in the database). The pages are `noindex`, are not in the sitemap,
+and a test fails if any public file links to them. The Studio still asks for its own Sanity login on top.
 
 ## Editing content
 

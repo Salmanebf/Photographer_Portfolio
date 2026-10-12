@@ -39,7 +39,9 @@ No `vercel.json` / `netlify.toml` is required; the app has none.
 4. **Vercel** — import the GitHub repo; framework is auto-detected. Add the environment variables from
    the README table (Production + Preview). Deploy.
 5. Attach the custom domain at launch and set `NEXT_PUBLIC_SITE_URL` to it.
-6. Optional: `RESEND_API_KEY` + `CONTACT_NOTIFICATION_EMAIL` (+ `CONTACT_FROM_EMAIL` once your domain is verified) for email, `CONTACT_ADMIN_TOKEN` to read messages.
+6. Optional: `RESEND_API_KEY` + `CONTACT_NOTIFICATION_EMAIL` (+ `CONTACT_FROM_EMAIL` once your domain is verified) for email, `CONTACT_ADMIN_TOKEN` for scripts.
+7. **Required for the owner area:** set `ADMIN_PASSWORD` (at least 12 characters, long and random) — it unlocks `/studio` and `/admin/messages`.
+   Without it both return 404 in production. The sign-in cookie is `Secure`, so the site must be served over HTTPS (every host does this; a plain-HTTP Docker test will not keep you signed in).
 
 ## Switching to Netlify (or another host) — checklist
 
@@ -80,6 +82,11 @@ Self-hosting means you own updates, backups and uptime.
 - The Sanity read token is used only on the server, and only when the preview cookie is present. Never expose it as a
   `NEXT_PUBLIC_*` variable.
 - All these variables have the same names on every host (Vercel, Netlify, Docker).
+
+## Owner area (`/studio`, `/admin/messages`)
+
+Protected by one password (`ADMIN_PASSWORD`) → signed HttpOnly cookie (8 h). Implemented in the app (`src/shared/admin`), **not** with host features or middleware,
+so it behaves the same on Vercel, Netlify and Docker. Change the password = everyone is signed out. Never link these pages from the public site (a test enforces it).
 
 ## Known limitations (all hosts)
 
