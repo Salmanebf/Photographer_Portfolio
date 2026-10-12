@@ -1,7 +1,7 @@
 # Roadmap & decisions
 
 Keep this file current: update the status column and decision log whenever work lands.
-Last updated: 2026-10-11 (Phase 4: content model & CMS).
+Last updated: 2026-10-12 (account setup guide).
 
 ## Goal
 
@@ -64,6 +64,8 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-11 | Draft preview via a **secret link** (`/api/draft?secret=…`) and a Viewer token used only in preview mode, not Sanity's Presentation tool | Presentation needs a real Sanity project to verify and a public-bundle secret handling we cannot test here; the secret link is simple, safe and testable. Can be upgraded later |
 | 2026-10-11 | A **fake Sanity API** (`npm run cms:mock`, `groq-js`) for tests and local trials | The CMS code path had never run; this verifies queries, normalisers, pages and draft mode without an account — it does not replace a real Sanity check |
 | 2026-10-11 | Photo series: data layer + Studio type only, no public page yet | The roadmap places the gallery page in a later phase; editors can start entering photos now |
+
+| 2026-10-12 | Treat `sslmode=require` as `verify-full` explicitly; log which database is in use (host only) | A pasted Neon URL must work unchanged without a scary driver warning and without the security level depending on a driver version; a silently ignored `DATABASE_URL` in dev was undetectable |
 
 ## Open items / risks
 

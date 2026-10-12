@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-11 (Phase 4) · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-12 · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,7 +20,7 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (126 tests; 4 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (135 tests; 4 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
 
@@ -34,7 +34,8 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 
 | Pri | Item | Why it wasn't tested | Where to test |
 | --- | ---- | -------------------- | ------------- |
-| 🔴 | **Real Neon database** (SSL, pooled URL, cold-start latency) | No Neon account in the dev environment; tested against a real local Postgres 16 instead | U4 · step 2 |
+| 🔴 | **Real Neon database** (TLS with `verify-full`, pooled URL, cold-start latency) — and following `SERVICES-SETUP.md` section 1 | No Neon account in the dev environment; tested against a real local Postgres 16 instead | U4 · step 2, U8 · step 1 |
+| 🔴 | **The account setup guide itself** (every dashboard step for Neon, Sanity, Bunny, Vercel; labels may differ) | Written from provider docs; no accounts exist here | U8 |
 | 🔴 | **Real Sanity project**: sign in at `/studio`; the Studio's look (theme, logo, sidebar, tabs, per-language boxes, validation, Photo Series editor); content appears on the site in each language; CORS | No Sanity project exists. The CMS code path was tested against a **fake** Sanity API; the schema validates; the Studio only boots far enough to load its config | U5, U6 · step 8, U7 · steps 2–6 |
 | 🔴 | **Draft preview with a real token** (Viewer token, unpublished edits visible only to the editor, `noindex`) on a deployed site | Needs your Sanity project and a deployment; tested against the fake API only | U7 · step 7 |
 | 🟠 | **Publish → visible delay** (should be ≤ 60 s) and deleting content → 404 | Needs real Sanity + a deployment | U7 · step 8 |
@@ -55,8 +56,38 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 
 ### 0.3 Accounts you'll need for the 🔴 items
 
-Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; setup steps are in
-[`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md).
+Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; the step-by-step guide to create them and
+plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md)).
+
+---
+
+## U8 · 2026-10-12 — Account setup guide (Neon, Sanity, Bunny, Vercel) + two database fixes found while writing it
+
+**What changed**
+- **New guide `docs/SERVICES-SETUP.md`**: how to create the Neon, Sanity, Bunny Stream and Vercel accounts and plug them in — which value goes in which variable, a 10-minute "is everything connected?" check, and a problems table per service. Linked from the README, `DEPLOYMENT.md` and this file.
+- **Neon URL pasted as-is now works cleanly.** Neon hands out URLs ending `?sslmode=require&channel_binding=require`. The database driver already treated that as the strict mode but printed a loud "SECURITY WARNING" on every start and will change its meaning in its next major version. The app now spells out the strict mode itself (`verify-full`), so you paste the string unchanged, the logs stay clean and the security level can never silently drop.
+- **The server now says which database it uses** at startup: `[db] using PostgreSQL at <host>` (host only — never the password) or, in development without `DATABASE_URL`, a clear line saying messages go to a throw-away built-in database. Before, a misspelled variable made the form "work" while nothing reached Neon, with no clue why.
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck; tests **139 pass** with a real Postgres (135 without; 4 need a database) — new: URL normalisation (Neon-style URL, other positions, `prefer`/`verify-ca`, URLs left alone, a password containing the word `sslmode=require`), host extraction (no credentials), the log lines | pass |
+| Driver warning: the raw Neon-style URL produces the "SECURITY WARNING"; the normalised URL produces none and TLS stays on | confirmed in a fresh process |
+| Real dev server **without** `DATABASE_URL`: form works, log says it uses the built-in development database | pass |
+| Real dev server **with** `DATABASE_URL` to a real Postgres (password containing `&`): log says `using PostgreSQL at 127.0.0.1`, the password appears nowhere in the log, the message is in that database, no built-in database was created | pass |
+| Neon-shaped URLs (`-pooler` host, `channel_binding=require`) are parsed correctly by the driver | pass |
+
+**🧪 You test — by following the guide itself**
+1. Open `docs/SERVICES-SETUP.md` and do **section 1 (Neon)** end to end. Expected: the terminal prints `[db] using PostgreSQL at ep-…neon.tech`, no red "SECURITY WARNING" text, and your test message appears in Neon's SQL Editor.
+2. On purpose misspell the variable (e.g. `DATABSE_URL`), restart, send a message: the terminal must print the "built-in development database" line, and nothing appears in Neon (that is the trap the line exposes). Fix the spelling.
+3. Do **sections 2, 3 and 5** (Sanity, Bunny, the combined check). Note any step where a button or label differs from the guide and tell the developer — the guide should be corrected.
+4. Section 4 (Vercel) with the deploy: see `DEPLOYMENT.md` and TESTING U3.
+
+**⚠️ Not tested by the developer**
+- **Every dashboard step in the guide** — it was written from each provider's current documentation; no accounts exist here, so none of the clicking was walked through. Button names may differ.
+- **A real Neon database over TLS** (certificate check with `verify-full`, the pooled host, cold start after sleep) — only the URL handling was tested, against a local Postgres without TLS.
+- **Real Sanity / Bunny / Vercel behaviour** described in the guide (CORS, public dataset, MP4 fallback only for later uploads, hotlink protection, `403`/`404` meanings). These come from provider documentation and the code's behaviour, not from running them.
+- Free-plan limits and prices (not verified; the guide says to check the pricing pages).
 
 ---
 

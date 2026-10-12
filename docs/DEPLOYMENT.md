@@ -1,5 +1,7 @@
 # Deployment & portability
 
+> New to these dashboards? Start with the friendly step-by-step guide: [`SERVICES-SETUP.md`](./SERVICES-SETUP.md).
+
 **Final stack:** Vercel (code) · Bunny Stream (video) · Neon (PostgreSQL database) · Sanity (content).
 Only the first one is a *host*; the other three are independent services reached over the internet,
 so **moving the code to another host never moves your data, videos or content.**
@@ -87,4 +89,5 @@ Self-hosting means you own updates, backups and uptime.
   Existing messages don't move by themselves: export with `pg_dump -t contact_messages` and import into the new one.
 - In production the app **refuses to start the form without `DATABASE_URL`** (error + log) rather than silently using a local
   database that hosted platforms would erase. Development without it uses an in-process Postgres.
+- A `?sslmode=require` URL (what Neon gives you) is accepted unchanged: the app treats it as the strict `verify-full`, so the provider's certificate is always checked.
 - Only the standard Postgres wire protocol is used (no Neon-specific SDK), so non-Postgres databases would require rewriting each feature's `store.ts`.

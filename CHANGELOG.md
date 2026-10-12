@@ -2,6 +2,16 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-12 — Account setup guide + two database fixes
+
+- **New `docs/SERVICES-SETUP.md`:** step-by-step creation and connection of Neon, Sanity, Bunny Stream and Vercel (variables, checks, problems).
+  Linked from the README, `DEPLOYMENT.md`, `TESTING.md` and `.env.example`.
+- **Database URL:** `sslmode=require|prefer|verify-ca` is rewritten to the strict `verify-full` (what the driver already did) so a Neon URL works unchanged,
+  without the driver's "SECURITY WARNING" and without relying on semantics that change in the driver's next major version (`uselibpqcompat=true` opts out).
+- **Startup log** says which database is used (`[db] using PostgreSQL at <host>`, never credentials) or that the built-in development database is in use
+  because `DATABASE_URL` is not set.
+- Tests: 139 with a database (135 without). New `docs/TESTING.md` entry U8.
+
 ## 2026-10-11 — Phase 4: content model & CMS
 
 - **Data layer split per feature:** `features/{films,services,testimonials,photography}/{types,content,normalize,data}.ts`,

@@ -238,6 +238,11 @@ Developers can also edit the placeholder content directly: site copy in `src/lib
 `src/lib/content/fr.ts` (French); films, services, testimonials and photo series in each feature's `content/en.ts` and
 `content/fr.ts`; interface text in `src/messages/*.json`.
 
+## Connecting your accounts
+
+Step-by-step guide to creating the **Neon**, **Sanity**, **Bunny Stream** and **Vercel** accounts and plugging them into the
+project (which variable goes where, how to check each one, common problems): [`docs/SERVICES-SETUP.md`](./docs/SERVICES-SETUP.md).
+
 ## Deploying
 
 Primary target is Vercel; the code is deliberately host-neutral (Netlify or a Docker/VPS host need only
