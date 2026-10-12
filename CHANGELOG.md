@@ -4,6 +4,7 @@ Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./doc
 
 ## 2026-10-12 — Account setup guide + two database fixes
 
+- **Studio video fields:** *Hero Background Video* now validates like the film video fields; hints say to type `bunny:` + the ID **without** `< >`.
 - **New `docs/SERVICES-SETUP.md`:** step-by-step creation and connection of Neon, Sanity, Bunny Stream and Vercel (variables, checks, problems).
   Linked from the README, `DEPLOYMENT.md`, `TESTING.md` and `.env.example`.
 - **Database URL:** `sslmode=require|prefer|verify-ca` is rewritten to the strict `verify-full` (what the driver already did) so a Neon URL works unchanged,

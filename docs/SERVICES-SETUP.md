@@ -115,8 +115,8 @@ second or two. **Rotate the password:** Neon → your project → *Roles* → re
    ```
    NEXT_PUBLIC_BUNNY_CDN_HOST="vz-xxxxxxxx-xxx.b-cdn.net"
    ```
-7. **Use the video on the site** (in the Studio, on a film): *Trailer / Video* = `bunny:<Video ID>`. For the short silent loop shown on the film's card use
-   a separate short clip: *Preview loop* = `bunny:<its Video ID>` (5–10 seconds, no sound, small).
+7. **Use the video on the site** (in the Studio, on a film): *Trailer / Video* = `bunny:` followed by the Video ID (no `< >`, no spaces — e.g. `bunny:a746fa4f-d359-4e70-92b3-0c431ce7af60`). For the short silent loop shown on the film's card use
+   a separate short clip: *Preview loop* = `bunny:` + its Video ID (no `< >`) (5–10 seconds, no sound, small).
 8. **Check it works:** restart `npm run dev`, open the film's page, press **play**. In the browser's developer tools → *Network*, you should see
    `playlist.m3u8` and video pieces loading from your `b-cdn.net` host. For the card loop you should see `play_720p.mp4` answer `200`.
 

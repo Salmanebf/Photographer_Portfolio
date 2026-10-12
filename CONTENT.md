@@ -132,9 +132,9 @@ see the README.)
 Videos are not uploaded to the website. Upload them to your **Bunny Stream**
 library, then copy the video's **ID** into the Studio:
 
-- **Trailer / Video** (film page): `bunny:<video-id>` — plays on click, adaptive quality.
+- **Trailer / Video** (film page): `bunny:` + the video ID, **without** the `< >` (e.g. `bunny:a746fa4f-d359-4e70-92b3-0c431ce7af60`) — plays on click, adaptive quality.
   A YouTube / Vimeo / MP4 link also works.
-- **Preview loop** (the card / hover preview): `bunny:<video-id>` of a short
+- **Preview loop** (the card / hover preview): `bunny:` + the ID of a short
   5–10 second **silent** clip, kept small (about 3 MB or less).
 - **Hero background video** (Site Settings): same format.
 

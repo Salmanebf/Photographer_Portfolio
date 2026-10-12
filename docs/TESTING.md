@@ -215,7 +215,7 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 **🧪 You test (needs a Sanity project):**
 1. Create a project at sanity.io; in *manage → API → CORS origins* add `http://localhost:3000` with **credentials**.
 2. In `.env.local` set `NEXT_PUBLIC_SANITY_PROJECT_ID` (and dataset `production`), restart `npm run dev`, open `/studio`, sign in.
-3. Create a *Documentary Project*; in **Trailer / Video** type `hello` → expect the red error "Use bunny:<video-id> or a full https:// URL"; type `bunny:<real-id>` → accepted.
+3. Create a *Documentary Project*; in **Trailer / Video** type `hello` → expect the red error "Use bunny:VIDEO-ID (no < > brackets, no spaces) or a full https:// URL"; type `bunny:` + a real ID (no `< >`) → accepted. The **Hero Background Video** field now has the same check (try `bunny:<abc12345>` → red error). Not run in a real Studio.
 4. Publish; reload `/en` and `/en/work/<slug>` → your film appears. Leave a *Site Settings* field empty → the placeholder value is used.
 5. ⚠️ Not verified by the developer: all of the above (no Sanity project available).
 

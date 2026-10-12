@@ -111,9 +111,15 @@ export const siteSettings = defineType({
       name: 'heroVideo',
       title: 'Hero Background Video (optional)',
       description:
-        'bunny:<video-id> or an MP4/WebM URL — when set, plays muted as the hero background',
+        'Type bunny: followed by the video ID, with no spaces and no < > (example: bunny:a746fa4f-d359-4e70-92b3-0c431ce7af60). Or a full https:// MP4/WebM URL. When set, plays muted as the hero background.',
       type: 'string',
       group: 'hero',
+      validation: (Rule) =>
+        Rule.custom((v) =>
+          !v || /^(bunny:[A-Za-z0-9-]{8,64}|https?:\/\/\S+)$/.test(v)
+            ? true
+            : 'Use bunny:VIDEO-ID (no < > brackets, no spaces) or a full https:// URL'
+        ),
     }),
     defineField({
       name: 'heroStats',
