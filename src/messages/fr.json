@@ -5,9 +5,10 @@
   "nav": {
     "home": "Accueil",
     "about": "À propos",
-    "films": "Films",
+    "projects": "Projets",
     "services": "Services",
-    "testimonials": "Témoignages",
+    "timeline": "Déroulé",
+    "testimonials": "Avis",
     "contact": "Contact",
     "collaborate": "Collaborer",
     "startProject": "Lancer un projet",
@@ -22,8 +23,9 @@
     "switchTo": "Passer en {language}"
   },
   "hero": {
-    "scroll": "Défiler",
-    "viewFilms": "Voir mes films"
+    "aria": "Introduction",
+    "cta": "Proposer mon idée",
+    "viewProjects": "Voir mes projets"
   },
   "about": {
     "label": "À propos",
@@ -41,15 +43,15 @@
     ]
   },
   "films": {
-    "label": "Œuvres choisies",
-    "title": "Films documentaires",
+    "label": "Sélection",
+    "title": "Projets",
     "description": "Chaque film est un voyage au cœur d'histoires vraies qui façonnent notre compréhension du monde.",
     "all": "Tous",
     "filterAria": "Filtrer les projets par catégorie",
     "preview": "Aperçu",
     "hoverHint": "Survolez un film pour voir l'aperçu",
     "previewing": "Aperçu en cours",
-    "allFilms": "Tous les films",
+    "allFilms": "Tous les projets",
     "synopsis": "Synopsis",
     "gallery": "Galerie",
     "awards": "Récompenses",
@@ -72,14 +74,23 @@
   "services": {
     "label": "Services",
     "title": "Ce que je propose",
-    "description": "Une réalisation documentaire de bout en bout, de l'idée initiale à la diffusion mondiale et à l'impact.",
-    "processLabel": "Processus",
-    "processTitle": "Ma méthode",
-    "processDescription": "Chaque documentaire commence par une question et se déploie à travers un processus créatif profondément réfléchi."
+    "description": "Une réalisation documentaire de bout en bout, de l'idée initiale à la diffusion mondiale et à l'impact."
+  },
+  "timeline": {
+    "label": "Déroulé",
+    "title": "De la première idée au montage final",
+    "description": "Chaque projet suit les mêmes étapes claires, pour que vous sachiez toujours ce qui vient ensuite.",
+    "more": "Voir le processus complet",
+    "back": "Retour à l'accueil",
+    "pageTitle": "Comment naît un projet",
+    "pageIntro": "Voici les étapes qui mènent d'une première conversation à un film terminé, prêt à être partagé.",
+    "step": "Étape {n}",
+    "stepsAria": "Étapes du projet",
+    "cta": "Racontez-moi votre histoire"
   },
   "testimonials": {
-    "label": "Témoignages",
-    "title": "Paroles du terrain",
+    "label": "Clients",
+    "title": "Ce que disent les clients",
     "itemAria": "Témoignage {n}",
     "previous": "Témoignage précédent",
     "next": "Témoignage suivant"
@@ -119,6 +130,8 @@
       "message_too_short": "Le message doit contenir au moins 10 caractères",
       "message_too_long": "Le message est trop long",
       "invalid_input": "Données invalides",
+      "too_fast": "C'était très rapide — vérifiez votre message puis renvoyez-le.",
+      "too_many_links": "Veuillez inclure au maximum 3 liens dans votre message.",
       "rate_limited": "Trop de demandes — veuillez réessayer dans une minute.",
       "server_error": "Impossible de traiter votre message pour le moment"
     }

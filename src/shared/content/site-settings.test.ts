@@ -18,7 +18,8 @@ describe('site settings without a CMS', () => {
     const fr = staticSettings('fr')
     expect(fr.about.paragraphs).toHaveLength(en.about.paragraphs.length)
     expect(fr.seo.title).not.toBe(en.seo.title)
-    expect(fr.hero.stats.map((s) => s.value)).toEqual(en.hero.stats.map((s) => s.value))
+    expect(fr.hero.headline).not.toBe(en.hero.headline)
+    expect(fr.hero.headline.split(' ').length).toBeGreaterThan(2)
     expect(fr.brand.color).toBe(en.brand.color)
     expect(fr.contact.email).toBe(en.contact.email)
   })
@@ -49,7 +50,7 @@ describe('CMS site settings', () => {
   const data = {
     discipline: { en: 'Documentary', fr: 'Documentaire' },
     heroTagline: { en: 'English tagline', fr: 'Accroche française' },
-    heroStats: [{ value: 5, suffix: '+', label: { en: 'Films', fr: 'Films FR' } }],
+    heroHeadline: { en: 'Big words', fr: 'Grands mots' },
     aboutParagraphs: [{ en: 'One', fr: 'Un' }, { en: 'Two' }],
     aboutTools: [{ en: 'Camera', fr: 'Caméra' }],
     footerTagline: { en: 'Footer' },
@@ -60,7 +61,7 @@ describe('CMS site settings', () => {
     const s = applySanitySettings(baseSettings(), data, 'fr')
     expect(s.brand.discipline).toBe('Documentaire')
     expect(s.hero.tagline).toBe('Accroche française')
-    expect(s.hero.stats[0].label).toBe('Films FR')
+    expect(s.hero.headline).toBe('Grands mots')
     expect(s.about.paragraphs).toEqual(['Un', 'Two'])
     expect(s.about.tools).toEqual(['Caméra'])
     expect(s.footer.tagline).toBe('Footer')

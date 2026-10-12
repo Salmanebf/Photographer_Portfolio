@@ -12,6 +12,8 @@ export const contactErrorMessages = {
   message_too_short: 'Message must be at least 10 characters',
   message_too_long: 'Message is too long',
   invalid_input: 'Invalid input',
+  too_fast: 'That was very quick — please check your message and send it again.',
+  too_many_links: 'Please include no more than 3 links in your message.',
   rate_limited: 'Too many requests — please try again in a minute.',
   server_error: 'Failed to process your message',
 } as const

@@ -2,6 +2,17 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-12 — Phase 5 foundation (orbit hero, Timeline) + Phase 6 (contact rework)
+
+- **Orbit hero** (from the supplied design): stacked headline + 3D ring of project cards (video-ready; max 3 clips at once), gold pointer-light button,
+  static for reduced motion. Headline is plain server text (no entrance animation); cards mount shortly after load. New `features/hero/{orbit-hero,orbit-engine}`.
+- **Content:** new per-language `hero.headline` (Studio: *Hero Headline*); hero stats removed. Hero picture/video is now a dim backdrop.
+- **Timeline:** new section + page `/[locale]/timeline` using the editable steps (Studio field renamed *Timeline — Steps*); Services is "what I offer" only.
+- **Renames:** Films → Projects, Testimonials → Reviews / "What Clients Say" (EN + FR); nav and footer gain Timeline; sitemap includes `/timeline`.
+- **Contact:** database-backed rate limit (`contact_rate_limits`, hashed visitors, in-memory fallback); spam checks (honeypot, too-fast, >3 links) with translated errors;
+  `CONTACT_FROM_EMAIL` sender; `kind` + `details` columns for a future booking form (existing tables upgrade automatically).
+- Tests: 162 with a database (157 + 5 skipped without). New `docs/TESTING.md` entry U9.
+
 ## 2026-10-12 — Account setup guide + two database fixes
 
 - **Studio video fields:** *Hero Background Video* now validates like the film video fields; hints say to type `bunny:` + the ID **without** `< >`.

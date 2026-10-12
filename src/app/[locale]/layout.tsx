@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
-import { geistSans, geistMono } from '../fonts'
+import { archivo, geistSans, geistMono } from '../fonts'
 import '../globals.css'
 import { Toaster } from '@/shared/ui/toaster'
 import { getSiteSettings } from '@/shared/content/site-settings'
@@ -93,7 +93,7 @@ export default async function LocaleLayout({
         <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} antialiased bg-background text-foreground`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <a

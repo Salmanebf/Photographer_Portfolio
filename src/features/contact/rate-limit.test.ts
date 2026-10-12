@@ -1,5 +1,10 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { checkRateLimit, getClientIp, resetRateLimit } from './rate-limit'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  checkMemoryRateLimit as checkRateLimit,
+  checkRateLimit as checkSharedRateLimit,
+  getClientIp,
+  resetRateLimit,
+} from './rate-limit'
 
 beforeEach(resetRateLimit)
 
@@ -33,5 +38,44 @@ describe('getClientIp', () => {
 
   it('falls back to "unknown"', () => {
     expect(getClientIp(h({}))).toBe('unknown')
+  })
+})
+
+describe('checkRateLimit (database-backed)', () => {
+  /** A fake store that counts like the real one */
+  const counting = () => {
+    const hits = new Map<string, number>()
+    return {
+      hits,
+      hitRateLimit: async (key: string) => {
+        hits.set(key, (hits.get(key) ?? 0) + 1)
+        return { count: hits.get(key)!, resetAt: Date.now() + 60_000 }
+      },
+    }
+  }
+
+  it('allows 5 per visitor then blocks, and never stores the address in readable form', async () => {
+    const store = counting()
+    for (let i = 0; i < 5; i++)
+      expect((await checkSharedRateLimit('1.1.1.1', store)).allowed).toBe(true)
+    expect((await checkSharedRateLimit('1.1.1.1', store)).allowed).toBe(false)
+    expect([...store.hits.keys()].some((k) => k.includes('1.1.1.1'))).toBe(false)
+  })
+
+  it('applies the global ceiling across visitors', async () => {
+    const store = counting()
+    for (let i = 0; i < 60; i++) await checkSharedRateLimit(`10.0.0.${i}`, store)
+    expect((await checkSharedRateLimit('9.9.9.9', store)).allowed).toBe(false)
+  })
+
+  it('falls back to the in-memory limit when the database is down, so the form keeps working', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const broken = {
+      hitRateLimit: async () => Promise.reject(new Error('db down')),
+    }
+    for (let i = 0; i < 5; i++)
+      expect((await checkSharedRateLimit('7.7.7.7', broken)).allowed).toBe(true)
+    expect((await checkSharedRateLimit('7.7.7.7', broken)).allowed).toBe(false)
+    warn.mockRestore()
   })
 })

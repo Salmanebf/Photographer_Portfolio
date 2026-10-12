@@ -6,8 +6,8 @@ describe('sitemap', () => {
   it('lists every page in every language, each pointing at its translations', async () => {
     const entries = await sitemap()
     const urls = entries.map((e) => e.url)
-    // home + each film, in en and fr
-    expect(entries).toHaveLength((1 + projects.length) * 2)
+    // home + timeline + each film, in en and fr
+    expect(entries).toHaveLength((2 + projects.length) * 2)
     expect(urls.some((u) => u.endsWith('/en'))).toBe(true)
     expect(urls.some((u) => u.endsWith('/fr'))).toBe(true)
     const film = entries.find((e) => e.url.endsWith(`/fr/work/${projects[0].slug}`))

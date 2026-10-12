@@ -95,6 +95,13 @@ export const siteSettings = defineType({
       group: 'hero',
     }),
     defineField({
+      name: 'heroHeadline',
+      title: 'Hero Headline',
+      description: 'The big words in the middle of the home page. Each word goes on its own line, so 4–6 short words work best.',
+      type: 'localeString',
+      group: 'hero',
+    }),
+    defineField({
       name: 'heroTagline',
       title: 'Hero Tagline',
       type: 'localeText',
@@ -121,29 +128,6 @@ export const siteSettings = defineType({
             : 'Use bunny:VIDEO-ID (no < > brackets, no spaces) or a full https:// URL'
         ),
     }),
-    defineField({
-      name: 'heroStats',
-      title: 'Hero Stats',
-      type: 'array',
-      group: 'hero',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            { name: 'value', type: 'number', validation: (R) => R.required() },
-            { name: 'suffix', type: 'string', initialValue: '+' },
-            { name: 'label', type: 'localeString', validation: requireDefaultLanguage },
-          ],
-          preview: {
-            select: { value: 'value', suffix: 'suffix', label: 'label.en' },
-            prepare: ({ value, suffix, label }) => ({
-              title: `${value}${suffix ?? ''} — ${label}`,
-            }),
-          },
-        },
-      ],
-    }),
-
     // ABOUT
     defineField({
       name: 'aboutQuote',
@@ -205,11 +189,11 @@ export const siteSettings = defineType({
       group: 'recognition',
     }),
 
-    // HOW I WORK
+    // TIMELINE
     defineField({
       name: 'processSteps',
-      title: 'How I Work — Steps',
-      description: 'The phases of a project, in order (shown in the Services section)',
+      title: 'Timeline — Steps',
+      description: 'The phases of a project, in order (shown in the Timeline section and on its own page)',
       type: 'array',
       group: 'process',
       of: [
@@ -289,7 +273,7 @@ export const siteSettings = defineType({
     { name: 'hero', title: 'Hero', default: true },
     { name: 'about', title: 'About' },
     { name: 'recognition', title: 'Awards & Press' },
-    { name: 'process', title: 'How I Work' },
+    { name: 'process', title: 'Timeline' },
     { name: 'contact', title: 'Contact' },
     { name: 'footer', title: 'Footer' },
     { name: 'seo', title: 'Search & Sharing' },

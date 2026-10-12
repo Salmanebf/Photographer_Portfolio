@@ -9,8 +9,9 @@ import type { SiteSettings } from '@/shared/content/types'
 const navLinks = [
   { key: 'home', href: '#home' },
   { key: 'about', href: '#about' },
-  { key: 'films', href: '#portfolio' },
+  { key: 'projects', href: '#portfolio' },
   { key: 'services', href: '#services' },
+  { key: 'timeline', href: '#timeline' },
   { key: 'contact', href: '#contact' },
 ] as const
 

@@ -45,16 +45,12 @@ export const siteConfig = {
     eyebrow: 'Documentary Filmmaker',
     nameLine1: 'Alex',
     nameLine2: 'Rivera',
+    headline: 'Films that speak louder than words',
     tagline:
       'Telling stories that illuminate the human condition. Documenting cultures, uncovering truths, revealing the extraordinary.',
     image: '/images/hero-doc.png',
     /** Optional video URL (mp4/webm). When set, plays muted as hero background. */
     video: '' as string,
-    stats: [
-      { value: 18, suffix: '+', label: 'Films' },
-      { value: 12, suffix: '', label: 'Years' },
-      { value: 34, suffix: '+', label: 'Awards' },
-    ],
   },
 
   /* === ABOUT === */
@@ -121,7 +117,7 @@ export const siteConfig = {
     'Jackson Wild — Grand Teton',
   ],
 
-  /* === PROCESS — the "How I Work" steps === */
+  /* === PROCESS — the Timeline steps === */
   process: [
     {
       title: 'Discovery',

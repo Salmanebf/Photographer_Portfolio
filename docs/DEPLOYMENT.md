@@ -39,7 +39,7 @@ No `vercel.json` / `netlify.toml` is required; the app has none.
 4. **Vercel** — import the GitHub repo; framework is auto-detected. Add the environment variables from
    the README table (Production + Preview). Deploy.
 5. Attach the custom domain at launch and set `NEXT_PUBLIC_SITE_URL` to it.
-6. Optional: `RESEND_API_KEY` + `CONTACT_NOTIFICATION_EMAIL` for email, `CONTACT_ADMIN_TOKEN` to read messages.
+6. Optional: `RESEND_API_KEY` + `CONTACT_NOTIFICATION_EMAIL` (+ `CONTACT_FROM_EMAIL` once your domain is verified) for email, `CONTACT_ADMIN_TOKEN` to read messages.
 
 ## Switching to Netlify (or another host) — checklist
 
@@ -83,8 +83,9 @@ Self-hosting means you own updates, backups and uptime.
 
 ## Known limitations (all hosts)
 
-- **Rate limiter is in-memory per server instance.** On serverless hosts each instance has its own counters,
-  so the limit is soft. A database-backed limiter is planned with the contact rework (Phase 6).
+- **The contact rate limit lives in the database** (table `contact_rate_limits`, created automatically), so it holds across serverless
+  instances and restarts: 5 messages per minute per visitor, 60 overall. If the database cannot be reached the form falls back to a
+  per-instance in-memory limit (weaker, and logged) rather than refusing visitors.
 - **Switching database provider** (Neon → Supabase, Railway, your own server…) = change `DATABASE_URL`, nothing else.
   Existing messages don't move by themselves: export with `pg_dump -t contact_messages` and import into the new one.
 - In production the app **refuses to start the form without `DATABASE_URL`** (error + log) rather than silently using a local

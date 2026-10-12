@@ -33,11 +33,8 @@ export const baseDocuments = () => [
     seoImage: image('image-share'),
     heroImage: image('image-hero'),
     heroEyebrow: { en: 'Filmmaker (CMS)', fr: 'Cinéaste (CMS)' },
+    heroHeadline: { en: 'Stories from the CMS', fr: 'Histoires du CMS' },
     heroTagline: { en: 'A tagline written in the CMS.', fr: 'Une accroche écrite dans le CMS.' },
-    heroStats: [
-      { value: 7, suffix: '+', label: { en: 'Mock films', fr: 'Films fictifs' } },
-      { value: 3, suffix: '', label: { en: 'Mock years' } },
-    ],
     aboutQuote: { en: 'CMS quote first part, and the accent.', fr: 'Citation CMS première partie, et l’accent.' },
     aboutParagraphs: [{ en: 'CMS paragraph one.', fr: 'Paragraphe CMS un.' }, { en: 'CMS paragraph two (English only).' }],
     aboutTools: [{ en: 'Mock camera', fr: 'Caméra fictive' }],

@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-12 · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-12 (Phase 5 foundation + Phase 6) · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,7 +20,7 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (135 tests; 4 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (157 tests; 5 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
 
@@ -53,11 +53,72 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | 🟡 | Visual regression after the Phase 1 restructure (looks identical?) | No screenshot comparison done; pages render and respond correctly | U1 |
 | 🟡 | Keyboard & screen-reader use of the video play button | Not run | U2 |
 | 🟡 | Windows/macOS local dev (in-process Postgres) | Tested on Linux only | U4 · step 1 |
+| 🟠 | **How the new hero looks** (sizes, spacing, speed), 3D flip + wide headline font in Safari/iPhone/Firefox, real Bunny clips on the cards | Judged from headless-Chromium screenshots only | U9 · steps 1–5 |
+| 🟠 | **Lighthouse LCP ≤ 2.5 s** (lab: 3.8 s; real browser 0.2 s; the lab gives ~3.5 s even on a plain page) | Cause is site-wide in the simulation; not yet investigated | U9 |
+| 🟡 | Database rate limit on real serverless instances + Neon cold start; email from your own domain (`CONTACT_FROM_EMAIL`) | No Neon / Vercel / Resend accounts | U9 · steps 10–11 |
 
 ### 0.3 Accounts you'll need for the 🔴 items
 
 Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; the step-by-step guide to create them and
 plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md)).
+
+---
+
+## U9 · 2026-10-12 — Phase 5 foundation (orbit hero, Timeline, renamed sections) + Phase 6 (contact rework)
+
+> These are **foundations**: the structure, wiring and behaviour are in place with placeholder content. The look of each section
+> (About, Projects, Services, Testimonials, the Timeline page…) is refined **section by section in the next round**, from your instructions.
+
+**What changed — Phase 5 foundation**
+- **New home-page first screen ("orbit hero")**, ported from your `index_2.html`: a huge stacked headline in the middle, cards of your **projects** circling it in 3D (they turn, pass in front of and behind the words, and a soft light follows the mouse on the gold button). Cards use each project's cover image; a project with a **Preview loop** plays it on its card (at most 3 clips play at once). The old hero (name, stats, scroll hint) is gone; the small gold line above the headline shows "role · name".
+- **The headline paints immediately** (plain text, no entrance animation) — the fix for the slow first paint measured earlier. The cards load a moment later.
+- **New CMS field "Hero Headline"** (per language). The **Hero Stats** were removed (they were fake numbers like "34+ awards"; you have none yet). Hero picture/video are now a dim background behind the headline.
+- **New "Timeline" section** between Services and Reviews, with a **full page `/en/timeline` · `/fr/timeline`** (same steps, no truncation; a "Tell me your story" link). It uses the former "How I work" steps — the Studio field is now called **Timeline — Steps**.
+- **Services is now only "What I offer"** (the process steps moved to the Timeline).
+- **Renames:** *Films* → **Projects** (menu, footer, section), *Testimonials* → **Reviews** in the menu / **"What Clients Say"** as the section title; French equivalents (Projets, Avis, Déroulé, "Ce que disent les clients"). Menu and footer gained **Timeline**. The sitemap lists the new page.
+- Reduced-motion visitors get the same hero but still (no movement), with all cards behind the headline.
+
+**What changed — Phase 6 (contact rework)**
+- **Rate limit now lives in the database** (table `contact_rate_limits`): 5 messages/min per visitor, 60/min overall, shared by every server instance and kept across restarts. Visitor addresses are stored only as a one-way hash. If the database is down the form falls back to the old per-instance limit (and logs a warning) instead of blocking visitors.
+- **Spam protection without CAPTCHA** (`spam.ts`): the hidden honeypot field (silent), a form sent faster than 1.5 s after it appeared → friendly error "That was very quick — please check your message and send it again" (a real person just presses send again), and more than 3 links in a message → "no more than 3 links". Both errors are translated (EN/FR).
+- **Email sender is configurable**: `CONTACT_FROM_EMAIL` (e.g. `Alex Rivera <hello@yourdomain>`); empty or malformed = Resend's shared test sender. No code change needed once your domain is verified in Resend.
+- **Booking-ready**: messages now have a `kind` (`inquiry`) and a flexible `details` field (extra answers such as a date or budget) — a future booking form needs no database change. The email lists the extra answers. Today's form is unchanged.
+- Old databases upgrade themselves (new columns/table are created on first use; existing messages keep working).
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck, production build | pass |
+| Tests: **162 pass with a real Postgres 16** (157 pass + 5 skipped without one). New: spam rules, email sender/text, schema extras, DB counters (window, reset, 20 simultaneous hits counted exactly once — also on real Postgres with 15 parallel "instances" on a fresh database), shared limiter + in-memory fallback + hashed keys, kind/details storage and old-table upgrade, Timeline/Services render tests, sitemap, messages EN/FR parity | pass |
+| Built server on a real Postgres: normal message saved with `locale`, `kind`, `details`; instant send → `400 too_fast`; 4 links → `400 too_many_links`; honeypot → looks successful but nothing saved; 7 messages from one visitor → first 5 saved, then `429` with the French/English text; **after restarting the server the same visitor is still blocked** (counter was in the database); only hashed visitor keys in the table | pass |
+| Browser (headless Chromium), `/fr`: the real form saves a message with `locale = fr`; no JS errors | pass |
+| Hero in a browser: desktop 1440×900, tablet 820, phone 390 — no horizontal scroll, headline readable, cards move, button works, "See my projects" scrolls to Projects; French headline (long words) fits on a phone; reduced-motion = static cards behind the text | pass |
+| Hero video cards (temporary test clips on a local server): 6 cards had a clip, exactly 3 played at once (time advanced), the rest stayed paused on the poster | pass |
+| `/en/timeline` and `/fr/timeline` build and render; home Timeline section shows every step | pass |
+| First paint / LCP in a real browser (phone size): ≈ 0.2 s (headline text). Lighthouse (simulated slow 4G): score 0.87–0.88, LCP 3.8–3.9 s — the same lab gives 3.5 s on the plain Timeline page, so it is a site-wide floor, not the hero | recorded (target 2.5 s **not** met in the lab) |
+
+**🧪 You test**
+1. **Hero (desktop):** open `/en`. Headline visible at once; cards drift around it; move the mouse — cards tilt slightly and the gold button's light follows you; click it → jumps to Contact. "See my projects" → Projects.
+2. **Hero (phone):** open on your phone (or Chrome DevTools → phone size). Headline fits, no sideways scrolling, cards don't cover the buttons. Try `/fr`: "DES FILMS QUI PARLENT PLUS FORT QUE LES MOTS" must fit.
+3. **Hero headline from the CMS** (needs your Sanity): Site Settings → Hero → *Hero Headline*, write 4–5 words in English and French, publish → the home page shows them one word per line. Put 12 words to see how it copes (it shrinks; tell me if it looks bad).
+4. **Hero video cards** (needs Bunny): give a project a *Preview loop* (`bunny:` + ID, no `< >`); its card should play, at most three at once.
+5. **Reduced motion:** turn on "Reduce motion" in your system settings, reload → cards are still, all behind the headline.
+6. **Timeline:** scroll to *Timeline* (menu item too); click "See the full process" → `/en/timeline` shows all steps; the French one `/fr/timeline`. In the Studio edit *Timeline — Steps* (add a 5th, delete one) → both update within a minute; delete all → placeholder steps return.
+7. **Renamed sections:** menu reads Home · About · Projects · Services · Timeline · Reviews · Contact; section titles "Projects", "What I Offer", "What Clients Say". Check the footer links.
+8. **Contact — too fast:** reload `/en`, open DevTools → Network → throttle nothing; paste a ready message and press send within one second of the page loading (hard to do by hand; alternatively run in the console: `fetch('/api/contact',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:'A',email:'a@b.co',subject:'s',message:'ten chars or more',elapsedMs:100})}).then(r=>r.json()).then(console.log)` → `code: "too_fast"`).
+9. **Contact — links:** send a message containing four `https://…` links → error "no more than 3 links"; with three links → accepted.
+10. **Rate limit:** send 6 valid messages within a minute from the same browser → the 6th shows "Too many requests". Wait a minute → works again. In your database: `select key, hits from contact_rate_limits` shows hashed keys (no readable addresses).
+11. **Email sender** (needs Resend + a verified domain): set `CONTACT_FROM_EMAIL="Alex Rivera <hello@yourdomain>"`, send a message → the email comes from that address and lists the *Language:* line.
+
+**⚠️ Not tested by the developer**
+- **How the hero looks to you**: spacing, the amount of image behind the headline, card sizes, motion speed — judged only from screenshots; this is the round to tell me exactly what you want.
+- **Real Bunny video on the hero cards** (tested with local test clips) and a real project cover set from the CMS.
+- **Safari / iPhone / Firefox** for the 3D card flip, `font-stretch` (the headline font's width axis) and the gold button.
+- **The hero headline font on a slow connection** (a wide font that swaps in) and very long headlines.
+- **Lighthouse LCP below 2.5 s** — not reached in the lab (see the table); to be investigated before launch.
+- **Real Neon / Vercel**: the database rate limit with many real serverless instances (tested with parallel connections to one Postgres only), and the extra load of one small query per message on a sleeping Neon database.
+- **Email from a custom domain** (no Resend account here); only the address parsing and message text were tested.
+- Arabic / right-to-left of the new hero and Timeline (logical CSS used; not viewed in RTL).
 
 ---
 
@@ -96,7 +157,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
 **What changed**
 - **Data layer split per feature.** Films, services, testimonials, photography and site settings each own their types, placeholder content (EN + FR), CMS query and normaliser. All CMS access goes through one function (`cmsFetch`). The site looks and behaves the same.
 - **New: Photo Series** (Studio type + data layer). The public gallery page is a later phase, so nothing about it shows on the site yet.
-- **Now editable in the Studio** (they were fixed in code): the **awards band** (empty list hides it), the **"How I work" steps** (any number; the grid adapts, an empty list hides the section), **SEO keywords** and the **social sharing image** (defaults to the hero image).
+- **Now editable in the Studio** (they were fixed in code): the **awards band** (empty list hides it), the **timeline steps** (called "How I work" at the time; any number, an empty list hides the section), **SEO keywords** and the **social sharing image** (defaults to the hero image).
 - **Draft preview:** a secret link shows unpublished edits and unpublished films on the real site, with a "Preview mode" bar and an exit link. Needs two optional environment variables (`SANITY_API_READ_TOKEN`, `SANITY_PREVIEW_SECRET`).
 - **Branded, organised Studio:** brand colour theme, monogram logo, a clearer sidebar (Settings · Films, Photo Series · Services, Testimonials) with icons, Site Settings tabs (*Hero, About, Awards & Press, How I Work, Contact, Footer, Search & Sharing*).
 - **A film now exists only if it is in the list.** Previously a deleted/unpublished film could still be reached through its placeholder version.
@@ -109,7 +170,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
 | **GitHub CI** (run #5, commit `0099702`): install, lint, typecheck, all tests incl. the CMS-path tests with a real Postgres service, and the production build | all green |
 | Tests: **130 pass** with a real Postgres (126 without; 4 need a database). New: per-feature tests (films, services, testimonials, photography), site-settings normaliser (awards, steps, SEO, sharing image), **12 CMS-path tests that run the real Sanity client + the real GROQ queries against the fake API** (languages + English fallback, references followed, draft vs published, token only in preview, wrong/missing token, server errors, empty CMS), preview-link safety (open-redirect cases), real component renders (steps adapt/hide, awards band hides) | pass |
 | Production build: `/en`, `/fr` and film pages are still **statically generated** (reading preview mode did not make them dynamic); the two preview routes are on-demand | pass |
-| **Browser, built against the fake Sanity API** (EN and FR): page title, hero text, films / services / testimonial all from the CMS (no placeholders), exactly the 3 CMS "how I work" steps in a 3-column grid, CMS awards band, **brand colour from the CMS**, SEO keywords + description, social image = the CMS sharing image, indexable, no JS errors | pass |
+| **Browser, built against the fake Sanity API** (EN and FR): page title, hero text, films / services / testimonial all from the CMS (no placeholders), exactly the 3 CMS steps in a 3-column grid (then in the Services section; since U9 in the Timeline), CMS awards band, **brand colour from the CMS**, SEO keywords + description, social image = the CMS sharing image, indexable, no JS errors | pass |
 | CMS film pages exist in both languages (title, description, credit role, category, images from referenced assets); the **placeholder films and a never-published film return 404**; the sitemap lists exactly the CMS films in both languages | pass |
 | Public traffic (and the build) **never sent the read token and never asked for drafts** | pass |
 | Preview link: no/wrong secret → 401; right secret → redirect + cookie; `//evil.com` is neutralised to `/`; disabled (404) when no secret is set; clear error (500) when the token is missing | pass |
@@ -127,7 +188,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
    Then open `http://localhost:3000/api/draft?secret=letmein&path=/en` → you see **DRAFT TITLE of Film One** and **UNPUBLISHED Mock Film** and the "Preview mode" bar; click **Exit preview** → they disappear.
 2. **Real Sanity (needs your project — see U5):** open `/studio`. Check the sidebar order and icons, the gold theme, the **AR / ALEX RIVERA** logo, the tab title "Alex Rivera — Studio", and that **Site Settings** has the tabs *Hero · About · Awards & Press · How I Work · Contact · Footer · Search & Sharing*.
 3. **Awards & Press:** add two lines (English + French), publish, reload `/en` within a minute → the band shows them. Remove all lines, publish → the band disappears.
-4. **How I Work:** with 3 steps the section shows 3 columns; with 4, four; delete all steps → the placeholder steps return (so the section is never broken).
+4. **Timeline steps** (called *How I Work* when this was written; since U9 they appear in the Timeline section): add/remove steps → the section follows; delete all steps → the placeholder steps return (so the section is never broken).
 5. **Search & Sharing:** set keywords and a sharing image, publish; *View source* on `/en`: `meta name="keywords"` and `og:image` show them. Clear the sharing image → `og:image` becomes the hero image.
 6. **Photo Series:** create one with two photos; leave one **description** empty → the Studio shows a warning. Publish. (No page on the site yet — expected.) In the Studio's **Vision** tool run `*[_type=="photoSeries"]{title, "photos": photos[].image.asset->url}` → your photos come back.
 7. **Draft preview with real Sanity:** in sanity.io → API → Tokens create a token with **Viewer** rights; set `SANITY_API_READ_TOKEN` and a long random `SANITY_PREVIEW_SECRET` on your host and redeploy. Edit a film title *without publishing*; open `https://your-site/api/draft?secret=…&path=/en`: you see the edit, others do not. *View source* in preview shows `noindex`; the normal page does not.
@@ -296,7 +357,7 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 | Click play → hls.js downloaded only now → playlist + segments fetched → video **plays** (`currentTime` advances, blob/MediaSource) | pass |
 | YouTube film: click creates the YouTube embed · MP4-file film: plays after click · film without video: poster only, no button | pass |
 | Bunny preview loop uses the `play_720p.mp4` fallback URL on hover | pass (3 full runs + 8 isolated; **one early run failed once and could not be reproduced in 11 further runs** — likely first-request timing; tell the developer if you see a preview not starting) |
-| Lighthouse mobile baseline: score 90, LCP 3.5 s (hero text hidden by its entrance animation — to be fixed in the Phase 5 hero), 371 KiB | recorded |
+| Lighthouse mobile baseline: score 90, LCP 3.5 s (hero text hidden by its entrance animation — fixed in the Phase 5 hero, see U9), 371 KiB | recorded |
 
 **🧪 You test**
 1. **Local clip.** Put a short `.mp4` (H.264, ≤3 MB) at `public/videos/clip.mp4`. In `src/lib/site.config.ts` set `hero.video: '/videos/clip.mp4'`; in `src/features/films/content/en.ts` add `preview: '/videos/clip.mp4'` and `video: '/videos/clip.mp4'` to one project. `npm run dev`.

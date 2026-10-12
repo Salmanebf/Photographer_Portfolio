@@ -7,6 +7,7 @@ import {
   type ContactErrorCode,
 } from '@/features/contact/error-codes'
 import { checkRateLimit, getClientIp } from '@/features/contact/rate-limit'
+import { checkSpam } from '@/features/contact/spam'
 import { isAdminAuthorized } from '@/features/contact/admin-auth'
 import { submitContact } from '@/features/contact/service'
 import { contactHandlers } from '@/features/contact/handlers'
@@ -16,7 +17,7 @@ const fail = (code: ContactErrorCode, status: number, headers?: Record<string, s
   NextResponse.json({ error: contactErrorMessages[code], code }, { status, headers })
 
 export async function POST(request: NextRequest) {
-  const rate = checkRateLimit(getClientIp(request.headers))
+  const rate = await checkRateLimit(getClientIp(request.headers))
   if (!rate.allowed) {
     return fail('rate_limited', 429, {
       'Retry-After': String(Math.ceil((rate.resetAt - Date.now()) / 1000)),
@@ -36,9 +37,10 @@ export async function POST(request: NextRequest) {
     return fail(isContactErrorCode(code) ? code : 'invalid_input', 400)
   }
 
-  // Honeypot triggered — silently succeed
-  if (parsed.data.website) {
-    return NextResponse.json({ success: true }, { status: 201 })
+  const spam = checkSpam(parsed.data)
+  if (!spam.ok) {
+    // A honeypot hit looks like a success (nothing saved); the others tell a real person what to fix
+    return spam.silent ? NextResponse.json({ success: true }, { status: 201 }) : fail(spam.code, 400)
   }
 
   try {

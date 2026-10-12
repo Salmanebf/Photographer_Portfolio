@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...entry('/', 'weekly', 1),
+    ...entry('/timeline', 'monthly', 0.6),
     ...slugs.flatMap((slug) => entry(`/work/${slug}`, 'monthly', 0.8)),
   ]
 }

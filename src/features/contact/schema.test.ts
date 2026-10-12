@@ -30,6 +30,23 @@ describe('contactSchema', () => {
     expect(contactSchema.safeParse({ ...valid, website: 'spam' }).success).toBe(true)
   })
 
+  it('accepts the booking-ready extras, and refuses oversized or unknown kinds', () => {
+    const ok = contactSchema.safeParse({
+      ...valid,
+      kind: 'inquiry',
+      details: { date: '2027-03-01' },
+      elapsedMs: 4000,
+    })
+    expect(ok.success).toBe(true)
+    expect(contactSchema.safeParse({ ...valid, kind: 'hack' }).success).toBe(false)
+    expect(contactSchema.safeParse({ ...valid, details: { a: 'x'.repeat(1001) } }).success).toBe(
+      false
+    )
+    const many = Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`k${i}`, 'v']))
+    expect(contactSchema.safeParse({ ...valid, details: many }).success).toBe(false)
+    expect(contactSchema.safeParse({ ...valid, elapsedMs: -1 }).success).toBe(false)
+  })
+
   it('reports validation problems as stable codes', () => {
     const code = (patch: object) => {
       const r = contactSchema.safeParse({ ...valid, ...patch })
@@ -44,7 +61,16 @@ describe('contactSchema', () => {
   })
 
   it('every code the schema can produce is a known error code', () => {
-    for (const code of ['name_required', 'name_too_long', 'email_invalid', 'email_too_long', 'subject_required', 'subject_too_long', 'message_too_short', 'message_too_long']) {
+    for (const code of [
+      'name_required',
+      'name_too_long',
+      'email_invalid',
+      'email_too_long',
+      'subject_required',
+      'subject_too_long',
+      'message_too_short',
+      'message_too_long',
+    ]) {
       expect(isContactErrorCode(code)).toBe(true)
     }
     expect(isContactErrorCode('Invalid input: expected string')).toBe(false)

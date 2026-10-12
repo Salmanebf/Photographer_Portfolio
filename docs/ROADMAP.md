@@ -1,7 +1,7 @@
 # Roadmap & decisions
 
 Keep this file current: update the status column and decision log whenever work lands.
-Last updated: 2026-10-12 (account setup guide).
+Last updated: 2026-10-12 (Phase 5 foundation + Phase 6 done).
 
 ## Goal
 
@@ -18,8 +18,8 @@ content is replaced later. Heavy use of short video must not hurt loading.
 | —  | Hosting stack & database | ✅ Done (pulled forward from 6) | PostgreSQL (Neon) via `DATABASE_URL` replaces Prisma/SQLite; host-neutral build; `DEPLOYMENT.md`; portability test |
 | 3  | i18n                     | ✅ Done *(French is a draft needing native review; Arabic prepared, not enabled)* | `/en` `/fr` URLs, `/` redirect, UI messages, French content, per-language CMS fields, language switcher, hreflang + sitemap, RTL-ready layout, contact errors/locale in your language |
 | 4  | Content model & CMS      | ✅ Done *(real Sanity not yet verified — see TESTING)* | Data layer split per feature (`cmsFetch`), photo-series model (no page yet), awards band / "how I work" steps / SEO keywords & sharing image editable, branded + organised Studio, secret-link draft preview, fake-Sanity test tool |
-| 5  | Sections & design        | ⏭ Next        | New hero (orbit design, video cards), creative About, Projects, Services (what I offer), Timeline, Testimonials restyle, fix LCP (see below) |
-| 6  | Contact rework           | Planned (partly done) | DB-backed rate limit / spam protection; email sender domain; ready for a booking form |
+| 5  | Sections & design        | 🟡 Foundation done — **section-by-section refinement next** | Done: orbit hero with project cards (video-ready), headline paints immediately, Timeline section + `/timeline` page, Projects / Services (offer only) / Reviews renames, nav & footer. **Still to do, from the client's instructions:** creative About, Projects look, Services look, Testimonials restyle, Timeline detail-page design, photo gallery page |
+| 6  | Contact rework           | ✅ Done *(real Neon / Resend domain unverified — see TESTING U9)* | DB-backed rate limit (hashed visitors, memory fallback), honeypot + too-fast + link limit, `CONTACT_FROM_EMAIL`, booking-ready `kind`/`details` |
 | 7  | Launch                   | Planned       | Domain & DNS, redirects, analytics, backups, editor walkthrough |
 | ∞  | Later                    | Ideas         | Photo gallery page, booking form, Arabic, prints/client galleries (separate scope) |
 
@@ -29,11 +29,11 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 
 | Section        | Plan |
 | -------------- | ---- |
-| **Home**       | New hero from the supplied "orbit" design: huge stacked headline, 3D ring of project cards that **play short videos**. Keep the site's existing root style/colours. Must paint the headline immediately (LCP). |
+| **Home**       | New hero from the supplied "orbit" design: huge stacked headline, 3D ring of project cards that **play short videos**. Keep the site's existing root style/colours. Must paint the headline immediately (LCP). **Foundation built** (cards = the projects; the hero picture/video sits dimmed behind). |
 | **About**      | Same format, modified later. The filmmaker has **no awards yet**, so it must convince a client he can deliver something great: showreel, philosophy, the finished films as proof, process, clear "tell me your story" CTA. |
 | **Projects**   | Today's *Films*, renamed, with creative adjustments. 4 finished films exist. |
 | **Services**   | Only a "what I offer" section. |
-| **Timeline**   | **New.** How the work is done — setups and phases until a project is ready — with a short summary and a link to a detail page (designed later). |
+| **Timeline**   | **New.** How the work is done — setups and phases until a project is ready — with a short summary and a link to a detail page (designed later). **Foundation built**: section + `/timeline` page, editable steps. |
 | **Testimonials** | Restyle cards and motion; rename to something every visitor understands (e.g. "What clients say"). |
 | **Contact**    | Unchanged for now; logic stays swappable (booking form later). |
 | **Nav / Footer** | Updated for the new sections and languages. |
@@ -65,14 +65,18 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-11 | A **fake Sanity API** (`npm run cms:mock`, `groq-js`) for tests and local trials | The CMS code path had never run; this verifies queries, normalisers, pages and draft mode without an account — it does not replace a real Sanity check |
 | 2026-10-11 | Photo series: data layer + Studio type only, no public page yet | The roadmap places the gallery page in a later phase; editors can start entering photos now |
 
+| 2026-10-12 | Orbit hero: cards are the projects (cover image, or the *Preview loop* clip); the hero picture/video is a dim backdrop; **no entrance animation on the headline**; cards mount ~150 ms after load | Client's design with real content; LCP text must never wait on animation or pictures |
+| 2026-10-12 | Hero stats removed; new per-language `heroHeadline` field | The stats were fake numbers (34 awards…) that contradict the brief; the headline is the design's centrepiece |
+| 2026-10-12 | "How I work" steps now feed the **Timeline** (section + `/timeline`), Services shows only the offer | Client's section list; the step model is reused |
+| 2026-10-12 | Contact rate limit in the database; spam checks without CAPTCHA (honeypot, sent-too-fast, >3 links); `kind` + `details jsonb` on messages | Holds across serverless instances; CAPTCHAs hurt real clients; a booking form must not need a migration |
 | 2026-10-12 | Treat `sslmode=require` as `verify-full` explicitly; log which database is in use (host only) | A pasted Neon URL must work unchanged without a scary driver warning and without the security level depending on a driver version; a silently ignored `DATABASE_URL` in dev was undetectable |
 
 ## Open items / risks
 
 - Bunny URL shapes were written from Bunny's docs; verify on first upload (`PERFORMANCE.md`).
-- **LCP is 3.5 s** (target 2.5 s): hero tagline hidden ~2.6 s by its entrance animation. Fix in Phase 5.
+- **LCP target 2.5 s is not met in Lighthouse's simulated mobile test** (3.8 s; the same lab gives 3.5 s on a plain page, and a real browser paints the hero in ~0.2 s). The hero's entrance-animation problem is fixed; the remaining floor is site-wide (fonts/CSS/JS in the simulation) → investigate in Phase 7.
 - Not yet deployed anywhere; Docker image, Netlify, real Neon, real Sanity and real Bunny are unverified — see the "Not yet tested" table in [`TESTING.md`](./TESTING.md).
-- Rate limiting is per-instance on serverless hosts until Phase 6.
+- The contact rate limit now uses the database; its behaviour with many real serverless instances and a sleeping Neon database is unverified.
 - **Real Sanity is still unverified**: the Studio UI (sidebar, theme, logo, per-language boxes, validation, the "Photo Series" type),
   real GROQ results, the CDN, tokens and the draft preview with a real token. Everything else on the CMS path was run against the fake API.
 - **Studio brand colour** comes from `site.config.ts`, not from the Site Settings field (the Studio cannot read content before it starts).

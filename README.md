@@ -44,14 +44,14 @@ Browser ─► Vercel (Next.js)
 
 ## Site structure
 
-**Live today** (home page, in order): Hero · About · Awards ticker · Films · Services · Testimonials · Contact · Footer,
-plus a detail page per film at `/<language>/work/<slug>`. Every page exists in **English (`/en`) and French (`/fr`)**,
+**Live today** (home page, in order): Hero (orbit of project cards) · About · Awards ticker (hidden while empty) · Projects ·
+Services (what I offer) · Timeline · Reviews ("What Clients Say") · Contact · Footer, plus a detail page per project at
+`/<language>/work/<slug>` and the full process at `/<language>/timeline`. Every page exists in **English (`/en`) and French (`/fr`)**,
 with a language switcher in the header; the right-to-left layout for Arabic is prepared but Arabic is not enabled yet.
 
-**Planned redesign** (details and phase in the roadmap): new orbit-style Hero with playing video cards ·
-creative About that sells a filmmaker with no awards yet · "Films" renamed **Projects** · Services reduced to
-*what I offer* · new **Timeline** section (how a project is made, linking to a detail page) ·
-Testimonials restyled and renamed · Contact unchanged · later: a photo gallery page.
+**Next** (details in the roadmap): the foundations above get refined section by section — creative About that sells a filmmaker
+with no awards yet, the look of Projects / Services / Reviews, the Timeline detail page — then launch (domain, analytics, backups).
+Later: a photo gallery page.
 
 ---
 
@@ -94,6 +94,7 @@ Copy `.env.example`. All are optional locally; set them in the host's dashboard 
 | `NEXT_PUBLIC_BUNNY_CDN_HOST`                   | Bunny library hostname; unset = `bunny:` videos show only the poster |
 | `DATABASE_URL`                                 | PostgreSQL connection string (any provider; Neon: use the *pooled* one). Required in production; unset in dev = in-process Postgres |
 | `RESEND_API_KEY`, `CONTACT_NOTIFICATION_EMAIL` | Email on each new contact message                                    |
+| `CONTACT_FROM_EMAIL`                           | Sender of that email, e.g. `Alex Rivera <hello@alexrivera.film>` (a domain verified with Resend). Unset = Resend's shared test sender, which only delivers to your own Resend account |
 | `CONTACT_ADMIN_TOKEN`                          | Enables `GET /api/contact` (Bearer token); unset = 404               |
 | `SANITY_API_READ_TOKEN`                        | Sanity token with **Viewer** rights; used **only** in preview mode to read unpublished changes (server-side, never sent to visitors) |
 | `SANITY_PREVIEW_SECRET`                        | A long random string that protects the preview link; unset = preview is disabled (404) |
@@ -111,23 +112,26 @@ without touching the rest.
 src/
   app/                    routes only — thin adapters that compose features
     page.tsx              "/" → redirects to the visitor's language
-    [locale]/             layout.tsx (html lang/dir) page.tsx work/[slug]/ not-found.tsx — one copy per language
+    [locale]/             layout.tsx (html lang/dir) page.tsx work/[slug]/ timeline/ not-found.tsx — one copy per language
     studio/[[...tool]]/ api/contact/ sitemap.ts robots.ts
   features/                each feature owns its UI, types, placeholder content, CMS query and normaliser
-    hero/ about/ awards/   home-page sections (their text comes from site settings)
+    hero/                  orbit hero: `orbit-hero.tsx` (markup), `orbit-engine.ts` (the card-ring motion), `orbit-hero.css`
+    about/ awards/         home-page sections (their text comes from site settings)
+    timeline/              "Timeline" section (home summary) and its full page `/timeline`; reads the editable steps
     films/                 types.ts · content/{en,fr,index}.ts (placeholders) · normalize.ts · data.ts (CMS query + fallback)
                            · portfolio grid, film detail page      (services/, testimonials/ and photography/ follow the same shape)
     services/ testimonials/   sections + their data
     photography/           photo series: data layer only (no page yet — the gallery comes later)
     contact/
       schema.ts           zod validation
-      rate-limit.ts       in-memory per-IP limiter
+      rate-limit.ts       per-IP limiter, counters kept in the database (in-memory fallback if it is down)
+      spam.ts             honeypot, "sent too fast" and too-many-links checks (no CAPTCHA)
       service.ts          runs the handlers in order (critical vs best-effort)
       handlers/           database.ts, email.ts … ← add/remove what happens on submit
       store.ts            ALL SQL for contact messages (table auto-created on first use)
       ui/contact.tsx      the form section (swap for a booking form)
   shared/
-    content/              site settings (types, CMS normaliser, getter) — brand, hero, about, awards band, "how I work", SEO…
+    content/              site settings (types, CMS normaliser, getter) — brand, hero, about, awards band, timeline steps, SEO…
     media/                VideoLoop, StreamPlayer, playback limiter, viewer prefs  → docs/PERFORMANCE.md
     layout/               navigation, footer, language switcher, draft-preview banner
     effects/              custom cursor, magnetic, scroll progress
@@ -224,10 +228,12 @@ shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], ta
 The Sanity `project` type mirrors it, plus `order`; its text fields are per-language. `PhotoSeries`
 (`src/features/photography/types.ts`): `id, slug, title, description?, location, year, cover, photos[{src, width?, height?,
 alt, caption?}], relatedProject? (a film slug), featured?`. `SiteSettings` (`src/shared/content/types.ts`) also carries
-the awards band (`recognitions[]`), the "how I work" steps (`process[]`) and SEO (`seo.title/description/keywords/ogImage`).
+the hero headline (`hero.headline`, one word per line), the awards band (`recognitions[]`), the timeline steps (`process[]`) and SEO (`seo.title/description/keywords/ogImage`).
 Contact messages: table
-`contact_messages` (`id uuid, name, email, subject, message, is_read boolean, created_at timestamptz, locale text`),
-created (and upgraded) automatically on first use.
+`contact_messages` (`id uuid, name, email, subject, message, is_read boolean, created_at timestamptz, locale text, kind text, details jsonb`)
+and `contact_rate_limits` (the form's rate-limit counters; visitor addresses are stored only as a one-way hash),
+both created (and upgraded) automatically on first use. `kind` is `inquiry` today; `details` holds extra answers for
+a future booking form, so adding one needs no database change.
 To read messages: SQL editor of your database provider (`select * from contact_messages order by created_at desc`)
 or `GET /api/contact` with `CONTACT_ADMIN_TOKEN`.
 

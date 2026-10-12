@@ -50,10 +50,7 @@ describe('published content from the CMS', () => {
     expect(en.brand.discipline).toBe('Documentary (CMS)')
     expect(en.hero.tagline).toBe('A tagline written in the CMS.')
     expect(en.hero.image).toBe('/images/hero-doc.png') // reference followed: heroImage.asset->url
-    expect(en.hero.stats).toEqual([
-      { value: 7, suffix: '+', label: 'Mock films' },
-      { value: 3, suffix: '', label: 'Mock years' },
-    ])
+    expect(en.hero.headline).toBe('Stories from the CMS')
     expect(en.recognitions).toEqual(['Mock Festival — Jury Prize', 'Mock Press — Featured', 'Mock Award — Nominee'])
     expect(en.process.map((s) => s.title)).toEqual(['Listen', 'Film', 'Finish'])
     expect(en.seo.title).toBe('CMS Title — Documentary Filmmaker')

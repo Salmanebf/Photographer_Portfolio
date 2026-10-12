@@ -80,4 +80,15 @@ describe.skipIf(!url)('contact store (real Postgres via DATABASE_URL)', () => {
     expect(list.filter((m) => m.locale === 'fr')).toHaveLength(10)
     expect(list.find((m) => m.subject === 'old')?.locale).toBeNull()
   })
+
+  it('counts rate-limit hits exactly once across many parallel "instances" on a fresh database', async () => {
+    const client = await getDb()
+    await client.query('DROP TABLE IF EXISTS contact_rate_limits')
+    const hits = await Promise.all(
+      Array.from({ length: 15 }, () => createContactStore().hitRateLimit('visitor', 60_000))
+    )
+    expect(hits.map((h) => h.count).sort((a, b) => a - b)).toEqual(
+      Array.from({ length: 15 }, (_, i) => i + 1)
+    )
+  })
 })

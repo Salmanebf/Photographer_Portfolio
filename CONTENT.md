@@ -20,13 +20,13 @@ change both when you change a sentence):
 - **Logo monogram**: change `brand.logoMark` (e.g. `'AR'`).
 - **Logo image**: drop a PNG/SVG into `public/images/` and set
   `brand.logoImage` to its path (e.g. `'/images/logo.png'`).
-- **Name & tagline**: edit `brand.name`, `hero.tagline`, `hero.nameLine1/2`.
-- **Hero image / video**: replace `/public/images/hero-doc.png` or set
-  `hero.video` to an mp4/webm URL.
+- **Name, headline & tagline**: edit `brand.name`, `hero.headline` (the big words in the middle of the home page, **one word per line** — 4–6 short words work best), `hero.tagline`, `hero.nameLine1/2`.
+- **Hero image / video**: a dim picture (or silent video) behind the headline: replace `/public/images/hero-doc.png` or set
+  `hero.video`. The cards circling the headline are your **projects** (their cover image; if a project has a *Preview loop*, the card plays it).
 - **About section**, **stats**, **tools**, **contact info**, **socials**,
   **studio hours** — all in this file.
 - **Awards band** (`recognitions`) — the scrolling list of awards/press. Empty
-  list = the band is hidden. **"How I work" steps** (`process`) — title and text
+  list = the band is hidden. **Timeline steps** (`process`) — title and text
   of each step; add or remove steps freely.
 
 Films, services, testimonials and photo series each live in their own folder:
@@ -90,8 +90,8 @@ site falls back to `site.config.ts` / `data.ts`.
 ### What can be edited in the studio
 
 - **Site Settings** (tabs): *Hero*, *About*, **Awards & Press** (one line per award
-  or mention; leave empty to hide the scrolling band), **How I Work** (the project
-  steps: title + what happens), *Contact*, *Footer*, and **Search & Sharing**
+  or mention; leave empty to hide the scrolling band), **Hero Headline** (the big words), **Timeline** (the project
+  steps: title + what happens — shown in the *Timeline* section and on the page `/timeline`), *Contact*, *Footer*, and **Search & Sharing**
   (search-engine title, description, keywords, and the picture shown when the site
   is shared — it defaults to the hero image). Also: brand color, logo (image or
   monogram).
@@ -168,7 +168,7 @@ Without a token the endpoint is disabled (404).
 
 > Resend's default sender (`onboarding@resend.dev`) only delivers to the email
 > address of your Resend account. To email anyone else, verify your own domain
-> in Resend and change the `from` address in `src/features/contact/handlers/email.ts`.
+> in Resend and set `CONTACT_FROM_EMAIL="Alex Rivera <hello@yourdomain>"` — no code change.
 
 > **Where messages are stored:** in a PostgreSQL database (`DATABASE_URL`, e.g. a
 > free Neon database). To read them, open your database provider's SQL editor and

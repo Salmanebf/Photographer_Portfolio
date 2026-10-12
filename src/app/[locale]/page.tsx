@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import Navigation from '@/shared/layout/navigation'
-import Hero from '@/features/hero/hero'
+import OrbitHero from '@/features/hero/orbit-hero'
 import About from '@/features/about/about'
 import Portfolio from '@/features/films/portfolio'
 import Services from '@/features/services/services'
+import Timeline from '@/features/timeline/timeline'
 import Testimonials from '@/features/testimonials/testimonials'
 import Contact from '@/features/contact/ui/contact'
 import Footer from '@/shared/layout/footer'
@@ -51,11 +52,15 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <CustomCursor />
       <Navigation settings={settings} />
       <main id="main" className="flex-1">
-        <Hero settings={settings} />
+        <OrbitHero
+          hero={settings.hero}
+          items={projects.map((p) => ({ id: p.id, title: p.title, image: p.image, preview: p.preview }))}
+        />
         <About settings={settings} />
         <AwardsMarquee items={settings.recognitions} />
         <Portfolio projects={projects} />
-        <Services services={services} process={settings.process} />
+        <Services services={services} />
+        <Timeline steps={settings.process} />
         <Testimonials testimonials={testimonials} />
         <Contact settings={settings} />
       </main>

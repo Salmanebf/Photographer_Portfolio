@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Send, MapPin, Mail, Clock } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/shared/ui/button'
@@ -39,6 +39,11 @@ export default function Contact({ settings }: ContactProps) {
     website: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  /** When the form appeared (a form sent within a blink is not a person); reset after each send */
+  const openedAt = useRef(0)
+  useEffect(() => {
+    openedAt.current = Date.now()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,11 +59,12 @@ export default function Contact({ settings }: ContactProps) {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, locale }),
+        body: JSON.stringify({ ...formData, locale, elapsedMs: Date.now() - openedAt.current }),
       })
       if (res.ok) {
         toast({ title: t('successTitle'), description: t('successBody') })
         setFormData({ name: '', email: '', subject: '', message: '', website: '' })
+        openedAt.current = Date.now()
       } else {
         const body = await res.json().catch(() => ({}))
         throw new ContactError(body.code)

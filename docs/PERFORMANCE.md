@@ -8,15 +8,18 @@ that plays or streams goes through `src/shared/media/` — never use a bare
 
 | Metric                       | Target     | Baseline (2026-10-10) |
 | ---------------------------- | ---------- | --------------------- |
-| Performance score            | ≥ 90       | 90                    |
-| Largest Contentful Paint     | ≤ 2.5 s    | **3.5 s** ✗           |
+| Performance score            | ≥ 90       | 87–88 (was 90)        |
+| Largest Contentful Paint     | ≤ 2.5 s    | **3.8 s** ✗ (lab; real browser 0.2 s) |
 | Total Blocking Time          | ≤ 200 ms   | 90 ms                 |
 | Cumulative Layout Shift      | ≤ 0.1      | 0                     |
 | Page weight before any video | ≤ 1.5 MB   | 371 KiB               |
 
-**Known issue:** the LCP element is the hero tagline, delayed ~2.6 s by its
-entrance animation (87 % "element render delay", not network). The Phase 5
-hero must paint its headline immediately; animate decoration, not the LCP text.
+**Hero (Phase 5 foundation):** the headline and button are plain server-rendered text with **no entrance animation**; the card ring
+(and its pictures/clips) is added ~150 ms after the page is interactive, so the first paint never waits on it. Measured in a real
+browser (mobile size, no throttling): first paint and LCP ≈ **0.2 s** on the home page. Lighthouse's *simulated* slow-4G LCP is
+**≈ 3.8–3.9 s** (score 0.87–0.88) — and the same lab gives 3.5 s on the plain `/timeline` page and 3.8 s on a film page, so it
+is a site-wide floor of that simulation (fonts + CSS + JS), not hero-specific. Investigating it is on the launch checklist (Phase 7).
+Video on the hero cards: at most 3 clips play at once (the shared playback cap); the rest show their poster.
 
 Measure (needs Chrome/Chromium):
 

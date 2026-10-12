@@ -1,9 +1,19 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import en from '@/messages/en.json'
 import Services from './services'
+import Timeline from '@/features/timeline/timeline'
 import AwardsMarquee from '@/features/awards/awards-marquee'
+
+// The language-aware Link needs the Next router, which does not exist in this plain render test
+vi.mock('@/i18n/routing', () => ({
+  Link: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}))
 
 const render = (node: React.ReactNode) =>
   renderToStaticMarkup(
@@ -15,23 +25,28 @@ const render = (node: React.ReactNode) =>
 const services = [{ title: 'Svc A', description: 'Does A' }]
 const steps = (n: number) => Array.from({ length: n }, (_, i) => ({ title: `Step ${i + 1}`, description: `Does ${i + 1}` }))
 
-describe('"How I work" section', () => {
-  it('shows every step the editor wrote', () => {
-    const html = render(<Services services={services} process={steps(3)} />)
-    for (const t of ['Step 1', 'Step 2', 'Step 3']) expect(html).toContain(t)
-    expect(html).toContain('How I Work')
-  })
-  it('hides the whole section (heading included) when there are no steps', () => {
-    const html = render(<Services services={services} process={[]} />)
+describe('Services section', () => {
+  it('lists what is offered and no longer carries the process steps', () => {
+    const html = render(<Services services={services} />)
     expect(html).toContain('Svc A')
     expect(html).not.toContain('How I Work')
   })
-  it('adapts the grid to the number of steps', () => {
-    const cols = (n: number) => render(<Services services={services} process={steps(n)} />).match(/lg:grid-cols-(\d)/)?.[0]
-    expect(cols(2)).toBe('lg:grid-cols-2')
-    expect(cols(3)).toBe('lg:grid-cols-3')
-    expect(cols(4)).toBe('lg:grid-cols-4')
-    expect(cols(6)).toBe('lg:grid-cols-3')
+})
+
+describe('Timeline section', () => {
+  it('shows every step the editor wrote, in order, with a link to the full page', () => {
+    const html = render(<Timeline steps={steps(5)} />)
+    for (let i = 1; i <= 5; i++) expect(html).toContain(`Step ${i}`)
+    expect(html.indexOf('Step 1')).toBeLessThan(html.indexOf('Step 5'))
+    expect(html).toContain('/timeline')
+  })
+  it('renders nothing (heading included) when there are no steps', () => {
+    expect(render(<Timeline steps={[]} />)).toBe('')
+  })
+  it('the full page variant has no section heading and links to contact', () => {
+    const html = render(<Timeline steps={steps(2)} variant="full" />)
+    expect(html).not.toContain('From First Idea')
+    expect(html).toContain('#contact')
   })
 })
 

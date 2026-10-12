@@ -18,10 +18,11 @@ export type SiteSettings = {
     eyebrow: string
     nameLine1: string
     nameLine2: string
+    /** The big stacked headline (one word per line). */
+    headline: string
     tagline: string
     image: string
     video: string
-    stats: { value: number; suffix: string; label: string }[]
   }
   about: {
     quote: { first: string; accent: string }
@@ -33,7 +34,7 @@ export type SiteSettings = {
   }
   /** Scrolling band of awards / press mentions. Empty = the band is hidden. */
   recognitions: string[]
-  /** "How I work" steps */
+  /** Timeline steps (how a project comes together) */
   process: { title: string; description: string }[]
   contact: {
     email: string

@@ -23,11 +23,7 @@ export const site: DeepPartial<SiteSettings> = {
     eyebrow: 'Cinéaste documentariste',
     tagline:
       "Raconter des histoires qui éclairent la condition humaine. Documenter les cultures, révéler les vérités, dévoiler l'extraordinaire.",
-    stats: [
-      { value: 18, suffix: '+', label: 'Films' },
-      { value: 12, suffix: '', label: 'Années' },
-      { value: 34, suffix: '+', label: 'Récompenses' },
-    ],
+    headline: 'Des films qui parlent plus fort que les mots',
   },
   about: {
     quote: {

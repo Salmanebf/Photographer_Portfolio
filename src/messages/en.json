@@ -5,9 +5,10 @@
   "nav": {
     "home": "Home",
     "about": "About",
-    "films": "Films",
+    "projects": "Projects",
     "services": "Services",
-    "testimonials": "Testimonials",
+    "timeline": "Timeline",
+    "testimonials": "Reviews",
     "contact": "Contact",
     "collaborate": "Collaborate",
     "startProject": "Start a Project",
@@ -22,8 +23,9 @@
     "switchTo": "Switch language to {language}"
   },
   "hero": {
-    "scroll": "Scroll",
-    "viewFilms": "View My Films"
+    "aria": "Introduction",
+    "cta": "Add your idea",
+    "viewProjects": "See my projects"
   },
   "about": {
     "label": "About",
@@ -41,15 +43,15 @@
     ]
   },
   "films": {
-    "label": "Selected Works",
-    "title": "Documentary Films",
+    "label": "Selected Work",
+    "title": "Projects",
     "description": "Each film is a journey into real stories that shape our understanding of the world.",
     "all": "All",
     "filterAria": "Filter projects by category",
     "preview": "Preview",
     "hoverHint": "Hover any film to preview",
     "previewing": "Previewing",
-    "allFilms": "All Films",
+    "allFilms": "All Projects",
     "synopsis": "Synopsis",
     "gallery": "Gallery",
     "awards": "Awards",
@@ -72,14 +74,23 @@
   "services": {
     "label": "Services",
     "title": "What I Offer",
-    "description": "End-to-end documentary filmmaking, from initial concept to global distribution and impact.",
-    "processLabel": "Process",
-    "processTitle": "How I Work",
-    "processDescription": "Every documentary begins with a question and unfolds through a deeply intentional creative process."
+    "description": "End-to-end documentary filmmaking, from initial concept to global distribution and impact."
+  },
+  "timeline": {
+    "label": "Timeline",
+    "title": "From First Idea to Final Cut",
+    "description": "Every project moves through the same clear steps, so you always know what happens next.",
+    "more": "See the full process",
+    "back": "Back to home",
+    "pageTitle": "How a project comes together",
+    "pageIntro": "The steps below are how a film goes from a first conversation to a finished piece you can share.",
+    "step": "Step {n}",
+    "stepsAria": "Project steps",
+    "cta": "Tell me your story"
   },
   "testimonials": {
-    "label": "Testimonials",
-    "title": "Words From the Field",
+    "label": "Clients",
+    "title": "What Clients Say",
     "itemAria": "Testimonial {n}",
     "previous": "Previous testimonial",
     "next": "Next testimonial"
@@ -119,6 +130,8 @@
       "message_too_short": "Message must be at least 10 characters",
       "message_too_long": "Message is too long",
       "invalid_input": "Invalid input",
+      "too_fast": "That was very quick — please check your message and send it again.",
+      "too_many_links": "Please include no more than 3 links in your message.",
       "rate_limited": "Too many requests — please try again in a minute.",
       "server_error": "Failed to process your message"
     }
