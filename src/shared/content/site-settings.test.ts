@@ -101,6 +101,12 @@ describe('CMS site settings', () => {
     expect(s.seo.ogImage).toBe('/share.png')
   })
 
+  it('keeps the default dark hero background (no picture) until one is set in the Studio', () => {
+    expect(baseSettings().hero.image).toBe('')
+    expect(staticSettings('fr').hero.image).toBe('')
+    expect(applySanitySettings(baseSettings(), { heroImageUrl: '/bg.png' }, 'en').hero.image).toBe('/bg.png')
+  })
+
   it('shares the hero image when no sharing image was chosen', () => {
     const s = applySanitySettings(baseSettings(), { heroImageUrl: '/new-hero.png' }, 'en')
     expect(s.seo.ogImage).toBe('/new-hero.png')

@@ -29,7 +29,7 @@ export async function generateMetadata({
 
   const [settings, draft] = await Promise.all([getSiteSettings(locale), isDraftMode()])
   const siteUrl = siteBase(process.env.NEXT_PUBLIC_SITE_URL || siteConfig.seo.siteUrl)
-  const image = settings.seo.ogImage || settings.hero.image
+  const image = settings.seo.ogImage
 
   return {
     // unpublished previews must never be indexed

@@ -20,9 +20,9 @@ change both when you change a sentence):
 - **Logo monogram**: change `brand.logoMark` (e.g. `'AR'`).
 - **Logo image**: drop a PNG/SVG into `public/images/` and set
   `brand.logoImage` to its path (e.g. `'/images/logo.png'`).
-- **Name, headline & tagline**: edit `brand.name`, `hero.headline` (the big words in the middle of the home page, **one word per line** — 4–6 short words work best), `hero.tagline`, `hero.nameLine1/2`.
-- **Hero image / video**: a dim picture (or silent video) behind the headline: replace `/public/images/hero-doc.png` or set
-  `hero.video`. The cards circling the headline are your **projects** (their cover image; if a project has a *Preview loop*, the card plays it).
+- **Home page first screen**: `brand.name` (in the menu), `hero.headline` (the big words in the middle, **one word per line** — 4–6 short words work best) and `hero.tagline` (the small text under them).
+- **Hero background**: the default is the dark background of the design. To use a picture instead, set `hero.image` (e.g. `'/images/my-photo.png'`); it is shown dimmed. There is no video background.
+  The six cards circling the headline are your **first six projects**: each shows its cover image, and if the project has a *Preview loop* the card plays that short silent video (on both faces).
 - **About section**, **stats**, **tools**, **contact info**, **socials**,
   **studio hours** — all in this file.
 - **Awards band** (`recognitions`) — the scrolling list of awards/press. Empty
@@ -96,8 +96,9 @@ site falls back to `site.config.ts` / `data.ts`.
   or mention; leave empty to hide the scrolling band), **Hero Headline** (the big words), **Timeline** (the project
   steps: title + what happens — shown in the *Timeline* section and on the page `/timeline`), *Contact*, *Footer*, and **Search & Sharing**
   (search-engine title, description, keywords, and the picture shown when the site
-  is shared — it defaults to the hero image). Also: brand color, logo (image or
+  is shared — it defaults to the hero background picture, if you set one). Also: brand color, logo (image or
   monogram).
+  The **Hero** tab holds exactly three things: **Hero Headline**, **Hero Tagline**, and the optional **Hero Background Image** (leave it empty for the default dark background).
 - **Translations** — every text field shows one box per language
   (*English (default)* and *Français*). Fill in English first; French can be added
   any time. An empty French box shows the English text on the French site.
@@ -139,7 +140,7 @@ library, then copy the video's **ID** into the Studio:
   A YouTube / Vimeo / MP4 link also works.
 - **Preview loop** (the card / hover preview): `bunny:` + the ID of a short
   5–10 second **silent** clip, kept small (about 3 MB or less).
-- **Hero background video** (Site Settings): same format.
+- The six cards on the home page play each project's **Preview loop** (muted, on both sides of the card); if a clip cannot load, the project's cover image stays visible.
 
 Always keep a cover image — it is what shows first, and what visitors with
 "reduce motion" or Data Saver see instead of the clip. One-time Bunny setup

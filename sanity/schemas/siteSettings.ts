@@ -77,57 +77,29 @@ export const siteSettings = defineType({
 
     // HERO
     defineField({
-      name: 'heroEyebrow',
-      title: 'Hero Eyebrow',
-      type: 'localeString',
-      group: 'hero',
-    }),
-    defineField({
-      name: 'heroNameLine1',
-      title: 'Hero Name — Line 1',
-      type: 'string',
-      group: 'hero',
-    }),
-    defineField({
-      name: 'heroNameLine2',
-      title: 'Hero Name — Line 2',
-      type: 'string',
-      group: 'hero',
-    }),
-    defineField({
       name: 'heroHeadline',
-      title: 'Hero Headline',
-      description: 'The big words in the middle of the home page. Each word goes on its own line, so 4–6 short words work best.',
+      title: 'Hero Headline (the big words)',
+      description:
+        'The big words in the middle of the home page. Each word goes on its own line, so 4–6 short words work best.',
       type: 'localeString',
       group: 'hero',
     }),
     defineField({
       name: 'heroTagline',
-      title: 'Hero Tagline',
+      title: 'Hero Tagline (the small text under the big words)',
       type: 'localeText',
       group: 'hero',
     }),
     defineField({
       name: 'heroImage',
-      title: 'Hero Background Image',
+      title: 'Hero Background Image (optional)',
+      description:
+        'Leave empty to keep the default dark background. If you add a picture, it is shown dimmed behind the big words.',
       type: 'image',
       options: { hotspot: true },
       group: 'hero',
     }),
-    defineField({
-      name: 'heroVideo',
-      title: 'Hero Background Video (optional)',
-      description:
-        'Type bunny: followed by the video ID, with no spaces and no < > (example: bunny:a746fa4f-d359-4e70-92b3-0c431ce7af60). Or a full https:// MP4/WebM URL. When set, plays muted as the hero background.',
-      type: 'string',
-      group: 'hero',
-      validation: (Rule) =>
-        Rule.custom((v) =>
-          !v || /^(bunny:[A-Za-z0-9-]{8,64}|https?:\/\/\S+)$/.test(v)
-            ? true
-            : 'Use bunny:VIDEO-ID (no < > brackets, no spaces) or a full https:// URL'
-        ),
-    }),
+
     // ABOUT
     defineField({
       name: 'aboutQuote',

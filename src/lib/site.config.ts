@@ -42,15 +42,11 @@ export const siteConfig = {
 
   /* === HERO === */
   hero: {
-    eyebrow: 'Documentary Filmmaker',
-    nameLine1: 'Alex',
-    nameLine2: 'Rivera',
     headline: 'Films that speak louder than words',
     tagline:
       'Telling stories that illuminate the human condition. Documenting cultures, uncovering truths, revealing the extraordinary.',
-    image: '/images/hero-doc.png',
-    /** Optional video URL (mp4/webm). When set, plays muted as hero background. */
-    video: '' as string,
+    /** Optional background picture (set in the Studio). Empty = the default dark background. */
+    image: '' as string,
   },
 
   /* === ABOUT === */

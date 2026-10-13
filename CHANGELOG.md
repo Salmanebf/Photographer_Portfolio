@@ -2,6 +2,13 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-13 — Home hero, round 1
+
+- **Background:** the dark stage from the design is the default; an optional picture from the Studio is shown dimmed. Removed: hero video background, eyebrow and name fields (Hero tab = headline, tagline, image). `hero.image` defaults to empty.
+- **Cards:** 6 (was 8), the ring is centred on the headline; the **front and back faces both play the project's Preview loop** (only the facing face plays; own 6-clip allowance; the cover picture stays underneath and is all that shows if a clip fails — a clip is also given up on after 12 s without a first frame). New pure maths module `orbit-math.ts` with tests; new motion (one tilted ring, depth blur/dim, coin flips with a glint, the pointer speeds the ring, scrolling spreads and fades it).
+- **Button:** bigger, reacts from ~450 px, swells; the nav **Collaborate** button is removed.
+- `VideoLoop` gained `limiter`, `suspended`, `maxQuality` and failure handling. Tests: 189 (+5 with a database). `docs/TESTING.md` entry U12.
+
 ## 2026-10-12 — Owner area: Studio at /admin/studio, /admin entry, return to last page
 
 - Studio moved from `/studio` to **`/admin/studio`** (old address = 404); owner menu (Messages · Edit content · Sign out) now also above the Studio.

@@ -25,13 +25,9 @@ export function applySanitySettings(base: SiteSettings, data: any, locale: Local
   if (data.seoImageUrl) merged.seo.ogImage = data.seoImageUrl
   else if (data.heroImageUrl) merged.seo.ogImage = data.heroImageUrl
 
-  if (text(data.heroEyebrow)) merged.hero.eyebrow = text(data.heroEyebrow)!
-  if (data.heroNameLine1) merged.hero.nameLine1 = data.heroNameLine1
-  if (data.heroNameLine2) merged.hero.nameLine2 = data.heroNameLine2
   if (text(data.heroHeadline)) merged.hero.headline = text(data.heroHeadline)!
   if (text(data.heroTagline)) merged.hero.tagline = text(data.heroTagline)!
   if (data.heroImageUrl) merged.hero.image = data.heroImageUrl
-  if (data.heroVideo) merged.hero.video = data.heroVideo
   const quote = text(data.aboutQuote)
   if (quote) {
     const [first, ...rest] = quote.split(/(?=,)/)

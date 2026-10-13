@@ -32,7 +32,6 @@ export const baseDocuments = () => [
     seoKeywords: [{ en: 'cms keyword', fr: 'mot-clé cms' }, { en: 'second keyword' }],
     seoImage: image('image-share'),
     heroImage: image('image-hero'),
-    heroEyebrow: { en: 'Filmmaker (CMS)', fr: 'Cinéaste (CMS)' },
     heroHeadline: { en: 'Stories from the CMS', fr: 'Histoires du CMS' },
     heroTagline: { en: 'A tagline written in the CMS.', fr: 'Une accroche écrite dans le CMS.' },
     aboutQuote: { en: 'CMS quote first part, and the accent.', fr: 'Citation CMS première partie, et l’accent.' },

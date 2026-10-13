@@ -1,27 +1,41 @@
 /*
  * Orbit hero. The headline is the "sun" (z-index 50); cards behind it use < 50, cards in front > 100.
- * Colours come from the site's own theme tokens so the rest of the site stays consistent.
+ * The stage is the dark charcoal from the supplied design. A picture chosen in the Studio is optional and shown dimmed.
  */
 .orbit-stage {
+  --bg: #19191b;
   --cw: 200px;
   position: relative;
   isolation: isolate;
   overflow: hidden;
   height: 100vh;
-  height: max(560px, 100svh);
-  background: radial-gradient(
-    60% 56% at 50% 48%,
-    oklch(0.16 0.004 55) 0%,
-    var(--background) 68%,
-    oklch(0.05 0.004 55) 100%
-  );
+  height: max(600px, 100svh);
+  background: radial-gradient(60% 56% at 50% 48%, #242427 0%, var(--bg) 68%, #131315 100%);
+}
+/* melt the bottom edge into the page below */
+.orbit-stage::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 110px;
+  z-index: 190;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, var(--background));
 }
 .orbit-backdrop {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.18;
+  opacity: 0.4;
   pointer-events: none;
+}
+.orbit-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 56% at 50% 48%, rgb(25 25 27 / 0.2), rgb(25 25 27 / 0.75));
 }
 .orbit-map {
   position: absolute;
@@ -45,21 +59,8 @@
   z-index: 50;
   display: grid;
   place-items: center;
-  padding: 72px 16px 190px;
+  padding: 84px 16px 236px;
   pointer-events: none;
-}
-.orbit-copy > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.1rem;
-}
-.orbit-kicker {
-  font-size: 0.68rem;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--gold);
-  text-align: center;
 }
 .orbit-title {
   --lines: 6;
@@ -74,12 +75,7 @@
   font-stretch: 108%;
   text-transform: uppercase;
   /* the smallest of: screen width, room for N lines, room for the longest word, a cap */
-  font-size: min(
-    15vw,
-    calc((100svh - 262px) / (var(--lines) * 1.03)),
-    calc(94vw / (var(--longest) * 0.8)),
-    9.5rem
-  );
+  font-size: min(15vw, calc((100svh - 320px) / (var(--lines) * 1.03)), calc(94vw / (var(--longest) * 0.8)), 9.5rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
 }
@@ -95,95 +91,81 @@
 .orbit-actions {
   position: absolute;
   inset-inline: 0;
-  bottom: 22px;
+  bottom: 26px;
   z-index: 300;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 .orbit-tagline {
   max-width: 52ch;
   margin: 0;
   padding-inline: 16px;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   line-height: 1.5;
   color: var(--muted-foreground);
 }
-@media (max-height: 780px) {
-  .orbit-tagline {
-    display: none;
-  }
+@media (max-height: 820px) {
+  .orbit-tagline { display: none; }
 }
-/* Gold pill with a warm light that follows the pointer; leans toward it and squeezes on press */
+/*
+ * The main button: a big puffy gold pill. The warm light on it follows the pointer, it leans toward the pointer
+ * and swells as the pointer approaches (the script sets --lx --ly --sc), and it squeezes when pressed.
+ */
 .orbit-trace {
   --mx: 78%;
   --my: 108%;
   --lx: 0px;
   --ly: 0px;
+  --sc: 1;
   position: relative;
   display: inline-grid;
   place-items: center;
-  height: 54px;
-  padding: 0 32px;
+  height: 76px;
+  padding: 0 60px;
   border-radius: 999px;
   background:
-    radial-gradient(
-      130px 70px at var(--mx) var(--my),
-      #fff4d2 0%,
-      #f6d488 32%,
-      rgb(246 212 136 / 0) 100%
-    ),
+    radial-gradient(180px 100px at var(--mx) var(--my), #fff4d2 0%, #f6d488 32%, rgb(246 212 136 / 0) 100%),
     linear-gradient(180deg, #d9a84a 0%, #b07a22 100%);
   box-shadow:
-    0 14px 26px -10px rgb(0 0 0 / 0.7),
-    0 0 30px -8px rgb(217 168 74 / 0.5),
-    inset 0 -7px 14px rgb(255 236 178 / 0.35),
-    inset 0 3px 8px rgb(70 40 0 / 0.35);
+    0 18px 34px -12px rgb(0 0 0 / 0.75),
+    0 0 44px -8px rgb(217 168 74 / 0.55),
+    inset 0 -9px 18px rgb(255 236 178 / 0.35),
+    inset 0 4px 10px rgb(70 40 0 / 0.35);
   color: #1b1305;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
-  transform: translate(var(--lx), var(--ly)) scale(1);
-  transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+  white-space: nowrap;
+  transform: translate(var(--lx), var(--ly)) scale(var(--sc));
+  transition: transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 .orbit-trace:active {
-  transform: translate(var(--lx), var(--ly)) scale(0.88);
-  transition-duration: 0.2s;
+  transform: translate(var(--lx), var(--ly)) scale(calc(var(--sc) * 0.9));
+  transition-duration: 0.18s;
 }
-.orbit-trace:focus-visible {
-  outline: 2px solid #ffe3a1;
-  outline-offset: 5px;
-}
+.orbit-trace:focus-visible { outline: 2px solid #ffe3a1; outline-offset: 6px; }
 .orbit-link {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
   text-decoration: none;
 }
-.orbit-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.orbit-link:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 4px;
-}
+.orbit-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.orbit-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 @media (max-width: 600px) {
-  .orbit-link {
-    font-size: 0.62rem;
-  }
-  .orbit-actions {
-    bottom: 16px;
-    gap: 12px;
-  }
+  .orbit-trace { height: 64px; padding: 0 44px; font-size: 0.92rem; }
+  .orbit-link { font-size: 0.64rem; }
+  .orbit-actions { bottom: 18px; gap: 12px; }
+  .orbit-copy { padding-bottom: 208px; }
 }
 
 /* Two-sided cards: .orbit-card travels, .orbit-flip turns on its own axis, both faces show the same project */
@@ -198,32 +180,20 @@
   pointer-events: none;
   opacity: 0; /* the engine fades the cards in; with no script they simply stay hidden */
 }
-.orbit-flip {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
+.orbit-flip { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .orbit-face {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 3px;
+  border-radius: 4px;
   background: #222;
-  box-shadow: 0 22px 44px -18px rgb(0 0 0 / 0.75);
+  box-shadow: 0 26px 50px -18px rgb(0 0 0 / 0.8);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.orbit-face.back {
-  transform: rotateY(180deg);
-}
-.orbit-face img,
-.orbit-face video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.orbit-face.back { transform: rotateY(180deg); }
+.orbit-face img, .orbit-face video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.orbit-face video { position: absolute; inset: 0; }
 .orbit-face::before {
   content: '';
   position: absolute;
@@ -232,6 +202,15 @@
   height: 38%;
   background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.55));
   z-index: 1;
+}
+/* a glint that slides across the card as it turns */
+.orbit-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / 0.5) 50%, transparent 62%);
 }
 .orbit-cap {
   position: absolute;

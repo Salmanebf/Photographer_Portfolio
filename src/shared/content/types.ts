@@ -15,14 +15,11 @@ export type SiteSettings = {
     ogImage: string
   }
   hero: {
-    eyebrow: string
-    nameLine1: string
-    nameLine2: string
     /** The big stacked headline (one word per line). */
     headline: string
     tagline: string
+    /** Optional dimmed background picture; empty = the default dark background */
     image: string
-    video: string
   }
   about: {
     quote: { first: string; accent: string }

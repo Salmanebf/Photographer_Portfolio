@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-12 (Studio at /admin/studio) · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-13 (hero round 1) · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,7 +20,7 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (177 tests; 5 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (189 tests; 5 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
 
@@ -57,7 +57,7 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | 🟡 | Windows/macOS local dev (in-process Postgres) | Tested on Linux only | U4 · step 1 |
 | 🔴 | **The real Studio inside the new `/admin/studio` box** (menu above it, popups/dialogs, phone), and returning to the same document after sign-in | No Sanity project; only the box geometry was checked | U11 |
 | 🔴 | **Owner area on the real HTTPS site**: sign-in with `ADMIN_PASSWORD`, `Secure` cookie, Preview URLs, locked when the variable is missing; the real Studio after sign-in | Nothing deployed; tested on a local built server | U10 |
-| 🟠 | **How the new hero looks** (sizes, spacing, speed), 3D flip + wide headline font in Safari/iPhone/Firefox, real Bunny clips on the cards | Judged from headless-Chromium screenshots only | U9 · steps 1–5 |
+| 🟠 | **Hero round 1 (U12)**: whether the new ring motion/flip/size is what you want; six clips at once on a real phone; Safari/iPhone/Firefox 3D flips + blur; real Bunny clips; the three Hero fields in real Sanity | Judged from screenshots/numbers in headless Chromium with local test clips | U12 |
 | 🟠 | **Lighthouse LCP ≤ 2.5 s** (lab: 3.8 s; real browser 0.2 s; the lab gives ~3.5 s even on a plain page) | Cause is site-wide in the simulation; not yet investigated | U9 |
 | 🟡 | Database rate limit on real serverless instances + Neon cold start; email from your own domain (`CONTACT_FROM_EMAIL`) | No Neon / Vercel / Resend accounts | U9 · steps 10–11 |
 
@@ -65,6 +65,48 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 
 Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; the step-by-step guide to create them and
 plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md)).
+
+---
+
+## U12 · 2026-10-13 — Hero, round 1: dark background, centred ring of 6 video cards, new motion, bigger button
+
+> **Supersedes parts of U9:** the hero no longer has a video background, the small "role · name" line, or the eight-card ring.
+
+**What changed**
+- **Background:** the default is the **dark charcoal from your `index_2.html`** (with its faint map lines). The only other option is a **picture set in Sanity** (*Site Settings → Hero → Hero Background Image*; shown dimmed). The hero video background and the eyebrow / name fields were **removed**.
+- **Editable in Sanity (Hero tab, now only three fields):** **Hero Headline** (the big words), **Hero Tagline** (the small text under them), **Hero Background Image** (optional). Both texts are per language.
+- **Six cards** (was eight): your first six projects. They now circle **around the middle of the big words** (before they sat higher up).
+- **Video on both sides of every card:** if a project has a *Preview loop*, the card plays it muted on its front **and** its back. Only the side facing you plays. If a clip cannot load (wrong ID, no network, blocked), the project's cover picture stays — there is always a picture under the video.
+- **New motion** (the old one kept the cards on separate lanes crossing each other): all six now ride one tilted ring at the same speed (so they never collide), with near cards **large and sharp in front of the words** and far cards **smaller, dimmer and slightly soft behind them**. Every few seconds each card **turns over like a coin** (staggered, never all at once), with a glint sliding across it. They spread out from a pile at the start. **Moving the mouse right speeds the ring up, left slows it** (never stops); **scrolling down** slows it, spreads it and fades the cards out.
+- **Button "Add your idea":** much bigger (about 280×76 px), reacts to the mouse from ~450 px away (leans toward it, swells up to 20 %, the light follows), squeezes when pressed.
+- **Menu:** the "Collaborate" button is gone (the mobile menu still has its "Start a Project" button — tell me if that should go too).
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck, build; tests: **189 pass** (194 with a database): new tests for the ring maths — six cards; the ring stays centred on the headline all the way round; cards stay between menu and button for any angle/pointer/time; near cards in front and far behind; far = smaller/dimmer/softer; every card shows both faces over time; never more than half the cards flipping together; pile → spread intro; fade on scroll; same input = same picture; fits a phone | pass |
+| Real browser (Chromium, dev server, temporary local test clips — 3 projects with working clips, 1 with a missing file): exactly 6 cards; ring centre within ~15 px of the headline centre (horizontal and vertical); video elements on **both** faces of cards with a preview; at most one face per card plays and its time advances; over 20 s both the front and the back face played; the missing clip did **not** play and the cover picture stayed visible; no JS errors | pass |
+| Button: 279×76 px; moved ~3 px toward the pointer from 380 px away, swells when the pointer is on it | pass (swell re-tuned after the check; see not-tested) |
+| Production build in the browser: reduced-motion (EN + FR) → six still cards all behind the headline, no video plays; default has no background-picture element and the stage gradient matches the design colours; the Collaborate button is gone; scrolling away fades the cards and back at the top they return; the ring keeps moving with the pointer at the screen edge | pass |
+| A background picture (temporary default) shows dimmed behind the words; phone 390 px, tablet 820, 1920 and a short 1366×640 screen: no sideways scroll | pass |
+
+**🧪 You test**
+1. **Look & motion (desktop):** open `/en`. Dark background, no picture. Six cards circle the headline, centred on it; watch for ~30 s: depth (front large/sharp, back small/soft), coin flips, glints. Tell me what you like/dislike (speed, size, how much they cover the words, flip frequency) — this is the round to tune.
+2. **Mouse:** move the mouse to the right edge (ring speeds up), to the left edge (slows). Scroll down a little: cards spread and fade; back up: they return.
+3. **Button:** move the mouse toward "ADD YOUR IDEA" from far away: it should lean toward you and swell; click → jumps to Contact.
+4. **Sanity texts:** Site Settings → **Hero** tab → change **Hero Headline** (EN + FR) and **Hero Tagline**; publish → the home page shows them within a minute (4–6 short words for the headline).
+5. **Sanity background picture:** upload a picture in **Hero Background Image**, publish → it appears dimmed behind everything; remove it → back to the dark default.
+6. **Videos on cards (needs Bunny):** give four or more projects a *Preview loop* (`bunny:` + ID, no `< >`; silent, 5–10 s, small). The cards play the clip on the side facing you, also after a flip. Give one project a **wrong ID**: its card shows the cover picture and nothing else breaks.
+7. **Phone:** open on your phone (and `/fr`): no sideways scroll, button easy to tap, cards readable, nothing overlapping the button.
+8. **Reduced motion:** turn on "Reduce motion" in the system settings → cards are still and behind the headline, no video.
+
+**⚠️ Not tested by the developer**
+- **Whether this is the motion you want** — judged from screenshots and numbers, never by watching it live; I cannot see smoothness (frame rate, flicker) here. Expect to tune.
+- **Real Bunny clips** (only local test clips), the 480p cap and playback of six clips at once on a **real phone** (battery, heat, Data Saver).
+- **Safari / iPhone / Firefox**: 3D flips, the soft-focus blur on far cards, `backface-visibility` with video inside a flipped card, the headline font width axis.
+- **The button's final feel**: the swell amount was raised from 16 % to 20 % after the browser check and not re-measured.
+- Real Sanity: the three Hero fields appearing and publishing (only tested against the fake CMS); removing the old hero fields from existing Sanity data is harmless (they are simply ignored).
+- Lighthouse after this change (not re-run).
 
 ---
 
@@ -337,7 +379,7 @@ plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEP
 
 ## U5 · Sanity CMS checks (applies to every update that touched content fields)
 
-Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), film **Preview loop**, **Hero background video**, every text field per language (Phase 3), and (Phase 4) **Photo Series**, **Awards & Press**, **How I Work**, **SEO keywords**, **sharing image**. Step-by-step checks for the newest ones are in U7. You can also try the whole CMS path without a Sanity account: see U7 · step 1.
+Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), film **Preview loop**, (removed in U12: Hero background video), every text field per language (Phase 3), and (Phase 4) **Photo Series**, **Awards & Press**, **How I Work**, **SEO keywords**, **sharing image**. Step-by-step checks for the newest ones are in U7. You can also try the whole CMS path without a Sanity account: see U7 · step 1.
 
 - ✅ `npx sanity schema validate` → 0 errors, 0 warnings.
 - ✅ The validation pattern accepts `bunny:<guid>` and `https://…`, rejects `bunny:x`, `ftp://…`, plain text (checked directly).
@@ -430,7 +472,7 @@ Fields added/changed so far: film **Trailer / Video** (`bunny:<id>` or URL), fil
 | Lighthouse mobile baseline: score 90, LCP 3.5 s (hero text hidden by its entrance animation — fixed in the Phase 5 hero, see U9), 371 KiB | recorded |
 
 **🧪 You test**
-1. **Local clip.** Put a short `.mp4` (H.264, ≤3 MB) at `public/videos/clip.mp4`. In `src/lib/site.config.ts` set `hero.video: '/videos/clip.mp4'`; in `src/features/films/content/en.ts` add `preview: '/videos/clip.mp4'` and `video: '/videos/clip.mp4'` to one project. `npm run dev`.
+1. **Local clip.** Put a short `.mp4` (H.264, ≤3 MB) at `public/videos/clip.mp4`. In `src/features/films/content/en.ts` add `preview: '/videos/clip.mp4'` and `video: '/videos/clip.mp4'` to one project (the home hero has no video background any more; the clip plays on the hero cards). `npm run dev`.
 2. Chrome DevTools → **Network** → filter **Media**. Load `/`: only the hero clip is requested. Scroll: other clips start only as they approach the screen. Scroll far away: the hero stops (check it has stopped via the tab's CPU or by pausing indicators).
 3. Hover a film row in the list → its preview plays in the side panel. On a narrow window (<1024 px) cards show their loop when scrolled into view.
 4. Open that film's page → poster + play button → click → the video plays; before clicking there is no video request.

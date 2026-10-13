@@ -27,3 +27,8 @@ export function createPlaybackLimiter(max: number) {
 
 /** One shared limiter for the whole page. */
 export const pagePlayback = createPlaybackLimiter(3)
+
+/** A separate allowance for the home hero's cards (all six are on screen together), so they neither starve nor starve the page. */
+export const heroPlayback = createPlaybackLimiter(6)
+
+export type PlaybackLimiter = ReturnType<typeof createPlaybackLimiter>

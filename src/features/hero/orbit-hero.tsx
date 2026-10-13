@@ -4,8 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import VideoLoop from '@/shared/media/video-loop'
+import { heroPlayback } from '@/shared/media/playback-limiter'
 import type { SiteSettings } from '@/shared/content/types'
 import { startOrbit } from './orbit-engine'
+import { CARD_COUNT } from './orbit-math'
 import './orbit-hero.css'
 
 /** What a card shows. `preview` is an optional short silent clip (`bunny:<id>` / MP4). */
@@ -21,22 +23,23 @@ interface OrbitHeroProps {
   items: OrbitItem[]
 }
 
-/** Cards on the ring: enough to look full even with only a few projects. */
-const MIN_CARDS = 8
-const MAX_CARDS = 11
-
-/** Moves the light on the button toward the pointer; returns the cleanup. */
+/**
+ * The "Add your idea" button reacts to the pointer from far away: it leans toward it, grows as it gets near,
+ * the warm light on its surface follows, and it squeezes when pressed. Returns the cleanup.
+ */
 function attachTrace(stage: HTMLElement, btn: HTMLElement): () => void {
-  const target = { x: 78, y: 108, lx: 0, ly: 0 }
-  const cur = { ...target }
+  const REACH = 460 // px: how far away the button starts to notice the pointer
+  const rest = { x: 78, y: 108, lx: 0, ly: 0, sc: 1 }
+  const target = { ...rest }
+  const cur = { ...rest }
   let raf = 0
-  const keys = ['x', 'y', 'lx', 'ly'] as const
+  const keys = ['x', 'y', 'lx', 'ly', 'sc'] as const
   const tick = () => {
     let moving = false
     for (const k of keys) {
       const d = target[k] - cur[k]
-      if (Math.abs(d) > 0.05) {
-        cur[k] += d * 0.16
+      if (Math.abs(d) > (k === 'sc' ? 0.002 : 0.05)) {
+        cur[k] += d * 0.14
         moving = true
       } else cur[k] = target[k]
     }
@@ -44,6 +47,7 @@ function attachTrace(stage: HTMLElement, btn: HTMLElement): () => void {
     btn.style.setProperty('--my', cur.y.toFixed(1) + '%')
     btn.style.setProperty('--lx', cur.lx.toFixed(2) + 'px')
     btn.style.setProperty('--ly', cur.ly.toFixed(2) + 'px')
+    btn.style.setProperty('--sc', cur.sc.toFixed(3))
     raf = moving ? requestAnimationFrame(tick) : 0
   }
   const kick = () => {
@@ -55,13 +59,17 @@ function attachTrace(stage: HTMLElement, btn: HTMLElement): () => void {
     const ny = (e.clientY - r.top) / r.height
     target.x = Math.max(-15, Math.min(115, nx * 100))
     target.y = Math.max(-30, Math.min(140, ny * 100))
-    const near = Math.max(0, 1 - Math.hypot((nx - 0.5) * r.width, (ny - 0.5) * r.height) / 260)
-    target.lx = Math.max(-1, Math.min(1, (nx - 0.5) * 2)) * 5 * near
-    target.ly = Math.max(-1, Math.min(1, (ny - 0.5) * 2)) * 4 * near
+    const dx = e.clientX - (r.left + r.width / 2)
+    const dy = e.clientY - (r.top + r.height / 2)
+    const near = Math.max(0, 1 - Math.hypot(dx, dy) / REACH)
+    const pull = Math.pow(near, 0.8)
+    target.lx = Math.max(-1, Math.min(1, dx / 160)) * 22 * pull
+    target.ly = Math.max(-1, Math.min(1, dy / 120)) * 16 * pull
+    target.sc = 1 + 0.2 * Math.pow(near, 1.4)
     kick()
   }
   const reset = () => {
-    Object.assign(target, { x: 78, y: 108, lx: 0, ly: 0 })
+    Object.assign(target, rest)
     kick()
   }
   stage.addEventListener('pointermove', aim)
@@ -94,14 +102,16 @@ export default function OrbitHero({ hero, items }: OrbitHeroProps) {
     return () => window.clearTimeout(id)
   }, [])
 
+  // Which face of each card looks at the viewer; only that face's video plays
+  const [front, setFront] = useState<boolean[]>(() => Array(CARD_COUNT).fill(true))
+
   const words = useMemo(() => hero.headline.trim().split(/\s+/).filter(Boolean), [hero.headline])
   const longest = Math.max(1, ...words.map((w) => w.length))
 
-  // Repeat the projects to fill the ring (a ring of 4 would look empty)
+  // Six cards: the first six projects (repeated if there are fewer)
   const cards = useMemo(() => {
     if (!cardsOn || items.length === 0) return []
-    const count = Math.min(MAX_CARDS, Math.max(MIN_CARDS, items.length))
-    return Array.from({ length: count }, (_, i) => ({
+    return Array.from({ length: CARD_COUNT }, (_, i) => ({
       ...items[i % items.length],
       key: `${items[i % items.length].id}-${i}`,
     }))
@@ -122,6 +132,8 @@ export default function OrbitHero({ hero, items }: OrbitHeroProps) {
       map: mapRef.current,
       cards: nodes,
       reducedMotion,
+      onFace: (i, isFront) =>
+        setFront((prev) => (prev[i] === isFront ? prev : prev.map((v, k) => (k === i ? isFront : v)))),
     })
     const stopTrace = btn && !reducedMotion ? attachTrace(stage, btn) : () => {}
     return () => {
@@ -132,66 +144,59 @@ export default function OrbitHero({ hero, items }: OrbitHeroProps) {
 
   return (
     <section id="home" ref={stageRef} className="orbit-stage" aria-label={t('aria')}>
-      {hero.video ? (
-        <VideoLoop
-          eager
-          src={hero.video}
-          poster={hero.image}
-          className="orbit-backdrop object-cover"
-        />
-      ) : hero.image ? (
-        <Image
-          src={hero.image}
-          alt=""
-          fill
-          sizes="100vw"
-          fetchPriority="low"
-          className="orbit-backdrop object-cover"
-        />
-      ) : null}
+      {/* Default: the dark stage. Only if a picture was added in the Studio is it shown, dimmed. */}
+      {hero.image && (
+        <>
+          <Image
+            src={hero.image}
+            alt=""
+            fill
+            sizes="100vw"
+            fetchPriority="low"
+            className="orbit-backdrop object-cover"
+          />
+          <div className="orbit-shade" aria-hidden="true" />
+        </>
+      )}
       <canvas ref={mapRef} className="orbit-map" aria-hidden="true" />
 
       {cards.map((c, i) => (
         <figure key={c.key} className="orbit-card" aria-hidden="true" data-card={i}>
           <div className="orbit-flip">
-            <div className="orbit-face front">
-              {c.preview ? (
-                <VideoLoop src={c.preview} poster={c.image} className="absolute inset-0" />
-              ) : (
-                <Image src={c.image} alt="" fill sizes="300px" />
-              )}
-              <span className="orbit-cap">{c.title}</span>
-            </div>
-            <div className="orbit-face back">
-              <Image src={c.image} alt="" fill sizes="300px" />
-              <span className="orbit-cap">{c.title}</span>
-            </div>
+            {(['front', 'back'] as const).map((side) => (
+              <div key={side} className={`orbit-face ${side}`}>
+                {/* the picture is always there; a clip plays over it and, if it cannot load, the picture stays */}
+                <Image src={c.image} alt="" fill sizes="340px" />
+                {c.preview && (
+                  <VideoLoop
+                    src={c.preview}
+                    limiter={heroPlayback}
+                    maxQuality={480}
+                    suspended={side === 'front' ? !front[i] : front[i]}
+                    className="absolute inset-0"
+                  />
+                )}
+                <span className="orbit-sheen" aria-hidden="true" />
+                <span className="orbit-cap">{c.title}</span>
+              </div>
+            ))}
           </div>
         </figure>
       ))}
 
       <div className="orbit-copy">
-        <div>
-          {(hero.eyebrow || hero.nameLine1) && (
-            <p className="orbit-kicker">
-              {[hero.eyebrow, `${hero.nameLine1} ${hero.nameLine2}`.trim()]
-                .filter(Boolean)
-                .join(' · ')}
-            </p>
-          )}
-          <h1
-            ref={titleRef}
-            className="orbit-title"
-            style={{ '--lines': words.length, '--longest': longest } as React.CSSProperties}
-            aria-label={hero.headline}
-          >
-            {words.map((w, i) => (
-              <span key={`${w}-${i}`} aria-hidden="true">
-                {w}
-              </span>
-            ))}
-          </h1>
-        </div>
+        <h1
+          ref={titleRef}
+          className="orbit-title"
+          style={{ '--lines': words.length, '--longest': longest } as React.CSSProperties}
+          aria-label={hero.headline}
+        >
+          {words.map((w, i) => (
+            <span key={`${w}-${i}`} aria-hidden="true">
+              {w}
+            </span>
+          ))}
+        </h1>
       </div>
 
       <div ref={actionsRef} className="orbit-actions">

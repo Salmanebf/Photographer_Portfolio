@@ -8,7 +8,6 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { dirOf } from '@/i18n/config'
 import type { SiteSettings } from '@/shared/content/types'
-import Magnetic from '@/shared/effects/magnetic'
 import LanguageSwitcher from './language-switcher'
 
 const navLinks = [
@@ -123,16 +122,6 @@ export default function Navigation({ settings }: NavigationProps) {
                 </button>
               ))}
             </nav>
-
-            <Magnetic className="hidden xl:inline-block">
-              <button
-                onClick={() => scrollTo('#contact')}
-                className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-gold border border-gold/30 hover:border-gold hover:bg-gold hover:text-background px-5 py-2.5 transition-all duration-400"
-                data-cursor="hover"
-              >
-                {t('collaborate')}
-              </button>
-            </Magnetic>
 
             <LanguageSwitcher className="hidden lg:flex" />
 

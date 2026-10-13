@@ -120,7 +120,7 @@ src/
     admin/                owner area (shared header with nav): login, messages, studio/[[...tool]] — see "Owner area" below
     api/contact/ sitemap.ts robots.ts
   features/                each feature owns its UI, types, placeholder content, CMS query and normaliser
-    hero/                  orbit hero: `orbit-hero.tsx` (markup), `orbit-engine.ts` (the card-ring motion), `orbit-hero.css`
+    hero/                  orbit hero: `orbit-hero.tsx` (markup, button), `orbit-math.ts` (pure card-ring maths, tested), `orbit-engine.ts` (applies it each frame), `orbit-hero.css`
     about/ awards/         home-page sections (their text comes from site settings)
     timeline/              "Timeline" section (home summary) and its full page `/timeline`; reads the editable steps
     films/                 types.ts · content/{en,fr,index}.ts (placeholders) · normalize.ts · data.ts (CMS query + fallback)
