@@ -5,7 +5,8 @@
  */
 import {
   BASE_SPEED,
-  CARD_COUNT,
+  DEFAULT_RATIO,
+  MAX_CARDS,
   cardWidth,
   clamp01,
   frameAt,
@@ -23,7 +24,7 @@ export interface OrbitElements {
   actions: HTMLElement
   /** Optional faint decorative lines */
   map?: HTMLCanvasElement | null
-  /** One element per card (at most CARD_COUNT); each holds an `.orbit-flip` */
+  /** One element per card (at most MAX_CARDS); each holds an `.orbit-flip` and a `data-ratio` (height ÷ width) */
   cards: HTMLElement[]
   reducedMotion: boolean
   /** Told when a card turns its other face to the viewer */
@@ -32,17 +33,45 @@ export interface OrbitElements {
 
 const TAU = Math.PI * 2
 
+/** The stage geometry the ring turns in (also used to decide how many cards fit). */
+export function measureGeometry(stage: HTMLElement, headline: HTMLElement, actions: HTMLElement): Geometry {
+  const W = stage.clientWidth
+  const H = stage.clientHeight
+  const sr = stage.getBoundingClientRect()
+  const q = headline.getBoundingClientRect()
+  return {
+    W,
+    H,
+    // the ring turns around the middle of the big words
+    cx: (q.left + q.right) / 2 - sr.left - W / 2,
+    cy: (q.top + q.bottom) / 2 - sr.top - H / 2,
+    halfW: (q.right - q.left) / 2,
+    top: -H / 2 + 84, // below the menu
+    bottom: actions.getBoundingClientRect().top - sr.top - H / 2 - 12, // above the button
+    cardW: cardWidth(W, H),
+  }
+}
+
+export interface OrbitHandle {
+  stop: () => void
+  /** Re-read the card shapes (a clip's real shape became known) */
+  refresh: () => void
+}
+
 /** Starts the animation; returns a function that stops it and removes every listener. */
-export function startOrbit(els: OrbitElements): () => void {
+export function startOrbit(els: OrbitElements): OrbitHandle {
   const { stage, headline, actions, map, reducedMotion, onFace } = els
-  const nodes = els.cards.slice(0, CARD_COUNT)
-  if (nodes.length === 0) return () => {}
+  const nodes = els.cards.slice(0, MAX_CARDS)
+  if (nodes.length === 0) return { stop: () => {}, refresh: () => {} }
 
   const flips = nodes.map((n) => n.querySelector<HTMLElement>('.orbit-flip'))
   const sheens = nodes.map((n) => Array.from(n.querySelectorAll<HTMLElement>('.orbit-sheen')))
   const facing = nodes.map(() => true)
   let geo: Geometry = { W: 0, H: 0, cx: 0, cy: 0, halfW: 0, top: 0, bottom: 0, cardW: 200 }
-  let cards = makeCards(200)
+  let cards = makeCards(
+    nodes.map(() => DEFAULT_RATIO),
+    geo
+  )
 
   function drawMap() {
     if (!map) return
@@ -101,24 +130,12 @@ export function startOrbit(els: OrbitElements): () => void {
   }
 
   function measure() {
-    const W = stage.clientWidth
-    const H = stage.clientHeight
-    const sr = stage.getBoundingClientRect()
-    const q = headline.getBoundingClientRect()
-    const cardW = cardWidth(W, H)
-    geo = {
-      W,
-      H,
-      // the ring turns around the middle of the big words
-      cx: (q.left + q.right) / 2 - sr.left - W / 2,
-      cy: (q.top + q.bottom) / 2 - sr.top - H / 2,
-      halfW: (q.right - q.left) / 2,
-      top: -H / 2 + 84, // below the menu
-      bottom: actions.getBoundingClientRect().top - sr.top - H / 2 - 12, // above the button
-      cardW,
-    }
-    stage.style.setProperty('--cw', cardW + 'px')
-    cards = makeCards(cardW)
+    geo = measureGeometry(stage, headline, actions)
+    stage.style.setProperty('--cw', geo.cardW + 'px')
+    cards = makeCards(
+      nodes.map((n) => Number(n.dataset.ratio) || DEFAULT_RATIO),
+      geo
+    )
     nodes.forEach((n, i) => {
       n.style.width = cards[i].w + 'px'
       n.style.height = cards[i].h + 'px'
@@ -198,9 +215,12 @@ export function startOrbit(els: OrbitElements): () => void {
   })
 
   if (reducedMotion) {
-    return () => {
-      cancelled = true
-      ro.disconnect()
+    return {
+      stop: () => {
+        cancelled = true
+        ro.disconnect()
+      },
+      refresh: remeasure,
     }
   }
 
@@ -238,15 +258,18 @@ export function startOrbit(els: OrbitElements): () => void {
   io.observe(stage)
   document.addEventListener('visibilitychange', sync)
 
-  return () => {
-    cancelled = true
-    running = false
-    cancelAnimationFrame(raf)
-    io.disconnect()
-    ro.disconnect()
-    stage.removeEventListener('pointermove', onMove)
-    stage.removeEventListener('pointerleave', onLeave)
-    window.removeEventListener('scroll', onScroll)
-    document.removeEventListener('visibilitychange', sync)
+  return {
+    stop: () => {
+      cancelled = true
+      running = false
+      cancelAnimationFrame(raf)
+      io.disconnect()
+      ro.disconnect()
+      stage.removeEventListener('pointermove', onMove)
+      stage.removeEventListener('pointerleave', onLeave)
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('visibilitychange', sync)
+    },
+    refresh: remeasure,
   }
 }

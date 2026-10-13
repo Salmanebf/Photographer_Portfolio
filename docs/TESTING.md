@@ -4,7 +4,7 @@ This file is **for you (the client)**. Updates were built and tested by the deve
 later — so every update below says (1) what changed, (2) what was already verified and how, (3) exact steps for you,
 and (4) what could **not** be tested. It is updated with every phase / update (newest first).
 
-Last updated: 2026-10-13 (hero round 1) · Branch: `claude/great-faraday-0gulud`
+Last updated: 2026-10-13 (hero round 1b) · Branch: `claude/great-faraday-0gulud`
 
 **Legend:** ✅ verified by the developer (evidence given) · 🧪 you test (steps given) · ⚠️ **not tested — focus here**
 
@@ -20,7 +20,7 @@ Needs Node 22 and Git. No accounts needed.
 git clone https://github.com/Salmanebf/Photographer_Portfolio && cd Photographer_Portfolio
 git checkout claude/great-faraday-0gulud
 npm ci
-npm run lint && npm run typecheck && npm test      # expect: all pass (189 tests; 5 are skipped without TEST_DATABASE_URL)
+npm run lint && npm run typecheck && npm test      # expect: all pass (209 tests; 5 are skipped without TEST_DATABASE_URL)
 npm run dev                                         # open http://localhost:3000
 ```
 
@@ -57,7 +57,7 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 | 🟡 | Windows/macOS local dev (in-process Postgres) | Tested on Linux only | U4 · step 1 |
 | 🔴 | **The real Studio inside the new `/admin/studio` box** (menu above it, popups/dialogs, phone), and returning to the same document after sign-in | No Sanity project; only the box geometry was checked | U11 |
 | 🔴 | **Owner area on the real HTTPS site**: sign-in with `ADMIN_PASSWORD`, `Secure` cookie, Preview URLs, locked when the variable is missing; the real Studio after sign-in | Nothing deployed; tested on a local built server | U10 |
-| 🟠 | **Hero round 1 (U12)**: whether the new ring motion/flip/size is what you want; six clips at once on a real phone; Safari/iPhone/Firefox 3D flips + blur; real Bunny clips; the three Hero fields in real Sanity | Judged from screenshots/numbers in headless Chromium with local test clips | U12 |
+| 🟠 | **Hero round 1 + 1b (U12, U13)**: whether the ring motion/flip/sizes/"fullness" are what you want with your real wide/tall videos; six-to-eight clips at once on a real phone; Safari/iPhone/Firefox 3D flips + blur; real Bunny clips; the Hero fields and *Preview loop shape* in real Sanity | Judged from screenshots/numbers in headless Chromium with local test clips | U12, U13 |
 | 🟠 | **Lighthouse LCP ≤ 2.5 s** (lab: 3.8 s; real browser 0.2 s; the lab gives ~3.5 s even on a plain page) | Cause is site-wide in the simulation; not yet investigated | U9 |
 | 🟡 | Database rate limit on real serverless instances + Neon cold start; email from your own domain (`CONTACT_FROM_EMAIL`) | No Neon / Vercel / Resend accounts | U9 · steps 10–11 |
 
@@ -65,6 +65,39 @@ Everything the developer could **not** check. Tick them off as you verify; tell 
 
 Neon (database) · Sanity (CMS) · Bunny (video) · Vercel (hosting). All have free tiers/trials; the step-by-step guide to create them and
 plug them in is [`SERVICES-SETUP.md`](./SERVICES-SETUP.md) (more detail in [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`PERFORMANCE.md`](./PERFORMANCE.md)).
+
+---
+
+## U13 · 2026-10-13 — Hero, round 1b: cards take the shape of their video; the number of cards fits the sizes
+
+> **Supersedes U12 on card count and card shape:** the ring no longer has a fixed six cards of one shape.
+
+**What changed**
+- **Card shape follows the video.** Wide (landscape) videos make wide cards, tall (phone-style) videos make tall cards, square make square. All shapes have about the same *area*, so a tall card does not look smaller than a wide one (very tall cards are limited by the screen height).
+- **New Studio field *Preview loop shape*** (Landscape / Portrait / Square) on each project, so the card has the right shape from the start. If it is empty, the shape is **detected from the clip** once it loads (the card then resizes smoothly once). Cards without a clip use their cover picture's shape.
+- **The number of cards is chosen automatically (3 to 8)** from the real card sizes and the screen: as many as keep the ring about 40 % full — not crowded, not bare. A big desktop gets more and bigger cards, a phone fewer and smaller. It is decided again if the window is resized (e.g. a phone turned sideways).
+- **Wide and tall cards take turns** around the ring when you have both. With fewer projects than cards, projects repeat around the ring (never next to themselves).
+- Tablets got somewhat bigger cards.
+
+**✅ Verified by the developer**
+| Check | Result |
+| ----- | ------ |
+| Lint, typecheck, build; tests **209 pass** (214 with a database). New: size/shape rules (same area for every shape, shape kept, never over a third of the screen width), card-count rules (6 for the size you liked, always 3–8, fewer on a phone than a desktop, coverage always between 20 % and 65 %), alternation, ring centring / staying between menu and button for six tall, six wide, mixed, three and eight cards, the new Studio field (valid values kept, anything else ignored) and the fake-CMS path | pass |
+| Real browser (dev server, local test clips: 2 wide, 2 tall; one wide clip with **no shape declared**) at 1440×900, 1920×1080, 820×1100 and 390×780: each card had its video's shape (the undeclared one was detected: 0.563 = 16:9); both wide and tall cards on every screen; counts of 6 / 6 / 8 / 6 with ring coverage 0.27–0.40; no sideways scroll, no JS errors | pass |
+| Production build, placeholder content (no clips; wide cover pictures), desktop / tablet / phone / reduced-motion: 3–8 cards, no errors, reduced-motion cards all behind the headline | pass |
+
+**🧪 You test**
+1. In the Studio give four or more projects a *Preview loop* and set **Preview loop shape** (wide, tall and square mixed). Open `/en`: wide videos in wide cards, tall videos in tall cards; they alternate; the ring looks full but not crowded.
+2. Leave the shape empty on one project: its card should start wide-ish (the default) and, a moment after its clip loads, resize to the clip's real shape.
+3. Resize the browser window from big to small (or open on a phone): fewer, smaller cards; no overlap with the button.
+4. Try all-wide, all-tall and a project with a square clip. Tell me if the ring ever looks crowded or empty (and on which screen size).
+
+**⚠️ Not tested by the developer**
+- **Real Bunny clips** and real Sanity (only the fake CMS and local test clips).
+- **How it looks with your real videos and covers** — the 40 % "fullness" is my estimate of a good look; it is one number to tune (`TARGET_COVERAGE`).
+- The card resizing when a clip's shape is learned late (checked that it ends up right; the smoothness of the animation was not seen).
+- Safari / iPhone / Firefox; sideways phone (rotation) was only tested by resizing.
+- Cover pictures of a different shape than the clip: the card follows the clip, the cover is cropped to it.
 
 ---
 

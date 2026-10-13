@@ -22,7 +22,8 @@ change both when you change a sentence):
   `brand.logoImage` to its path (e.g. `'/images/logo.png'`).
 - **Home page first screen**: `brand.name` (in the menu), `hero.headline` (the big words in the middle, **one word per line** — 4–6 short words work best) and `hero.tagline` (the small text under them).
 - **Hero background**: the default is the dark background of the design. To use a picture instead, set `hero.image` (e.g. `'/images/my-photo.png'`); it is shown dimmed. There is no video background.
-  The six cards circling the headline are your **first six projects**: each shows its cover image, and if the project has a *Preview loop* the card plays that short silent video (on both faces).
+  The cards circling the headline are your **projects**: each shows its cover image, and if the project has a *Preview loop* the card plays that short silent video (on both faces).
+  **The cards take the shape of their video** (wide, tall or square) and the **number of cards (3 to 8) is chosen automatically** from the screen size and the shapes, so the ring is never crowded or bare; wide and tall cards take turns.
 - **About section**, **stats**, **tools**, **contact info**, **socials**,
   **studio hours** — all in this file.
 - **Awards band** (`recognitions`) — the scrolling list of awards/press. Empty
@@ -138,9 +139,10 @@ library, then copy the video's **ID** into the Studio:
 
 - **Trailer / Video** (film page): `bunny:` + the video ID, **without** the `< >` (e.g. `bunny:a746fa4f-d359-4e70-92b3-0c431ce7af60`) — plays on click, adaptive quality.
   A YouTube / Vimeo / MP4 link also works.
+- **Preview loop shape** (right under it): *Landscape*, *Portrait* or *Square* — the shape of the clip. It lets the home page give the card the right shape from the start. If you skip it, the shape is detected from the clip once it loads (the card may resize once).
 - **Preview loop** (the card / hover preview): `bunny:` + the ID of a short
   5–10 second **silent** clip, kept small (about 3 MB or less).
-- The six cards on the home page play each project's **Preview loop** (muted, on both sides of the card); if a clip cannot load, the project's cover image stays visible.
+- The cards on the home page play each project's **Preview loop** (muted, on both sides of the card); if a clip cannot load, the project's cover image stays visible.
 
 Always keep a cover image — it is what shows first, and what visitors with
 "reduce motion" or Data Saver see instead of the clip. One-time Bunny setup

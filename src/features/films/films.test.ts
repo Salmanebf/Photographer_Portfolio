@@ -85,3 +85,15 @@ describe('CMS film documents', () => {
     expect([a.slug, a.category, a.image, a.gallery, a.awards]).toEqual([b.slug, b.category, b.image, b.gallery, b.awards])
   })
 })
+
+describe('preview clip shape from the CMS', () => {
+  const doc = { _id: 'x', slug: 'x', title: { en: 'X' } }
+  it('keeps a valid shape and ignores anything else (so a card is never given a nonsense shape)', () => {
+    for (const shape of ['landscape', 'portrait', 'square'] as const) {
+      expect(normalizeSanityProject({ ...doc, previewShape: shape }, 'en').previewShape).toBe(shape)
+    }
+    for (const bad of ['wide', '', null, 3, undefined]) {
+      expect(normalizeSanityProject({ ...doc, previewShape: bad }, 'en').previewShape).toBeUndefined()
+    }
+  })
+})

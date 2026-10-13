@@ -29,6 +29,7 @@ export function normalizeSanityProject(p: any, locale: Locale): DocumentaryProje
     tags: Array.isArray(p.tags) ? p.tags : [],
     video: p.video || undefined,
     preview: p.preview || undefined,
+    previewShape: ['landscape', 'portrait', 'square'].includes(p.previewShape) ? p.previewShape : undefined,
     featured: Boolean(p.featured),
   }
 }

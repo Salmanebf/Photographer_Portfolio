@@ -6,8 +6,15 @@ import { useTranslations } from 'next-intl'
 import VideoLoop from '@/shared/media/video-loop'
 import { heroPlayback } from '@/shared/media/playback-limiter'
 import type { SiteSettings } from '@/shared/content/types'
-import { startOrbit } from './orbit-engine'
-import { CARD_COUNT } from './orbit-math'
+import { measureGeometry, startOrbit, type OrbitHandle } from './orbit-engine'
+import {
+  DEFAULT_RATIO,
+  MAX_CARDS,
+  SHAPE_RATIO,
+  alternateShapes,
+  chooseCardCount,
+  type Shape,
+} from './orbit-math'
 import './orbit-hero.css'
 
 /** What a card shows. `preview` is an optional short silent clip (`bunny:<id>` / MP4). */
@@ -16,6 +23,8 @@ export interface OrbitItem {
   title: string
   image: string
   preview?: string
+  /** Shape of the preview clip (so the card is the right shape before the clip loads) */
+  shape?: Shape
 }
 
 interface OrbitHeroProps {
@@ -103,29 +112,73 @@ export default function OrbitHero({ hero, items }: OrbitHeroProps) {
   }, [])
 
   // Which face of each card looks at the viewer; only that face's video plays
-  const [front, setFront] = useState<boolean[]>(() => Array(CARD_COUNT).fill(true))
+  const [front, setFront] = useState<boolean[]>(() => Array(MAX_CARDS).fill(true))
+
+  // Real shapes learnt from the media itself (height ÷ width), by project: a clip's size beats the declared shape
+  const [videoRatio, setVideoRatio] = useState<Record<string, number>>({})
+  const [imageRatio, setImageRatio] = useState<Record<string, number>>({})
+  const learn = (set: typeof setVideoRatio) => (id: string, w: number, h: number) => {
+    const r = Math.round((h / w) * 1000) / 1000
+    set((prev) => (prev[id] === r ? prev : { ...prev, [id]: r }))
+  }
+  const learnVideo = learn(setVideoRatio)
+  const learnImage = learn(setImageRatio)
+  const ratioOf = (it: OrbitItem) =>
+    videoRatio[it.id] ?? (it.shape ? SHAPE_RATIO[it.shape] : undefined) ?? imageRatio[it.id] ?? DEFAULT_RATIO
 
   const words = useMemo(() => hero.headline.trim().split(/\s+/).filter(Boolean), [hero.headline])
   const longest = Math.max(1, ...words.map((w) => w.length))
 
-  // Six cards: the first six projects (repeated if there are fewer)
-  const cards = useMemo(() => {
-    if (!cardsOn || items.length === 0) return []
-    return Array.from({ length: CARD_COUNT }, (_, i) => ({
-      ...items[i % items.length],
-      key: `${items[i % items.length].id}-${i}`,
-    }))
+  // How many cards, and which: as many as keep the ring neither crowded nor bare for the real card shapes,
+  // wide and tall ones taking turns. Re-decided when the screen changes size.
+  const [picked, setPicked] = useState<OrbitItem[]>([])
+  const ratiosRef = useRef(ratioOf)
+  useEffect(() => {
+    ratiosRef.current = ratioOf
+  })
+  useEffect(() => {
+    const stage = stageRef.current
+    const title = titleRef.current
+    const actions = actionsRef.current
+    if (!cardsOn || !stage || !title || !actions || items.length === 0) return
+    const arranged = alternateShapes(items)
+    let timer = 0
+    const decide = () => {
+      const geo = measureGeometry(stage, title, actions)
+      const n = chooseCardCount(
+        arranged.map((it) => ratiosRef.current(it)),
+        geo
+      )
+      const next = Array.from({ length: n }, (_, i) => arranged[i % arranged.length])
+      setPicked((prev) =>
+        prev.length === next.length && prev.every((p, i) => p.id === next[i].id) ? prev : next
+      )
+    }
+    decide()
+    const ro = new ResizeObserver(() => {
+      window.clearTimeout(timer)
+      timer = window.setTimeout(decide, 250)
+    })
+    ro.observe(stage)
+    return () => {
+      window.clearTimeout(timer)
+      ro.disconnect()
+    }
   }, [items, cardsOn])
+
+  const cards = useMemo(() => picked.map((it, i) => ({ ...it, key: `${it.id}-${i}` })), [picked])
+  const handle = useRef<OrbitHandle | null>(null)
+  const ratioKey = cards.map((c) => ratioOf(c).toFixed(3)).join('|')
 
   useEffect(() => {
     const stage = stageRef.current
     const title = titleRef.current
     const actions = actionsRef.current
     const btn = traceRef.current
-    if (!stage || !title || !actions) return
+    if (!stage || !title || !actions || cards.length === 0) return
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const nodes = Array.from(stage.querySelectorAll<HTMLElement>('.orbit-card'))
-    const stop = startOrbit({
+    handle.current = startOrbit({
       stage,
       headline: title,
       actions,
@@ -137,10 +190,16 @@ export default function OrbitHero({ hero, items }: OrbitHeroProps) {
     })
     const stopTrace = btn && !reducedMotion ? attachTrace(stage, btn) : () => {}
     return () => {
-      stop()
+      handle.current?.stop()
+      handle.current = null
       stopTrace()
     }
   }, [cards])
+
+  // A clip's real shape became known: let the ring resize that card
+  useEffect(() => {
+    handle.current?.refresh()
+  }, [ratioKey])
 
   return (
     <section id="home" ref={stageRef} className="orbit-stage" aria-label={t('aria')}>
@@ -161,17 +220,32 @@ export default function OrbitHero({ hero, items }: OrbitHeroProps) {
       <canvas ref={mapRef} className="orbit-map" aria-hidden="true" />
 
       {cards.map((c, i) => (
-        <figure key={c.key} className="orbit-card" aria-hidden="true" data-card={i}>
+        <figure
+          key={c.key}
+          className="orbit-card"
+          aria-hidden="true"
+          data-card={i}
+          data-ratio={ratioOf(c).toFixed(3)}
+        >
           <div className="orbit-flip">
             {(['front', 'back'] as const).map((side) => (
               <div key={side} className={`orbit-face ${side}`}>
                 {/* the picture is always there; a clip plays over it and, if it cannot load, the picture stays */}
-                <Image src={c.image} alt="" fill sizes="340px" />
+                <Image
+                  src={c.image}
+                  alt=""
+                  fill
+                  sizes="340px"
+                  onLoad={(e) =>
+                    learnImage(c.id, e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)
+                  }
+                />
                 {c.preview && (
                   <VideoLoop
                     src={c.preview}
                     limiter={heroPlayback}
                     maxQuality={480}
+                    onSize={(w, h) => learnVideo(c.id, w, h)}
                     suspended={side === 'front' ? !front[i] : front[i]}
                     className="absolute inset-0"
                   />

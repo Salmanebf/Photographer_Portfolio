@@ -1,7 +1,7 @@
 # Roadmap & decisions
 
 Keep this file current: update the status column and decision log whenever work lands.
-Last updated: 2026-10-13 (hero round 1).
+Last updated: 2026-10-13 (hero round 1b).
 
 ## Goal
 
@@ -70,6 +70,7 @@ Estimate for 3–7 was ~3–4 weeks of work at the time of planning; real time d
 | 2026-10-12 | "How I work" steps now feed the **Timeline** (section + `/timeline`), Services shows only the offer | Client's section list; the step model is reused |
 | 2026-10-12 | Contact rate limit in the database; spam checks without CAPTCHA (honeypot, sent-too-fast, >3 links); `kind` + `details jsonb` on messages | Holds across serverless instances; CAPTCHAs hurt real clients; a booking form must not need a migration |
 | 2026-10-12 | Owner area: `/admin/messages` inbox + password gate (`ADMIN_PASSWORD`, signed 8 h cookie) on it and `/admin/studio`; checked in each page on the server, **no middleware**; locked (404) in production when unset; never linked from public files (test-enforced) | Client wants a private inbox and a protected Studio; middleware/proxy would break host-neutrality; a single owner needs no user database |
+| 2026-10-13 | Hero cards take their video's shape (landscape / portrait / square; Studio field *Preview loop shape*, else detected from the clip), equal area per shape; card count 3–8 chosen from screen size and card shapes (target ≈ 40 % coverage), wide/tall alternate | Client's videos will be a mix of wide and tall; the ring must never look crowded or bare |
 | 2026-10-13 | Hero round 1: dark stage is the only default, picture optional (Studio), **no hero video background**, eyebrow/name fields removed (Hero tab = headline, tagline, optional image); **6 cards** centred on the headline, video on both faces (only the facing face plays, own 6-clip allowance, picture always underneath), one tilted ring at equal speed with coin flips, pointer/scroll reactive; big magnetic CTA; nav "Collaborate" removed | Client's feedback on the first version; equal speed removes card collisions; both faces need video because cards flip |
 | 2026-10-12 | Studio moved to `/admin/studio` under the owner header; `/admin` → login → last owner page (path-only cookie, re-validated) else inbox; `/studio` is 404 | Everything private lives under one prefix; client asked for the shared menu and "return to where I was" |
 | 2026-10-12 | Treat `sslmode=require` as `verify-full` explicitly; log which database is in use (host only) | A pasted Neon URL must work unchanged without a scary driver warning and without the security level depending on a driver version; a silently ignored `DATABASE_URL` in dev was undetectable |

@@ -54,7 +54,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <main id="main" className="flex-1">
         <OrbitHero
           hero={settings.hero}
-          items={projects.map((p) => ({ id: p.id, title: p.title, image: p.image, preview: p.preview }))}
+          items={projects.map((p) => ({
+            id: p.id,
+            title: p.title,
+            image: p.image,
+            preview: p.preview,
+            shape: p.previewShape,
+          }))}
         />
         <About settings={settings} />
         <AwardsMarquee items={settings.recognitions} />

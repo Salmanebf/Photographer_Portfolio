@@ -19,6 +19,8 @@ interface VideoLoopProps {
   suspended?: boolean
   /** Never fetch a clip sharper than this (small cards do not need 720p) */
   maxQuality?: 360 | 480 | 720
+  /** Told the clip's real size once it is known (so its frame can be the right shape) */
+  onSize?: (width: number, height: number) => void
 }
 
 /**
@@ -37,6 +39,7 @@ export default function VideoLoop({
   limiter = pagePlayback,
   suspended = false,
   maxQuality,
+  onSize,
 }: VideoLoopProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [visible, setVisible] = useState(Boolean(eager))
@@ -100,6 +103,10 @@ export default function VideoLoop({
       playsInline
       preload="none"
       onError={() => setFailedUrl(url)}
+      onLoadedMetadata={(e) => {
+        const v = e.currentTarget
+        if (v.videoWidth > 0 && v.videoHeight > 0) onSize?.(v.videoWidth, v.videoHeight)
+      }}
       aria-hidden="true"
       tabIndex={-1}
       className={className}

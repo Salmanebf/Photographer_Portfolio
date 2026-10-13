@@ -21,6 +21,7 @@ const PROJECT_FIELDS = `
   tags,
   video,
   preview,
+  previewShape,
   featured,
   "image": image.asset->url,
   "gallery": gallery[].asset->url`

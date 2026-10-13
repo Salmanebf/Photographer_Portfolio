@@ -1,3 +1,5 @@
+export type PreviewShape = 'landscape' | 'portrait' | 'square'
+
 export interface DocumentaryProject {
   id: string
   slug: string
@@ -19,6 +21,8 @@ export interface DocumentaryProject {
   video?: string
   /** Optional short silent loop for cards/previews: `bunny:<id>` or MP4 URL */
   preview?: string
+  /** Shape of the preview clip, so its card is the right shape before the clip has loaded. Unset = detected from the clip. */
+  previewShape?: PreviewShape
   /** Optional flag for hero/featured display */
   featured?: boolean
 }

@@ -2,6 +2,11 @@
 
 Notable changes, newest first. Roadmap status lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
+## 2026-10-13 — Hero cards follow the video shape; card count fits the sizes
+
+- Cards are wide, tall or square like their video (equal area for every shape). New project field **Preview loop shape** (`previewShape`); unset = detected from the clip's real size (`VideoLoop` `onSize`), cover pictures otherwise (wide by default).
+- The number of cards (3–8) is chosen from the screen and the real card shapes so the ring is ~40 % full (`chooseCardCount`), re-decided on resize; wide and tall cards alternate. Pure maths + tests in `orbit-math`. Tests: 209 (+5 with a database). `docs/TESTING.md` entry U13.
+
 ## 2026-10-13 — Home hero, round 1
 
 - **Background:** the dark stage from the design is the default; an optional picture from the Studio is shown dimmed. Removed: hero video background, eyebrow and name fields (Hero tab = headline, tagline, image). `hero.image` defaults to empty.

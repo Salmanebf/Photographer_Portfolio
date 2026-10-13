@@ -72,6 +72,7 @@ describe('published content from the CMS', () => {
     const { films } = await load()
     const en = await films.getProjects('en')
     expect(en.map((p) => p.slug)).toEqual(['mock-film-one', 'mock-film-two'])
+    expect(en.map((p) => p.previewShape)).toEqual(['landscape', undefined]) // card shape from the CMS; unset = detected from the clip
     expect(en[0]).toMatchObject({
       title: 'Mock Film One',
       category: 'environmental',

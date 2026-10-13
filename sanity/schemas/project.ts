@@ -79,6 +79,21 @@ export const project = defineType({
             : 'Use bunny:VIDEO-ID (no < > brackets, no spaces) or a full https:// URL'
         ),
     }),
+    defineField({
+      name: 'previewShape',
+      title: 'Preview loop shape',
+      description:
+        'Is the preview clip wide (landscape), tall (portrait, like a phone video) or square? The home page shapes this project\'s card to match. If you skip it, the shape is detected from the clip once it loads.',
+      type: 'string',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Landscape (wide)', value: 'landscape' },
+          { title: 'Portrait (tall)', value: 'portrait' },
+          { title: 'Square', value: 'square' },
+        ],
+      },
+    }),
     defineField({ name: 'year', title: 'Year', type: 'string' }),
     defineField({
       name: 'duration',

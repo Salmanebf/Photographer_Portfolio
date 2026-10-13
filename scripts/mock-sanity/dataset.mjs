@@ -75,6 +75,8 @@ export const baseDocuments = () => [
     tags: ['mock'],
     image: image('image-craftsman'),
     gallery: [image('image-ice'), image('image-rivers')],
+    preview: 'https://example.com/mock-loop.mp4',
+    previewShape: 'landscape',
     order: 1,
   },
   {

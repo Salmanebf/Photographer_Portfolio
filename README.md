@@ -231,7 +231,7 @@ Reduced-motion / Data Saver / 2G visitors get the poster instead. Details, budge
 ### Data model
 
 `DocumentaryProject` (`src/features/films/types.ts`): `id, slug, title, subtitle, category (key), image, year, duration, location,
-shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], tags[], video?, preview?, featured?`.
+shortDescription, fullDescription, awards[], credits[{role,name}], gallery[], tags[], video?, preview?, previewShape? (landscape | portrait | square), featured?`.
 The Sanity `project` type mirrors it, plus `order`; its text fields are per-language. `PhotoSeries`
 (`src/features/photography/types.ts`): `id, slug, title, description?, location, year, cover, photos[{src, width?, height?,
 alt, caption?}], relatedProject? (a film slug), featured?`. `SiteSettings` (`src/shared/content/types.ts`) also carries
