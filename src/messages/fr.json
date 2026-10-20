@@ -1,0 +1,179 @@
+{
+  "common": {
+    "skipToContent": "Aller au contenu"
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "projects": "Projets",
+    "services": "Services",
+    "timeline": "Déroulé",
+    "testimonials": "Avis",
+    "contact": "Contact",
+    "startProject": "Lancer un projet",
+    "backToTop": "Retour en haut",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "primary": "Principale",
+    "mobilePrimary": "Principale (mobile)"
+  },
+  "language": {
+    "label": "Langue",
+    "switchTo": "Passer en {language}"
+  },
+  "hero": {
+    "aria": "Introduction",
+    "cta": "Proposer mon idée",
+    "viewProjects": "Voir mes projets"
+  },
+  "about": {
+    "label": "À propos",
+    "title": "L'histoire derrière l'objectif",
+    "years": "Ans",
+    "approach": "Approche et outils",
+    "imageAlt": "{name}, cinéaste documentariste",
+    "marqueeWords": [
+      "Documentaire",
+      "Vérité",
+      "Histoire",
+      "Réalité",
+      "Culture",
+      "Patrimoine"
+    ]
+  },
+  "films": {
+    "label": "Sélection",
+    "title": "Projets",
+    "description": "Chaque film est un voyage au cœur d'histoires vraies qui façonnent notre compréhension du monde.",
+    "all": "Tous",
+    "filterAria": "Filtrer les projets par catégorie",
+    "preview": "Aperçu",
+    "hoverHint": "Survolez un film pour voir l'aperçu",
+    "previewing": "Aperçu en cours",
+    "allFilms": "Tous les projets",
+    "synopsis": "Synopsis",
+    "gallery": "Galerie",
+    "awards": "Récompenses",
+    "awardCount": "{count, plural, one {# récompense} other {# récompenses}}",
+    "credits": "Générique",
+    "topics": "Thèmes",
+    "discuss": "Discuter de ce projet",
+    "galleryImageAlt": "{title} — image {n} de la galerie"
+  },
+  "categories": {
+    "cultural-heritage": "Patrimoine culturel",
+    "cultural-preservation": "Préservation culturelle",
+    "environmental": "Environnement",
+    "social-impact": "Impact social",
+    "other": "Autre"
+  },
+  "video": {
+    "play": "Lire la bande-annonce de {title}"
+  },
+  "services": {
+    "label": "Services",
+    "title": "Ce que je propose",
+    "description": "Une réalisation documentaire de bout en bout, de l'idée initiale à la diffusion mondiale et à l'impact."
+  },
+  "timeline": {
+    "label": "Déroulé",
+    "title": "De la première idée au montage final",
+    "description": "Chaque projet suit les mêmes étapes claires, pour que vous sachiez toujours ce qui vient ensuite.",
+    "more": "Voir le processus complet",
+    "back": "Retour à l'accueil",
+    "pageTitle": "Comment naît un projet",
+    "pageIntro": "Voici les étapes qui mènent d'une première conversation à un film terminé, prêt à être partagé.",
+    "step": "Étape {n}",
+    "stepsAria": "Étapes du projet",
+    "cta": "Racontez-moi votre histoire"
+  },
+  "testimonials": {
+    "label": "Clients",
+    "title": "Ce que disent les clients",
+    "itemAria": "Témoignage {n}",
+    "previous": "Témoignage précédent",
+    "next": "Témoignage suivant"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Racontons votre histoire",
+    "description": "Vous avez une histoire qui mérite d'être racontée ? J'aimerais l'entendre.",
+    "honeypot": "Site web (laisser vide)",
+    "name": "Nom",
+    "email": "E-mail",
+    "project": "Projet",
+    "message": "Message",
+    "namePlaceholder": "Votre nom",
+    "emailPlaceholder": "votre@email.com",
+    "projectPlaceholder": "Parlez-moi de votre idée de documentaire",
+    "messagePlaceholder": "Votre histoire, votre vision et votre calendrier...",
+    "send": "Envoyer le message",
+    "sending": "Envoi...",
+    "successTitle": "Message envoyé",
+    "successBody": "Merci de m'avoir écrit. Je vous répondrai sous 24 heures.",
+    "errorTitle": "Erreur",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer ou m'écrire directement.",
+    "available": "Disponible pour des projets",
+    "availableBody": "J'accepte actuellement des projets documentaires pour {year}. Créons ensemble quelque chose de significatif.",
+    "basedIn": "Localisation",
+    "emailLabel": "E-mail",
+    "response": "Réponse",
+    "studioHours": "Horaires du studio",
+    "errors": {
+      "name_required": "Le nom est requis",
+      "name_too_long": "Le nom est trop long",
+      "email_invalid": "Adresse e-mail invalide",
+      "email_too_long": "L'adresse e-mail est trop longue",
+      "subject_required": "Le projet est requis",
+      "subject_too_long": "L'intitulé du projet est trop long",
+      "message_too_short": "Le message doit contenir au moins 10 caractères",
+      "message_too_long": "Le message est trop long",
+      "invalid_input": "Données invalides",
+      "too_fast": "C'était très rapide — vérifiez votre message puis renvoyez-le.",
+      "too_many_links": "Veuillez inclure au maximum 3 liens dans votre message.",
+      "rate_limited": "Trop de demandes — veuillez réessayer dans une minute.",
+      "server_error": "Impossible de traiter votre message pour le moment"
+    }
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "rights": "© {year} {name}. Tous droits réservés.",
+    "backToTop": "Retour en haut"
+  },
+  "notFound": {
+    "eyebrow": "Erreur 404",
+    "title": "Introuvable",
+    "description": "La page que vous cherchez n'existe pas — ou a été déplacée.",
+    "back": "Retour à l'accueil"
+  },
+  "draft": {
+    "banner": "Mode aperçu — vous voyez des modifications non publiées",
+    "exit": "Quitter l'aperçu"
+  },
+  "admin": {
+    "title": "Espace propriétaire",
+    "signInTitle": "Connexion",
+    "signInIntro": "Cet espace est réservé au propriétaire du site.",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "wrongPassword": "Mot de passe incorrect.",
+    "tooManyAttempts": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "signOut": "Se déconnecter",
+    "messagesNav": "Messages",
+    "studioNav": "Modifier le contenu",
+    "messagesTitle": "Messages",
+    "messagesIntro": "Messages envoyés via le formulaire de contact, du plus récent au plus ancien.",
+    "unreadCount": "Non lus : {count}",
+    "empty": "Aucun message pour le moment.",
+    "markRead": "Marquer comme lu",
+    "markUnread": "Marquer comme non lu",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer définitivement ce message ?",
+    "reply": "Répondre par e-mail",
+    "newBadge": "Nouveau",
+    "language": "Langue",
+    "replyIn": "Répondre en {language}",
+    "showingLatest": "Affichage des {count} derniers messages.",
+    "extraAnswers": "Réponses supplémentaires"
+  }
+}

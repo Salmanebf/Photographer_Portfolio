@@ -1,58 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { contactStore } from '@/features/contact/store'
+import { contactSchema } from '@/features/contact/schema'
+import {
+  contactErrorMessages,
+  isContactErrorCode,
+  type ContactErrorCode,
+} from '@/features/contact/error-codes'
+import { checkRateLimit, getClientIp } from '@/features/contact/rate-limit'
+import { checkSpam } from '@/features/contact/spam'
+import { isAdminAuthorized } from '@/features/contact/admin-auth'
+import { submitContact } from '@/features/contact/service'
+import { contactHandlers } from '@/features/contact/handlers'
+
+/** Thin HTTP adapter — the contact logic lives in `src/features/contact`. */
+const fail = (code: ContactErrorCode, status: number, headers?: Record<string, string>) =>
+  NextResponse.json({ error: contactErrorMessages[code], code }, { status, headers })
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { name, email, subject, message } = body
-
-    // Validate required fields
-    if (!name || !email || !subject || !message) {
-      return NextResponse.json(
-        { error: 'All fields are required' },
-        { status: 400 }
-      )
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      )
-    }
-
-    // Save to database
-    const contactMessage = await db.contactMessage.create({
-      data: {
-        name,
-        email,
-        subject,
-        message,
-      },
+  const rate = await checkRateLimit(getClientIp(request.headers))
+  if (!rate.allowed) {
+    return fail('rate_limited', 429, {
+      'Retry-After': String(Math.ceil((rate.resetAt - Date.now()) / 1000)),
     })
+  }
 
-    return NextResponse.json(
-      { success: true, id: contactMessage.id },
-      { status: 201 }
-    )
+  let payload: unknown
+  try {
+    payload = await request.json()
+  } catch {
+    return fail('invalid_input', 400)
+  }
+
+  const parsed = contactSchema.safeParse(payload)
+  if (!parsed.success) {
+    const code = parsed.error.issues[0]?.message
+    return fail(isContactErrorCode(code) ? code : 'invalid_input', 400)
+  }
+
+  const spam = checkSpam(parsed.data)
+  if (!spam.ok) {
+    // A honeypot hit looks like a success (nothing saved); the others tell a real person what to fix
+    return spam.silent ? NextResponse.json({ success: true }, { status: 201 }) : fail(spam.code, 400)
+  }
+
+  try {
+    const { id } = await submitContact(parsed.data, contactHandlers)
+    return NextResponse.json({ success: true, id }, { status: 201 })
   } catch (error) {
     console.error('Contact form error:', error)
-    return NextResponse.json(
-      { error: 'Failed to process your message' },
-      { status: 500 }
-    )
+    return fail('server_error', 500)
   }
 }
 
-export async function GET() {
-  try {
-    const messages = await db.contactMessage.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    })
+/**
+ * Admin-only: list recent submissions.
+ *
+ * Set `CONTACT_ADMIN_TOKEN` in env, then send `Authorization: Bearer <token>`.
+ * Without a token configured, this endpoint is disabled.
+ */
+export async function GET(request: NextRequest) {
+  const adminToken = process.env.CONTACT_ADMIN_TOKEN
+  if (!adminToken) {
+    return NextResponse.json({ error: 'Disabled' }, { status: 404 })
+  }
+  if (!isAdminAuthorized(request.headers.get('authorization'), adminToken)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
+  try {
+    const messages = await contactStore().list(50)
     return NextResponse.json({ messages })
   } catch (error) {
     console.error('Fetch messages error:', error)

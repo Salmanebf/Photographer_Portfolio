@@ -1,38 +1,18 @@
-'use client'
+import { cookies, headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { localeCookie } from '@/i18n/config'
+import { negotiateLocale } from '@/i18n/negotiate'
 
-import { useState } from 'react'
-import Navigation from '@/components/navigation'
-import Hero from '@/components/hero'
-import About from '@/components/about'
-import Portfolio from '@/components/portfolio'
-import Services from '@/components/services'
-import Testimonials from '@/components/testimonials'
-import Contact from '@/components/contact'
-import Footer from '@/components/footer'
-import ProjectDetail from '@/components/project-detail'
-import ScrollProgress from '@/components/scroll-progress'
-import { DocumentaryProject } from '@/lib/data'
-
-export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<DocumentaryProject | null>(null)
-
-  return (
-    <div className="min-h-screen flex flex-col" suppressHydrationWarning={true}>
-      <ScrollProgress />
-      <Navigation />
-      <main className="flex-1">
-        <Hero />
-        <About />
-        <Portfolio onSelectProject={setSelectedProject} />
-        <Services />
-        <Testimonials />
-        <Contact />
-      </main>
-      <Footer />
-      <ProjectDetail
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
-    </div>
-  )
+/**
+ * `/` has no content of its own: it sends each visitor to their language —
+ * their saved choice, else their browser's preference, else English.
+ * Done here (not in middleware) so it behaves the same on every host.
+ */
+export default async function RootRedirect() {
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()])
+  const locale = negotiateLocale({
+    cookie: cookieStore.get(localeCookie)?.value,
+    acceptLanguage: headerStore.get('accept-language'),
+  })
+  redirect(`/${locale}`)
 }

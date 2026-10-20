@@ -1,0 +1,151 @@
+'use client'
+
+import { ArrowUp } from 'lucide-react'
+import Image from 'next/image'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
+import type { SiteSettings } from '@/shared/content/types'
+
+const navLinks = [
+  { key: 'home', href: '#home' },
+  { key: 'about', href: '#about' },
+  { key: 'projects', href: '#portfolio' },
+  { key: 'services', href: '#services' },
+  { key: 'timeline', href: '#timeline' },
+  { key: 'contact', href: '#contact' },
+] as const
+
+interface FooterProps {
+  settings: SiteSettings
+}
+
+export default function Footer({ settings }: FooterProps) {
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  const router = useRouter()
+  const t = useTranslations('footer')
+  const tNav = useTranslations('nav')
+  const scrollTo = (href: string) => {
+    const el = document.getElementById(href.slice(1))
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    else router.push(`/${href}`) // not on the home page (e.g. a film page)
+  }
+
+  const socials = settings.contact.socials
+  const hasSocials = Object.values(socials).some(Boolean)
+
+  return (
+    <footer className="border-t border-border/40 mt-20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <div className="py-14 grid grid-cols-1 sm:grid-cols-2 gap-10">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 flex items-center justify-center border border-gold/30 relative overflow-hidden">
+                {settings.brand.logoImage ? (
+                  <Image
+                    src={settings.brand.logoImage}
+                    alt={settings.brand.name}
+                    fill
+                    sizes="32px"
+                    className="object-contain p-1"
+                  />
+                ) : (
+                  <span className="text-gold font-bold text-xs tracking-widest">
+                    {settings.brand.logoMark}
+                  </span>
+                )}
+              </div>
+              <div className="leading-none">
+                <div className="text-foreground text-[11px] font-semibold tracking-[0.25em] uppercase">
+                  {settings.brand.name}
+                </div>
+                <div className="text-gold text-[9px] tracking-[0.4em] uppercase mt-0.5">
+                  {settings.brand.discipline}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-[240px]">
+              {settings.footer.tagline}
+            </p>
+
+            {hasSocials && (
+              <div className="flex items-center gap-4 mt-5">
+                {socials.instagram && (
+                  <a
+                    href={socials.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors"
+                  >
+                    Instagram
+                  </a>
+                )}
+                {socials.vimeo && (
+                  <a
+                    href={socials.vimeo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors"
+                  >
+                    Vimeo
+                  </a>
+                )}
+                {socials.letterboxd && (
+                  <a
+                    href={socials.letterboxd}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors"
+                  >
+                    Letterboxd
+                  </a>
+                )}
+                {socials.twitter && (
+                  <a
+                    href={socials.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors"
+                  >
+                    Twitter
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-[9px] uppercase tracking-[0.4em] text-gold font-medium mb-5">
+              {t('navigation')}
+            </h3>
+            <ul className="space-y-2.5">
+              {navLinks.map((link) => (
+                <li key={link.key}>
+                  <button
+                    onClick={() => scrollTo(link.href)}
+                    className="text-xs text-muted-foreground hover:text-foreground hover-underline transition-colors duration-200"
+                  >
+                    {tNav(link.key)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+
+        <div className="py-5 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-[10px] text-muted-foreground tracking-wide">
+            {t('rights', { year: new Date().getFullYear(), name: settings.brand.name })}
+          </p>
+          <button
+            onClick={scrollToTop}
+            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-gold transition-colors group"
+          >
+            {t('backToTop')}
+            <ArrowUp size={12} className="group-hover:-translate-y-0.5 transition-transform" />
+          </button>
+        </div>
+      </div>
+    </footer>
+  )
+}

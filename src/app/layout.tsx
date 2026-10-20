@@ -1,41 +1,8 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Alex Rivera | Documentary Filmmaker",
-  description: "Award-winning documentary filmmaker telling stories that matter. Cultural heritage, environmental, and social impact documentaries.",
-  keywords: ["documentary", "filmmaker", "cinematographer", "cultural heritage", "environmental documentary", "social impact"],
-  authors: [{ name: "Alex Rivera" }],
-  icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
-  },
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
-      >
-        {children}
-        <Toaster />
-      </body>
-    </html>
-  );
+/**
+ * Pass-through root layout. The `<html>` element lives in the layouts below it
+ * (`[locale]/layout.tsx` for the site, `studio/.../layout.tsx` for the CMS) so
+ * each can set its own language and direction.
+ */
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return children
 }

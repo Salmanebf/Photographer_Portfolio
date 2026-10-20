@@ -1,0 +1,179 @@
+{
+  "common": {
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "services": "Services",
+    "timeline": "Timeline",
+    "testimonials": "Reviews",
+    "contact": "Contact",
+    "startProject": "Start a Project",
+    "backToTop": "Back to top",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "primary": "Primary",
+    "mobilePrimary": "Mobile primary"
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": "Switch language to {language}"
+  },
+  "hero": {
+    "aria": "Introduction",
+    "cta": "Add your idea",
+    "viewProjects": "See my projects"
+  },
+  "about": {
+    "label": "About",
+    "title": "The Story Behind the Lens",
+    "years": "Years",
+    "approach": "Approach & Tools",
+    "imageAlt": "{name}, documentary filmmaker",
+    "marqueeWords": [
+      "Documentary",
+      "Truth",
+      "Story",
+      "Reality",
+      "Culture",
+      "Heritage"
+    ]
+  },
+  "films": {
+    "label": "Selected Work",
+    "title": "Projects",
+    "description": "Each film is a journey into real stories that shape our understanding of the world.",
+    "all": "All",
+    "filterAria": "Filter projects by category",
+    "preview": "Preview",
+    "hoverHint": "Hover any film to preview",
+    "previewing": "Previewing",
+    "allFilms": "All Projects",
+    "synopsis": "Synopsis",
+    "gallery": "Gallery",
+    "awards": "Awards",
+    "awardCount": "{count, plural, one {# Award} other {# Awards}}",
+    "credits": "Credits",
+    "topics": "Topics",
+    "discuss": "Discuss This Project",
+    "galleryImageAlt": "{title} — gallery image {n}"
+  },
+  "categories": {
+    "cultural-heritage": "Cultural Heritage",
+    "cultural-preservation": "Cultural Preservation",
+    "environmental": "Environmental",
+    "social-impact": "Social Impact",
+    "other": "Other"
+  },
+  "video": {
+    "play": "Play {title} trailer"
+  },
+  "services": {
+    "label": "Services",
+    "title": "What I Offer",
+    "description": "End-to-end documentary filmmaking, from initial concept to global distribution and impact."
+  },
+  "timeline": {
+    "label": "Timeline",
+    "title": "From First Idea to Final Cut",
+    "description": "Every project moves through the same clear steps, so you always know what happens next.",
+    "more": "See the full process",
+    "back": "Back to home",
+    "pageTitle": "How a project comes together",
+    "pageIntro": "The steps below are how a film goes from a first conversation to a finished piece you can share.",
+    "step": "Step {n}",
+    "stepsAria": "Project steps",
+    "cta": "Tell me your story"
+  },
+  "testimonials": {
+    "label": "Clients",
+    "title": "What Clients Say",
+    "itemAria": "Testimonial {n}",
+    "previous": "Previous testimonial",
+    "next": "Next testimonial"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Let's Tell Your Story",
+    "description": "Have a story that needs to be told? I'd love to hear about it.",
+    "honeypot": "Website (leave empty)",
+    "name": "Name",
+    "email": "Email",
+    "project": "Project",
+    "message": "Message",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "your@email.com",
+    "projectPlaceholder": "Tell me about your documentary idea",
+    "messagePlaceholder": "Your story, vision, and timeline...",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "successTitle": "Message sent",
+    "successBody": "Thank you for reaching out. I'll respond within 24 hours.",
+    "errorTitle": "Error",
+    "errorGeneric": "Something went wrong. Please try again or email me directly.",
+    "available": "Available for Projects",
+    "availableBody": "Currently accepting documentary projects for {year}. Let's create something meaningful together.",
+    "basedIn": "Based In",
+    "emailLabel": "Email",
+    "response": "Response",
+    "studioHours": "Studio Hours",
+    "errors": {
+      "name_required": "Name is required",
+      "name_too_long": "Name is too long",
+      "email_invalid": "Invalid email address",
+      "email_too_long": "Email is too long",
+      "subject_required": "Project is required",
+      "subject_too_long": "Project title is too long",
+      "message_too_short": "Message must be at least 10 characters",
+      "message_too_long": "Message is too long",
+      "invalid_input": "Invalid input",
+      "too_fast": "That was very quick — please check your message and send it again.",
+      "too_many_links": "Please include no more than 3 links in your message.",
+      "rate_limited": "Too many requests — please try again in a minute.",
+      "server_error": "Failed to process your message"
+    }
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "rights": "© {year} {name}. All rights reserved.",
+    "backToTop": "Back to top"
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "title": "Not Found",
+    "description": "The page you're looking for doesn't exist — or has been moved.",
+    "back": "Back to home"
+  },
+  "draft": {
+    "banner": "Preview mode — you are seeing unpublished changes",
+    "exit": "Exit preview"
+  },
+  "admin": {
+    "title": "Owner area",
+    "signInTitle": "Sign in",
+    "signInIntro": "This area is for the site owner.",
+    "password": "Password",
+    "signIn": "Sign in",
+    "wrongPassword": "Wrong password.",
+    "tooManyAttempts": "Too many attempts. Try again in a few minutes.",
+    "signOut": "Sign out",
+    "messagesNav": "Messages",
+    "studioNav": "Edit content",
+    "messagesTitle": "Messages",
+    "messagesIntro": "Messages sent through the contact form, newest first.",
+    "unreadCount": "Unread: {count}",
+    "empty": "No messages yet.",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this message for good?",
+    "reply": "Reply by email",
+    "newBadge": "New",
+    "language": "Language",
+    "replyIn": "Reply in {language}",
+    "showingLatest": "Showing the latest {count} messages.",
+    "extraAnswers": "Extra answers"
+  }
+}
